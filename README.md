@@ -42,7 +42,7 @@ We will talk more about this in the following sections.
 
 **The execution environment**
 
-I am inspired with the [PyGCL repo](https://github.com/PyGCL/PyGCL) and my [CIKM23-HIEST repo](https://github.com/VAN-QIAN/CIKM23-HIEST).
+I am inspired with the [PyGCL repo](https://github.com/PyGCL/PyGCL).
 
 [PyGCL Examples]([PyGCL/examples at main · PyGCL/PyGCL (github.com)](https://github.com/PyGCL/PyGCL/tree/main/examples)) may not contains all our target models, so the singularity image I prepared for it may not suitable for those excluded models.
 
