@@ -1,0 +1,78 @@
+{
+  "learning_rate": {
+    "type": "choice",
+    "list": [0.01, 0.001, 0.0001, 0.00001]
+  },
+  "drop_edge_rate": {
+    "type": "choice",
+    "list": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+  },
+  "drop_feature_rate": {
+    "type": "choice",
+    "list": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+  },
+  "nhid": {
+    "type": "choice",
+    "list": [128, 256, 512]
+  },
+  "pnhid": {
+    "type": "choice",
+    "list": [128, 256, 512]
+  },
+  "num_epochs": {
+    "type": "choice",
+    "list": [10000]
+  },
+  "drop_edge_rate1": {
+    "type": "choice",
+    "list": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+  },
+  "drop_edge_rate2": {
+    "type": "choice",
+    "list": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+  },
+  "drop_feature_rate1": {
+    "type": "choice",
+    "list": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+  },
+  "drop_feature_rate2": {
+    "type": "choice",
+    "list": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+  },
+  "loss_weight_12": {
+    "type": "choice",
+    "list": [5, 10, 20, 50, 100]
+  },
+  "NN": {
+    "type": "choice",
+    "list": [1, 3, 4, 5, 10]
+  },
+  "margin1": {
+    "type": "choice",
+    "list": [0.4, 0.5, 0.8, 0.9]
+  },
+  "margin2": {
+    "type": "choice",
+    "list": [0.1, 0.2, 0.4, 0.5, 0.6, 0.9]
+  },
+  "der": {
+    "type": "choice",
+    "list": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+  },
+  "dfr": {
+    "type": "choice",
+    "list": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+  },
+  "k": {
+    "type": "choice",
+    "list": [1, 2]
+  },
+  "temp": {
+    "type": "choice",
+    "list": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+  },
+  "tau": {
+    "type": "choice",
+    "list": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+  }
+}

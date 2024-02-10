@@ -1,0 +1,5 @@
+{
+    "nhid":512,
+    "layers":2,
+    "dropout":  0.2
+}

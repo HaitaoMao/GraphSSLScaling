@@ -1,0 +1,12 @@
+{
+    "nhid":512,
+    "layers":2,
+    "lambd":1e-3,
+    "dfr":0.2,
+    "der":0.2,
+    "nclusters":5,
+    "niter":20,
+    "sigma":1e-3,
+    "alpha":1,
+    "tau":0.5
+}

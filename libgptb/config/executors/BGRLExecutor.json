@@ -1,0 +1,15 @@
+{
+    "gpu": true,
+    "gpu_id": 0,
+    "max_epoch": 10000,
+    "train_loss": "none",
+    "epoch": 0,
+    "learner": "adam",
+    "learning_rate": 0.01,
+    "lr_decay": false,
+    "log_level": "INFO",
+    "log_every": 1,
+    "saved_model": true,
+    "load_best_epoch": false,
+    "hyper_tune": false
+  }

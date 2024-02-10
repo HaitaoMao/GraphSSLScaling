@@ -1,0 +1,21 @@
+{
+  "learning_rate": 1e-5,
+  "drop_edge_rate": 0.1,
+  "drop_feature_rate": 0.0,
+  "nhid": 256,
+  "pnhid": 256,
+  "num_epochs": 10000,
+  "drop_edge_rate1": 0.6,
+  "drop_edge_rate2": 0.9,
+  "drop_feature_rate1": 0.7,
+  "drop_feature_rate2": 0.7,
+  "loss_weight_12": 20,
+  "NN": 3,
+  "margin1": 0.4,
+  "margin2": 0.6,
+  "der": 0.5,
+  "dfr": 0.0,
+  "k": 1,
+  "temp": 0.9,
+  "tau": 0.3
+}
