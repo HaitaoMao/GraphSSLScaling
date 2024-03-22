@@ -9,3 +9,4 @@ __pycache__/
 /libgptb/log/*
 /libgptb/model/*/__pycache__
 /libgptb/data/dataset/*/__pycache__
+/libgptb/__pycache__/
