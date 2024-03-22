@@ -83,7 +83,7 @@ class GINExecutor(AbstractExecutor):
             print({'Train loss': train_loss, 'Validation': valid_perf})
             # print({'Train loss': train_loss, 'Validation': valid_perf, 'Test': test_perf})
 
-            #train_curve.append(train_loss[dataset.eval_metric])
+            # train_curve.append(train_loss[dataset.eval_metric])
             valid_curve.append(valid_perf[self.data_feature.get('eval_metric')])
             # test_curve.append(test_perf[dataset.eval_metric])
             val_loss_curve.append(val_loss)
@@ -115,19 +115,15 @@ class GINExecutor(AbstractExecutor):
         Args:
             test_dataloader(torch.Dataloader): Dataloader
         """
-        train_curve = []
+        test_curve = []
         test_loss_curve = []
         for epoch in range(1, self.epochs + 1):
             print("=====Epoch {}".format(epoch))
             print('Beginning evaluate...')
-            train_perf = _eval_epoch(model, device, train_loader, evaluator)
-            test_perf, test_loss = eval(self.model, self.device, test_dataloader, self.evaluator, self.task_type)
-            train_curve.append(train_loss[dataset.eval_metric])
-            test_curve.append(test_perf[dataset.eval_metric])
+            test_perf, test_loss = _eval_epoch(self.model, self.device, test_dataloader, self.evaluator, self.task_type)
+            test_curve.append(test_perf[self.data_feature.get('eval_metric')])
             test_loss_curve.append(test_loss)
-            wandb.log({"train loss":train_loss,"val acc": valid_perf, "val loss": val_loss, "test acc": test_perf, "test loss":test_loss})
-
-        raise NotImplementedError("Executor evaluate not implemented")
+            # wandb.log({"train loss":train_loss,"val acc": valid_perf, "val loss": val_loss, "test acc": test_perf, "test loss":test_loss})
 def _train_epoch(model, device, loader, optimizer, task_type):
     model.train()
     loss_accum = 0

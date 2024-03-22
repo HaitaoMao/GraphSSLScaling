@@ -10,3 +10,4 @@ __pycache__/
 /libgptb/model/*/__pycache__
 /libgptb/data/dataset/*/__pycache__
 /libgptb/__pycache__/
+/dataset/ogbg_molhiv
