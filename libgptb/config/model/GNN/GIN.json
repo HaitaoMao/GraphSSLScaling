@@ -1,0 +1,6 @@
+{
+    "feature": "simple",
+    "num_layer": 5,
+    "emb_dim": 384
+
+}

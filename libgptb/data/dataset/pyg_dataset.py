@@ -29,6 +29,7 @@ class PyGDataset(AbstractDataset):
         self.dataset = pyg(path, name=self.datasetName, transform=T.NormalizeFeatures())
         self.data = self.dataset[0].to(device)
         
+        
     
     def get_data(self):
         return self.data

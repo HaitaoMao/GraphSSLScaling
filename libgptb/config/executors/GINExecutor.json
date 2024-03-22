@@ -1,0 +1,13 @@
+{
+    "gpu": true,
+    "gpu_id": 3,
+    "max_epoch": 100,
+    "train_loss": "none",
+    "epoch": 0,
+    "learner": "adam",
+    "learning_rate": 0.001,
+    "drop_ratio":0,
+    "batch_size":128,
+    "num_workers":10,
+    "training_ratio":0.2
+}

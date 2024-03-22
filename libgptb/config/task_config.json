@@ -52,5 +52,14 @@
             "executor": "HomoGCLExecutor",
             "evaluator": "HomoGCLEvaluator"
         }
+    },
+    "GNN":{
+        "allowed_model":["GIN"],
+        "allowed_dataset":["ogbg-molhiv"],
+        "GIN": {
+            "dataset_class": "GINDataset",
+            "executor": "GINExecutor",
+            "evaluator": "GINEvaluator"
+        }
     }
 }

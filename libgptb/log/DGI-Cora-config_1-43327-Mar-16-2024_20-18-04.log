@@ -1,0 +1,1646 @@
+2024-03-16 20:18:04,168 - INFO - Log directory: ./libgptb/log
+2024-03-16 20:18:04,168 - INFO - Begin pipeline, config_file=random_config/config_1, model_name=DGI, dataset_name=Cora, exp_id=43327
+2024-03-16 20:18:04,168 - INFO - {'task': 'GCL', 'model': 'DGI', 'dataset': 'Cora', 'saved_model': False, 'train': True, 'seed': 0, 'config_file': 'config_1', 'learning_rate': 0.01, 'drop_edge_rate': 0.1, 'drop_feature_rate': 0.2, 'nhid': 128, 'pnhid': 128, 'num_epochs': 10000, 'drop_edge_rate1': 0.9, 'drop_edge_rate2': 0.7, 'drop_feature_rate1': 0.4, 'drop_feature_rate2': 0.6, 'loss_weight_12': 100, 'NN': 10, 'margin1': 0.5, 'margin2': 0.4, 'der': 0.8, 'dfr': 0.2, 'k': 2, 'temp': 0.9, 'tau': 0.4, 'dataset_class': 'PyGDataset', 'executor': 'DGIExecutor', 'evaluator': 'DGIEvaluator', 'layers': 3, 'gpu': True, 'gpu_id': 5, 'max_epoch': 10000, 'train_loss': 'none', 'epoch': 0, 'learner': 'adam', 'lr_decay': False, 'log_level': 'INFO', 'log_every': 1, 'load_best_epoch': False, 'hyper_tune': False, 'device': device(type='cuda', index=5), 'exp_id': 43327}
+2024-03-16 20:18:08,441 - INFO - Loading faiss with AVX2 support.
+2024-03-16 20:18:08,479 - INFO - Successfully loaded faiss with AVX2 support.
+2024-03-16 20:18:10,194 - INFO - DGI(
+  (gconv): GConv(
+    (layers): ModuleList(
+      (0): GCNConv(1433, 128)
+      (1): GCNConv(128, 128)
+      (2): GCNConv(128, 128)
+    )
+    (activations): ModuleList(
+      (0): PReLU(num_parameters=128)
+      (1): PReLU(num_parameters=128)
+      (2): PReLU(num_parameters=128)
+    )
+  )
+  (encoder_model): Encoder(
+    (encoder): GConv(
+      (layers): ModuleList(
+        (0): GCNConv(1433, 128)
+        (1): GCNConv(128, 128)
+        (2): GCNConv(128, 128)
+      )
+      (activations): ModuleList(
+        (0): PReLU(num_parameters=128)
+        (1): PReLU(num_parameters=128)
+        (2): PReLU(num_parameters=128)
+      )
+    )
+    (project): Linear(in_features=128, out_features=128, bias=True)
+  )
+  (contrast_model): SingleBranchContrast()
+)
+2024-03-16 20:18:10,194 - INFO - gconv.layers.0.bias	torch.Size([128])	cuda:5	True
+2024-03-16 20:18:10,194 - INFO - gconv.layers.0.lin.weight	torch.Size([128, 1433])	cuda:5	True
+2024-03-16 20:18:10,194 - INFO - gconv.layers.1.bias	torch.Size([128])	cuda:5	True
+2024-03-16 20:18:10,195 - INFO - gconv.layers.1.lin.weight	torch.Size([128, 128])	cuda:5	True
+2024-03-16 20:18:10,195 - INFO - gconv.layers.2.bias	torch.Size([128])	cuda:5	True
+2024-03-16 20:18:10,195 - INFO - gconv.layers.2.lin.weight	torch.Size([128, 128])	cuda:5	True
+2024-03-16 20:18:10,195 - INFO - gconv.activations.0.weight	torch.Size([128])	cuda:5	True
+2024-03-16 20:18:10,195 - INFO - gconv.activations.1.weight	torch.Size([128])	cuda:5	True
+2024-03-16 20:18:10,195 - INFO - gconv.activations.2.weight	torch.Size([128])	cuda:5	True
+2024-03-16 20:18:10,195 - INFO - encoder_model.project.weight	torch.Size([128, 128])	cuda:5	True
+2024-03-16 20:18:10,195 - INFO - encoder_model.project.bias	torch.Size([128])	cuda:5	True
+2024-03-16 20:18:10,195 - INFO - Total parameter numbers: 233472
+2024-03-16 20:18:10,195 - INFO - You select `adam` optimizer.
+2024-03-16 20:18:10,195 - INFO - Start training ...
+2024-03-16 20:18:10,195 - INFO - num_batches:6
+2024-03-16 20:18:12,403 - INFO - epoch complete!
+2024-03-16 20:18:12,403 - INFO - evaluating now!
+2024-03-16 20:18:12,403 - INFO - Epoch [0/10000] train_loss: -0.0001, lr: 0.010000, 2.21s
+2024-03-16 20:18:12,410 - INFO - epoch complete!
+2024-03-16 20:18:12,410 - INFO - evaluating now!
+2024-03-16 20:18:12,410 - INFO - Epoch [1/10000] train_loss: 0.0878, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,417 - INFO - epoch complete!
+2024-03-16 20:18:12,417 - INFO - evaluating now!
+2024-03-16 20:18:12,417 - INFO - Epoch [2/10000] train_loss: 0.2206, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,423 - INFO - epoch complete!
+2024-03-16 20:18:12,423 - INFO - evaluating now!
+2024-03-16 20:18:12,423 - INFO - Epoch [3/10000] train_loss: 0.0009, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,430 - INFO - epoch complete!
+2024-03-16 20:18:12,431 - INFO - evaluating now!
+2024-03-16 20:18:12,431 - INFO - Epoch [4/10000] train_loss: 0.0518, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,438 - INFO - epoch complete!
+2024-03-16 20:18:12,438 - INFO - evaluating now!
+2024-03-16 20:18:12,438 - INFO - Epoch [5/10000] train_loss: 0.0396, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,445 - INFO - epoch complete!
+2024-03-16 20:18:12,445 - INFO - evaluating now!
+2024-03-16 20:18:12,445 - INFO - Epoch [6/10000] train_loss: 0.0009, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,452 - INFO - epoch complete!
+2024-03-16 20:18:12,452 - INFO - evaluating now!
+2024-03-16 20:18:12,452 - INFO - Epoch [7/10000] train_loss: 0.0154, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,459 - INFO - epoch complete!
+2024-03-16 20:18:12,459 - INFO - evaluating now!
+2024-03-16 20:18:12,459 - INFO - Epoch [8/10000] train_loss: 0.0040, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,465 - INFO - epoch complete!
+2024-03-16 20:18:12,465 - INFO - evaluating now!
+2024-03-16 20:18:12,465 - INFO - Epoch [9/10000] train_loss: -0.0017, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,472 - INFO - epoch complete!
+2024-03-16 20:18:12,472 - INFO - evaluating now!
+2024-03-16 20:18:12,472 - INFO - Epoch [10/10000] train_loss: 0.0022, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,480 - INFO - epoch complete!
+2024-03-16 20:18:12,480 - INFO - evaluating now!
+2024-03-16 20:18:12,480 - INFO - Epoch [11/10000] train_loss: -0.0049, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,487 - INFO - epoch complete!
+2024-03-16 20:18:12,488 - INFO - evaluating now!
+2024-03-16 20:18:12,488 - INFO - Epoch [12/10000] train_loss: 0.0041, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,495 - INFO - epoch complete!
+2024-03-16 20:18:12,495 - INFO - evaluating now!
+2024-03-16 20:18:12,495 - INFO - Epoch [13/10000] train_loss: -0.0091, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,503 - INFO - epoch complete!
+2024-03-16 20:18:12,503 - INFO - evaluating now!
+2024-03-16 20:18:12,503 - INFO - Epoch [14/10000] train_loss: -0.0100, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,509 - INFO - epoch complete!
+2024-03-16 20:18:12,510 - INFO - evaluating now!
+2024-03-16 20:18:12,510 - INFO - Epoch [15/10000] train_loss: -0.0182, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,517 - INFO - epoch complete!
+2024-03-16 20:18:12,517 - INFO - evaluating now!
+2024-03-16 20:18:12,517 - INFO - Epoch [16/10000] train_loss: -0.0421, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,525 - INFO - epoch complete!
+2024-03-16 20:18:12,525 - INFO - evaluating now!
+2024-03-16 20:18:12,525 - INFO - Epoch [17/10000] train_loss: -0.0656, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,532 - INFO - epoch complete!
+2024-03-16 20:18:12,533 - INFO - evaluating now!
+2024-03-16 20:18:12,533 - INFO - Epoch [18/10000] train_loss: -0.0589, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,540 - INFO - epoch complete!
+2024-03-16 20:18:12,540 - INFO - evaluating now!
+2024-03-16 20:18:12,540 - INFO - Epoch [19/10000] train_loss: 0.3191, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,548 - INFO - epoch complete!
+2024-03-16 20:18:12,548 - INFO - evaluating now!
+2024-03-16 20:18:12,548 - INFO - Epoch [20/10000] train_loss: -0.1134, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,555 - INFO - epoch complete!
+2024-03-16 20:18:12,556 - INFO - evaluating now!
+2024-03-16 20:18:12,556 - INFO - Epoch [21/10000] train_loss: 0.4698, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,563 - INFO - epoch complete!
+2024-03-16 20:18:12,563 - INFO - evaluating now!
+2024-03-16 20:18:12,563 - INFO - Epoch [22/10000] train_loss: -0.0856, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,571 - INFO - epoch complete!
+2024-03-16 20:18:12,571 - INFO - evaluating now!
+2024-03-16 20:18:12,571 - INFO - Epoch [23/10000] train_loss: -0.0154, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,578 - INFO - epoch complete!
+2024-03-16 20:18:12,578 - INFO - evaluating now!
+2024-03-16 20:18:12,578 - INFO - Epoch [24/10000] train_loss: 0.0130, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,585 - INFO - epoch complete!
+2024-03-16 20:18:12,585 - INFO - evaluating now!
+2024-03-16 20:18:12,586 - INFO - Epoch [25/10000] train_loss: 0.0030, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,593 - INFO - epoch complete!
+2024-03-16 20:18:12,593 - INFO - evaluating now!
+2024-03-16 20:18:12,593 - INFO - Epoch [26/10000] train_loss: -0.0063, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,601 - INFO - epoch complete!
+2024-03-16 20:18:12,601 - INFO - evaluating now!
+2024-03-16 20:18:12,601 - INFO - Epoch [27/10000] train_loss: 0.0140, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,608 - INFO - epoch complete!
+2024-03-16 20:18:12,609 - INFO - evaluating now!
+2024-03-16 20:18:12,609 - INFO - Epoch [28/10000] train_loss: 0.0135, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,616 - INFO - epoch complete!
+2024-03-16 20:18:12,616 - INFO - evaluating now!
+2024-03-16 20:18:12,616 - INFO - Epoch [29/10000] train_loss: -0.0027, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,624 - INFO - epoch complete!
+2024-03-16 20:18:12,624 - INFO - evaluating now!
+2024-03-16 20:18:12,624 - INFO - Epoch [30/10000] train_loss: -0.0023, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,631 - INFO - epoch complete!
+2024-03-16 20:18:12,632 - INFO - evaluating now!
+2024-03-16 20:18:12,632 - INFO - Epoch [31/10000] train_loss: 0.0056, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,639 - INFO - epoch complete!
+2024-03-16 20:18:12,639 - INFO - evaluating now!
+2024-03-16 20:18:12,639 - INFO - Epoch [32/10000] train_loss: 0.0034, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,646 - INFO - epoch complete!
+2024-03-16 20:18:12,647 - INFO - evaluating now!
+2024-03-16 20:18:12,647 - INFO - Epoch [33/10000] train_loss: -0.0035, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,653 - INFO - epoch complete!
+2024-03-16 20:18:12,654 - INFO - evaluating now!
+2024-03-16 20:18:12,654 - INFO - Epoch [34/10000] train_loss: -0.0020, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,661 - INFO - epoch complete!
+2024-03-16 20:18:12,661 - INFO - evaluating now!
+2024-03-16 20:18:12,661 - INFO - Epoch [35/10000] train_loss: 0.0029, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,668 - INFO - epoch complete!
+2024-03-16 20:18:12,669 - INFO - evaluating now!
+2024-03-16 20:18:12,669 - INFO - Epoch [36/10000] train_loss: 0.0000, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,676 - INFO - epoch complete!
+2024-03-16 20:18:12,676 - INFO - evaluating now!
+2024-03-16 20:18:12,676 - INFO - Epoch [37/10000] train_loss: -0.0054, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,683 - INFO - epoch complete!
+2024-03-16 20:18:12,684 - INFO - evaluating now!
+2024-03-16 20:18:12,684 - INFO - Epoch [38/10000] train_loss: -0.0051, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,691 - INFO - epoch complete!
+2024-03-16 20:18:12,691 - INFO - evaluating now!
+2024-03-16 20:18:12,691 - INFO - Epoch [39/10000] train_loss: -0.0039, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,699 - INFO - epoch complete!
+2024-03-16 20:18:12,699 - INFO - evaluating now!
+2024-03-16 20:18:12,699 - INFO - Epoch [40/10000] train_loss: -0.0077, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,706 - INFO - epoch complete!
+2024-03-16 20:18:12,706 - INFO - evaluating now!
+2024-03-16 20:18:12,706 - INFO - Epoch [41/10000] train_loss: -0.0113, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,713 - INFO - epoch complete!
+2024-03-16 20:18:12,713 - INFO - evaluating now!
+2024-03-16 20:18:12,713 - INFO - Epoch [42/10000] train_loss: -0.0116, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,721 - INFO - epoch complete!
+2024-03-16 20:18:12,721 - INFO - evaluating now!
+2024-03-16 20:18:12,721 - INFO - Epoch [43/10000] train_loss: -0.0163, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,728 - INFO - epoch complete!
+2024-03-16 20:18:12,729 - INFO - evaluating now!
+2024-03-16 20:18:12,729 - INFO - Epoch [44/10000] train_loss: -0.0227, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,736 - INFO - epoch complete!
+2024-03-16 20:18:12,736 - INFO - evaluating now!
+2024-03-16 20:18:12,736 - INFO - Epoch [45/10000] train_loss: -0.0271, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,744 - INFO - epoch complete!
+2024-03-16 20:18:12,744 - INFO - evaluating now!
+2024-03-16 20:18:12,744 - INFO - Epoch [46/10000] train_loss: -0.0370, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,751 - INFO - epoch complete!
+2024-03-16 20:18:12,751 - INFO - evaluating now!
+2024-03-16 20:18:12,751 - INFO - Epoch [47/10000] train_loss: -0.0472, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,759 - INFO - epoch complete!
+2024-03-16 20:18:12,759 - INFO - evaluating now!
+2024-03-16 20:18:12,759 - INFO - Epoch [48/10000] train_loss: -0.0677, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,766 - INFO - epoch complete!
+2024-03-16 20:18:12,766 - INFO - evaluating now!
+2024-03-16 20:18:12,766 - INFO - Epoch [49/10000] train_loss: -0.0936, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,773 - INFO - Saved model at 49
+2024-03-16 20:18:12,773 - INFO - saving to ./libgptb/cache/43327/model_cache/DGI_Cora_epoch49.tar
+2024-03-16 20:18:12,780 - INFO - epoch complete!
+2024-03-16 20:18:12,780 - INFO - evaluating now!
+2024-03-16 20:18:12,780 - INFO - Epoch [50/10000] train_loss: -0.1286, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,788 - INFO - epoch complete!
+2024-03-16 20:18:12,788 - INFO - evaluating now!
+2024-03-16 20:18:12,788 - INFO - Epoch [51/10000] train_loss: -0.0789, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,795 - INFO - epoch complete!
+2024-03-16 20:18:12,795 - INFO - evaluating now!
+2024-03-16 20:18:12,795 - INFO - Epoch [52/10000] train_loss: 0.6268, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,802 - INFO - epoch complete!
+2024-03-16 20:18:12,802 - INFO - evaluating now!
+2024-03-16 20:18:12,802 - INFO - Epoch [53/10000] train_loss: -0.1999, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,809 - INFO - epoch complete!
+2024-03-16 20:18:12,809 - INFO - evaluating now!
+2024-03-16 20:18:12,809 - INFO - Epoch [54/10000] train_loss: 0.1588, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,817 - INFO - epoch complete!
+2024-03-16 20:18:12,817 - INFO - evaluating now!
+2024-03-16 20:18:12,817 - INFO - Epoch [55/10000] train_loss: -0.2240, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,824 - INFO - epoch complete!
+2024-03-16 20:18:12,825 - INFO - evaluating now!
+2024-03-16 20:18:12,825 - INFO - Epoch [56/10000] train_loss: -0.0407, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,832 - INFO - epoch complete!
+2024-03-16 20:18:12,833 - INFO - evaluating now!
+2024-03-16 20:18:12,833 - INFO - Epoch [57/10000] train_loss: -0.0256, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,840 - INFO - epoch complete!
+2024-03-16 20:18:12,840 - INFO - evaluating now!
+2024-03-16 20:18:12,840 - INFO - Epoch [58/10000] train_loss: -0.1613, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,848 - INFO - epoch complete!
+2024-03-16 20:18:12,848 - INFO - evaluating now!
+2024-03-16 20:18:12,848 - INFO - Epoch [59/10000] train_loss: -0.2083, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,855 - INFO - epoch complete!
+2024-03-16 20:18:12,856 - INFO - evaluating now!
+2024-03-16 20:18:12,856 - INFO - Epoch [60/10000] train_loss: -0.1511, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,863 - INFO - epoch complete!
+2024-03-16 20:18:12,864 - INFO - evaluating now!
+2024-03-16 20:18:12,864 - INFO - Epoch [61/10000] train_loss: -0.1772, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,871 - INFO - epoch complete!
+2024-03-16 20:18:12,871 - INFO - evaluating now!
+2024-03-16 20:18:12,871 - INFO - Epoch [62/10000] train_loss: -0.2941, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,879 - INFO - epoch complete!
+2024-03-16 20:18:12,879 - INFO - evaluating now!
+2024-03-16 20:18:12,879 - INFO - Epoch [63/10000] train_loss: -0.3046, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,886 - INFO - epoch complete!
+2024-03-16 20:18:12,887 - INFO - evaluating now!
+2024-03-16 20:18:12,887 - INFO - Epoch [64/10000] train_loss: -0.3964, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,894 - INFO - epoch complete!
+2024-03-16 20:18:12,894 - INFO - evaluating now!
+2024-03-16 20:18:12,894 - INFO - Epoch [65/10000] train_loss: -0.4900, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,901 - INFO - epoch complete!
+2024-03-16 20:18:12,901 - INFO - evaluating now!
+2024-03-16 20:18:12,901 - INFO - Epoch [66/10000] train_loss: -0.6240, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,909 - INFO - epoch complete!
+2024-03-16 20:18:12,909 - INFO - evaluating now!
+2024-03-16 20:18:12,909 - INFO - Epoch [67/10000] train_loss: -0.4590, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,917 - INFO - epoch complete!
+2024-03-16 20:18:12,917 - INFO - evaluating now!
+2024-03-16 20:18:12,917 - INFO - Epoch [68/10000] train_loss: -0.4958, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,924 - INFO - epoch complete!
+2024-03-16 20:18:12,925 - INFO - evaluating now!
+2024-03-16 20:18:12,925 - INFO - Epoch [69/10000] train_loss: -0.8216, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,932 - INFO - epoch complete!
+2024-03-16 20:18:12,932 - INFO - evaluating now!
+2024-03-16 20:18:12,932 - INFO - Epoch [70/10000] train_loss: -0.6162, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,940 - INFO - epoch complete!
+2024-03-16 20:18:12,940 - INFO - evaluating now!
+2024-03-16 20:18:12,940 - INFO - Epoch [71/10000] train_loss: -0.8460, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,947 - INFO - epoch complete!
+2024-03-16 20:18:12,948 - INFO - evaluating now!
+2024-03-16 20:18:12,948 - INFO - Epoch [72/10000] train_loss: -0.8535, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,955 - INFO - epoch complete!
+2024-03-16 20:18:12,955 - INFO - evaluating now!
+2024-03-16 20:18:12,955 - INFO - Epoch [73/10000] train_loss: -0.9252, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,963 - INFO - epoch complete!
+2024-03-16 20:18:12,963 - INFO - evaluating now!
+2024-03-16 20:18:12,963 - INFO - Epoch [74/10000] train_loss: -0.9221, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,970 - INFO - epoch complete!
+2024-03-16 20:18:12,971 - INFO - evaluating now!
+2024-03-16 20:18:12,971 - INFO - Epoch [75/10000] train_loss: -0.9732, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,977 - INFO - epoch complete!
+2024-03-16 20:18:12,978 - INFO - evaluating now!
+2024-03-16 20:18:12,978 - INFO - Epoch [76/10000] train_loss: -0.9659, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,985 - INFO - epoch complete!
+2024-03-16 20:18:12,985 - INFO - evaluating now!
+2024-03-16 20:18:12,985 - INFO - Epoch [77/10000] train_loss: -1.0459, lr: 0.010000, 0.01s
+2024-03-16 20:18:12,993 - INFO - epoch complete!
+2024-03-16 20:18:12,993 - INFO - evaluating now!
+2024-03-16 20:18:12,993 - INFO - Epoch [78/10000] train_loss: -1.0057, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,000 - INFO - epoch complete!
+2024-03-16 20:18:13,001 - INFO - evaluating now!
+2024-03-16 20:18:13,001 - INFO - Epoch [79/10000] train_loss: -1.0918, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,008 - INFO - epoch complete!
+2024-03-16 20:18:13,008 - INFO - evaluating now!
+2024-03-16 20:18:13,008 - INFO - Epoch [80/10000] train_loss: -1.0099, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,015 - INFO - epoch complete!
+2024-03-16 20:18:13,016 - INFO - evaluating now!
+2024-03-16 20:18:13,016 - INFO - Epoch [81/10000] train_loss: -1.1511, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,023 - INFO - epoch complete!
+2024-03-16 20:18:13,023 - INFO - evaluating now!
+2024-03-16 20:18:13,023 - INFO - Epoch [82/10000] train_loss: -1.1278, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,031 - INFO - epoch complete!
+2024-03-16 20:18:13,031 - INFO - evaluating now!
+2024-03-16 20:18:13,031 - INFO - Epoch [83/10000] train_loss: -1.1110, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,038 - INFO - epoch complete!
+2024-03-16 20:18:13,038 - INFO - evaluating now!
+2024-03-16 20:18:13,038 - INFO - Epoch [84/10000] train_loss: -1.1450, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,045 - INFO - epoch complete!
+2024-03-16 20:18:13,045 - INFO - evaluating now!
+2024-03-16 20:18:13,045 - INFO - Epoch [85/10000] train_loss: -1.0943, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,053 - INFO - epoch complete!
+2024-03-16 20:18:13,053 - INFO - evaluating now!
+2024-03-16 20:18:13,053 - INFO - Epoch [86/10000] train_loss: -1.1404, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,060 - INFO - epoch complete!
+2024-03-16 20:18:13,060 - INFO - evaluating now!
+2024-03-16 20:18:13,060 - INFO - Epoch [87/10000] train_loss: -1.1766, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,068 - INFO - epoch complete!
+2024-03-16 20:18:13,068 - INFO - evaluating now!
+2024-03-16 20:18:13,068 - INFO - Epoch [88/10000] train_loss: -1.1363, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,075 - INFO - epoch complete!
+2024-03-16 20:18:13,076 - INFO - evaluating now!
+2024-03-16 20:18:13,076 - INFO - Epoch [89/10000] train_loss: -1.1948, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,081 - INFO - epoch complete!
+2024-03-16 20:18:13,081 - INFO - evaluating now!
+2024-03-16 20:18:13,081 - INFO - Epoch [90/10000] train_loss: -1.1633, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,088 - INFO - epoch complete!
+2024-03-16 20:18:13,089 - INFO - evaluating now!
+2024-03-16 20:18:13,089 - INFO - Epoch [91/10000] train_loss: -1.1918, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,096 - INFO - epoch complete!
+2024-03-16 20:18:13,096 - INFO - evaluating now!
+2024-03-16 20:18:13,096 - INFO - Epoch [92/10000] train_loss: -1.1922, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,104 - INFO - epoch complete!
+2024-03-16 20:18:13,104 - INFO - evaluating now!
+2024-03-16 20:18:13,104 - INFO - Epoch [93/10000] train_loss: -1.1967, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,111 - INFO - epoch complete!
+2024-03-16 20:18:13,111 - INFO - evaluating now!
+2024-03-16 20:18:13,111 - INFO - Epoch [94/10000] train_loss: -1.2154, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,119 - INFO - epoch complete!
+2024-03-16 20:18:13,119 - INFO - evaluating now!
+2024-03-16 20:18:13,119 - INFO - Epoch [95/10000] train_loss: -1.1801, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,126 - INFO - epoch complete!
+2024-03-16 20:18:13,126 - INFO - evaluating now!
+2024-03-16 20:18:13,126 - INFO - Epoch [96/10000] train_loss: -1.2124, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,133 - INFO - epoch complete!
+2024-03-16 20:18:13,133 - INFO - evaluating now!
+2024-03-16 20:18:13,133 - INFO - Epoch [97/10000] train_loss: -1.2526, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,141 - INFO - epoch complete!
+2024-03-16 20:18:13,141 - INFO - evaluating now!
+2024-03-16 20:18:13,141 - INFO - Epoch [98/10000] train_loss: -1.2289, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,148 - INFO - epoch complete!
+2024-03-16 20:18:13,148 - INFO - evaluating now!
+2024-03-16 20:18:13,148 - INFO - Epoch [99/10000] train_loss: -1.2172, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,154 - INFO - Saved model at 99
+2024-03-16 20:18:13,154 - INFO - saving to ./libgptb/cache/43327/model_cache/DGI_Cora_epoch99.tar
+2024-03-16 20:18:13,161 - INFO - epoch complete!
+2024-03-16 20:18:13,161 - INFO - evaluating now!
+2024-03-16 20:18:13,161 - INFO - Epoch [100/10000] train_loss: -1.2312, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,169 - INFO - epoch complete!
+2024-03-16 20:18:13,169 - INFO - evaluating now!
+2024-03-16 20:18:13,169 - INFO - Epoch [101/10000] train_loss: -1.2429, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,176 - INFO - epoch complete!
+2024-03-16 20:18:13,176 - INFO - evaluating now!
+2024-03-16 20:18:13,176 - INFO - Epoch [102/10000] train_loss: -1.2570, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,184 - INFO - epoch complete!
+2024-03-16 20:18:13,184 - INFO - evaluating now!
+2024-03-16 20:18:13,184 - INFO - Epoch [103/10000] train_loss: -1.2582, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,191 - INFO - epoch complete!
+2024-03-16 20:18:13,192 - INFO - evaluating now!
+2024-03-16 20:18:13,192 - INFO - Epoch [104/10000] train_loss: -1.2583, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,199 - INFO - epoch complete!
+2024-03-16 20:18:13,199 - INFO - evaluating now!
+2024-03-16 20:18:13,199 - INFO - Epoch [105/10000] train_loss: -1.2693, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,206 - INFO - epoch complete!
+2024-03-16 20:18:13,207 - INFO - evaluating now!
+2024-03-16 20:18:13,207 - INFO - Epoch [106/10000] train_loss: -1.2281, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,214 - INFO - epoch complete!
+2024-03-16 20:18:13,214 - INFO - evaluating now!
+2024-03-16 20:18:13,214 - INFO - Epoch [107/10000] train_loss: -1.2745, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,221 - INFO - epoch complete!
+2024-03-16 20:18:13,221 - INFO - evaluating now!
+2024-03-16 20:18:13,221 - INFO - Epoch [108/10000] train_loss: -1.2829, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,229 - INFO - epoch complete!
+2024-03-16 20:18:13,229 - INFO - evaluating now!
+2024-03-16 20:18:13,229 - INFO - Epoch [109/10000] train_loss: -1.2723, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,236 - INFO - epoch complete!
+2024-03-16 20:18:13,237 - INFO - evaluating now!
+2024-03-16 20:18:13,237 - INFO - Epoch [110/10000] train_loss: -1.2576, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,244 - INFO - epoch complete!
+2024-03-16 20:18:13,244 - INFO - evaluating now!
+2024-03-16 20:18:13,244 - INFO - Epoch [111/10000] train_loss: -1.2685, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,252 - INFO - epoch complete!
+2024-03-16 20:18:13,252 - INFO - evaluating now!
+2024-03-16 20:18:13,252 - INFO - Epoch [112/10000] train_loss: -1.2733, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,259 - INFO - epoch complete!
+2024-03-16 20:18:13,260 - INFO - evaluating now!
+2024-03-16 20:18:13,260 - INFO - Epoch [113/10000] train_loss: -1.2924, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,267 - INFO - epoch complete!
+2024-03-16 20:18:13,267 - INFO - evaluating now!
+2024-03-16 20:18:13,267 - INFO - Epoch [114/10000] train_loss: -1.2516, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,275 - INFO - epoch complete!
+2024-03-16 20:18:13,275 - INFO - evaluating now!
+2024-03-16 20:18:13,275 - INFO - Epoch [115/10000] train_loss: -1.2725, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,282 - INFO - epoch complete!
+2024-03-16 20:18:13,282 - INFO - evaluating now!
+2024-03-16 20:18:13,282 - INFO - Epoch [116/10000] train_loss: -1.2552, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,289 - INFO - epoch complete!
+2024-03-16 20:18:13,289 - INFO - evaluating now!
+2024-03-16 20:18:13,289 - INFO - Epoch [117/10000] train_loss: -1.2607, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,297 - INFO - epoch complete!
+2024-03-16 20:18:13,297 - INFO - evaluating now!
+2024-03-16 20:18:13,297 - INFO - Epoch [118/10000] train_loss: -1.2645, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,304 - INFO - epoch complete!
+2024-03-16 20:18:13,305 - INFO - evaluating now!
+2024-03-16 20:18:13,305 - INFO - Epoch [119/10000] train_loss: -1.2860, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,312 - INFO - epoch complete!
+2024-03-16 20:18:13,312 - INFO - evaluating now!
+2024-03-16 20:18:13,312 - INFO - Epoch [120/10000] train_loss: -1.3054, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,320 - INFO - epoch complete!
+2024-03-16 20:18:13,320 - INFO - evaluating now!
+2024-03-16 20:18:13,320 - INFO - Epoch [121/10000] train_loss: -1.2673, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,327 - INFO - epoch complete!
+2024-03-16 20:18:13,328 - INFO - evaluating now!
+2024-03-16 20:18:13,328 - INFO - Epoch [122/10000] train_loss: -1.2796, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,335 - INFO - epoch complete!
+2024-03-16 20:18:13,335 - INFO - evaluating now!
+2024-03-16 20:18:13,335 - INFO - Epoch [123/10000] train_loss: -1.2804, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,343 - INFO - epoch complete!
+2024-03-16 20:18:13,343 - INFO - evaluating now!
+2024-03-16 20:18:13,343 - INFO - Epoch [124/10000] train_loss: -1.2934, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,350 - INFO - epoch complete!
+2024-03-16 20:18:13,350 - INFO - evaluating now!
+2024-03-16 20:18:13,350 - INFO - Epoch [125/10000] train_loss: -1.2934, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,357 - INFO - epoch complete!
+2024-03-16 20:18:13,357 - INFO - evaluating now!
+2024-03-16 20:18:13,357 - INFO - Epoch [126/10000] train_loss: -1.3026, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,365 - INFO - epoch complete!
+2024-03-16 20:18:13,365 - INFO - evaluating now!
+2024-03-16 20:18:13,365 - INFO - Epoch [127/10000] train_loss: -1.2904, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,372 - INFO - epoch complete!
+2024-03-16 20:18:13,373 - INFO - evaluating now!
+2024-03-16 20:18:13,373 - INFO - Epoch [128/10000] train_loss: -1.2831, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,380 - INFO - epoch complete!
+2024-03-16 20:18:13,380 - INFO - evaluating now!
+2024-03-16 20:18:13,380 - INFO - Epoch [129/10000] train_loss: -1.2779, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,388 - INFO - epoch complete!
+2024-03-16 20:18:13,388 - INFO - evaluating now!
+2024-03-16 20:18:13,388 - INFO - Epoch [130/10000] train_loss: -1.2909, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,395 - INFO - epoch complete!
+2024-03-16 20:18:13,395 - INFO - evaluating now!
+2024-03-16 20:18:13,395 - INFO - Epoch [131/10000] train_loss: -1.3014, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,403 - INFO - epoch complete!
+2024-03-16 20:18:13,403 - INFO - evaluating now!
+2024-03-16 20:18:13,403 - INFO - Epoch [132/10000] train_loss: -1.3119, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,410 - INFO - epoch complete!
+2024-03-16 20:18:13,410 - INFO - evaluating now!
+2024-03-16 20:18:13,410 - INFO - Epoch [133/10000] train_loss: -1.2931, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,417 - INFO - epoch complete!
+2024-03-16 20:18:13,417 - INFO - evaluating now!
+2024-03-16 20:18:13,417 - INFO - Epoch [134/10000] train_loss: -1.2825, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,425 - INFO - epoch complete!
+2024-03-16 20:18:13,425 - INFO - evaluating now!
+2024-03-16 20:18:13,425 - INFO - Epoch [135/10000] train_loss: -1.3138, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,432 - INFO - epoch complete!
+2024-03-16 20:18:13,433 - INFO - evaluating now!
+2024-03-16 20:18:13,433 - INFO - Epoch [136/10000] train_loss: -1.3003, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,440 - INFO - epoch complete!
+2024-03-16 20:18:13,440 - INFO - evaluating now!
+2024-03-16 20:18:13,440 - INFO - Epoch [137/10000] train_loss: -1.3000, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,448 - INFO - epoch complete!
+2024-03-16 20:18:13,448 - INFO - evaluating now!
+2024-03-16 20:18:13,448 - INFO - Epoch [138/10000] train_loss: -1.3137, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,455 - INFO - epoch complete!
+2024-03-16 20:18:13,456 - INFO - evaluating now!
+2024-03-16 20:18:13,456 - INFO - Epoch [139/10000] train_loss: -1.2909, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,463 - INFO - epoch complete!
+2024-03-16 20:18:13,463 - INFO - evaluating now!
+2024-03-16 20:18:13,463 - INFO - Epoch [140/10000] train_loss: -1.3280, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,471 - INFO - epoch complete!
+2024-03-16 20:18:13,471 - INFO - evaluating now!
+2024-03-16 20:18:13,471 - INFO - Epoch [141/10000] train_loss: -1.3020, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,478 - INFO - epoch complete!
+2024-03-16 20:18:13,478 - INFO - evaluating now!
+2024-03-16 20:18:13,478 - INFO - Epoch [142/10000] train_loss: -1.3035, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,485 - INFO - epoch complete!
+2024-03-16 20:18:13,485 - INFO - evaluating now!
+2024-03-16 20:18:13,485 - INFO - Epoch [143/10000] train_loss: -1.3178, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,493 - INFO - epoch complete!
+2024-03-16 20:18:13,493 - INFO - evaluating now!
+2024-03-16 20:18:13,493 - INFO - Epoch [144/10000] train_loss: -1.3116, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,500 - INFO - epoch complete!
+2024-03-16 20:18:13,501 - INFO - evaluating now!
+2024-03-16 20:18:13,501 - INFO - Epoch [145/10000] train_loss: -1.3201, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,508 - INFO - epoch complete!
+2024-03-16 20:18:13,508 - INFO - evaluating now!
+2024-03-16 20:18:13,508 - INFO - Epoch [146/10000] train_loss: -1.2851, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,516 - INFO - epoch complete!
+2024-03-16 20:18:13,516 - INFO - evaluating now!
+2024-03-16 20:18:13,516 - INFO - Epoch [147/10000] train_loss: -1.3302, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,523 - INFO - epoch complete!
+2024-03-16 20:18:13,523 - INFO - evaluating now!
+2024-03-16 20:18:13,523 - INFO - Epoch [148/10000] train_loss: -1.2772, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,531 - INFO - epoch complete!
+2024-03-16 20:18:13,531 - INFO - evaluating now!
+2024-03-16 20:18:13,531 - INFO - Epoch [149/10000] train_loss: -1.1919, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,538 - INFO - epoch complete!
+2024-03-16 20:18:13,538 - INFO - evaluating now!
+2024-03-16 20:18:13,539 - INFO - Epoch [150/10000] train_loss: -1.1421, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,545 - INFO - epoch complete!
+2024-03-16 20:18:13,545 - INFO - evaluating now!
+2024-03-16 20:18:13,546 - INFO - Epoch [151/10000] train_loss: -1.2336, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,553 - INFO - epoch complete!
+2024-03-16 20:18:13,553 - INFO - evaluating now!
+2024-03-16 20:18:13,553 - INFO - Epoch [152/10000] train_loss: -1.2739, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,561 - INFO - epoch complete!
+2024-03-16 20:18:13,561 - INFO - evaluating now!
+2024-03-16 20:18:13,561 - INFO - Epoch [153/10000] train_loss: -1.2901, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,568 - INFO - epoch complete!
+2024-03-16 20:18:13,568 - INFO - evaluating now!
+2024-03-16 20:18:13,568 - INFO - Epoch [154/10000] train_loss: -1.2934, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,576 - INFO - epoch complete!
+2024-03-16 20:18:13,576 - INFO - evaluating now!
+2024-03-16 20:18:13,576 - INFO - Epoch [155/10000] train_loss: -1.2545, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,583 - INFO - epoch complete!
+2024-03-16 20:18:13,584 - INFO - evaluating now!
+2024-03-16 20:18:13,584 - INFO - Epoch [156/10000] train_loss: -1.2501, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,591 - INFO - epoch complete!
+2024-03-16 20:18:13,591 - INFO - evaluating now!
+2024-03-16 20:18:13,591 - INFO - Epoch [157/10000] train_loss: -1.2824, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,599 - INFO - epoch complete!
+2024-03-16 20:18:13,599 - INFO - evaluating now!
+2024-03-16 20:18:13,599 - INFO - Epoch [158/10000] train_loss: -1.2594, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,606 - INFO - epoch complete!
+2024-03-16 20:18:13,606 - INFO - evaluating now!
+2024-03-16 20:18:13,607 - INFO - Epoch [159/10000] train_loss: -1.3079, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,613 - INFO - epoch complete!
+2024-03-16 20:18:13,613 - INFO - evaluating now!
+2024-03-16 20:18:13,614 - INFO - Epoch [160/10000] train_loss: -1.3085, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,621 - INFO - epoch complete!
+2024-03-16 20:18:13,621 - INFO - evaluating now!
+2024-03-16 20:18:13,621 - INFO - Epoch [161/10000] train_loss: -1.2918, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,629 - INFO - epoch complete!
+2024-03-16 20:18:13,629 - INFO - evaluating now!
+2024-03-16 20:18:13,629 - INFO - Epoch [162/10000] train_loss: -1.2701, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,636 - INFO - epoch complete!
+2024-03-16 20:18:13,636 - INFO - evaluating now!
+2024-03-16 20:18:13,636 - INFO - Epoch [163/10000] train_loss: -1.3015, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,644 - INFO - epoch complete!
+2024-03-16 20:18:13,645 - INFO - evaluating now!
+2024-03-16 20:18:13,645 - INFO - Epoch [164/10000] train_loss: -1.2989, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,652 - INFO - epoch complete!
+2024-03-16 20:18:13,652 - INFO - evaluating now!
+2024-03-16 20:18:13,652 - INFO - Epoch [165/10000] train_loss: -1.2964, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,660 - INFO - epoch complete!
+2024-03-16 20:18:13,660 - INFO - evaluating now!
+2024-03-16 20:18:13,660 - INFO - Epoch [166/10000] train_loss: -1.2977, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,667 - INFO - epoch complete!
+2024-03-16 20:18:13,668 - INFO - evaluating now!
+2024-03-16 20:18:13,668 - INFO - Epoch [167/10000] train_loss: -1.2921, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,675 - INFO - epoch complete!
+2024-03-16 20:18:13,675 - INFO - evaluating now!
+2024-03-16 20:18:13,675 - INFO - Epoch [168/10000] train_loss: -1.2986, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,683 - INFO - epoch complete!
+2024-03-16 20:18:13,683 - INFO - evaluating now!
+2024-03-16 20:18:13,683 - INFO - Epoch [169/10000] train_loss: -1.2820, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,690 - INFO - epoch complete!
+2024-03-16 20:18:13,690 - INFO - evaluating now!
+2024-03-16 20:18:13,690 - INFO - Epoch [170/10000] train_loss: -1.3187, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,697 - INFO - epoch complete!
+2024-03-16 20:18:13,697 - INFO - evaluating now!
+2024-03-16 20:18:13,697 - INFO - Epoch [171/10000] train_loss: -1.3109, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,705 - INFO - epoch complete!
+2024-03-16 20:18:13,705 - INFO - evaluating now!
+2024-03-16 20:18:13,705 - INFO - Epoch [172/10000] train_loss: -1.3349, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,712 - INFO - epoch complete!
+2024-03-16 20:18:13,713 - INFO - evaluating now!
+2024-03-16 20:18:13,713 - INFO - Epoch [173/10000] train_loss: -1.3103, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,720 - INFO - epoch complete!
+2024-03-16 20:18:13,720 - INFO - evaluating now!
+2024-03-16 20:18:13,720 - INFO - Epoch [174/10000] train_loss: -1.3112, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,728 - INFO - epoch complete!
+2024-03-16 20:18:13,728 - INFO - evaluating now!
+2024-03-16 20:18:13,728 - INFO - Epoch [175/10000] train_loss: -1.3150, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,735 - INFO - epoch complete!
+2024-03-16 20:18:13,735 - INFO - evaluating now!
+2024-03-16 20:18:13,735 - INFO - Epoch [176/10000] train_loss: -1.3172, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,743 - INFO - epoch complete!
+2024-03-16 20:18:13,743 - INFO - evaluating now!
+2024-03-16 20:18:13,743 - INFO - Epoch [177/10000] train_loss: -1.3176, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,750 - INFO - epoch complete!
+2024-03-16 20:18:13,750 - INFO - evaluating now!
+2024-03-16 20:18:13,750 - INFO - Epoch [178/10000] train_loss: -1.3301, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,757 - INFO - epoch complete!
+2024-03-16 20:18:13,757 - INFO - evaluating now!
+2024-03-16 20:18:13,757 - INFO - Epoch [179/10000] train_loss: -1.3319, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,765 - INFO - epoch complete!
+2024-03-16 20:18:13,765 - INFO - evaluating now!
+2024-03-16 20:18:13,765 - INFO - Epoch [180/10000] train_loss: -1.3251, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,772 - INFO - epoch complete!
+2024-03-16 20:18:13,772 - INFO - evaluating now!
+2024-03-16 20:18:13,772 - INFO - Epoch [181/10000] train_loss: -1.3341, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,780 - INFO - epoch complete!
+2024-03-16 20:18:13,780 - INFO - evaluating now!
+2024-03-16 20:18:13,780 - INFO - Epoch [182/10000] train_loss: -1.3231, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,787 - INFO - epoch complete!
+2024-03-16 20:18:13,788 - INFO - evaluating now!
+2024-03-16 20:18:13,788 - INFO - Epoch [183/10000] train_loss: -1.3202, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,795 - INFO - epoch complete!
+2024-03-16 20:18:13,795 - INFO - evaluating now!
+2024-03-16 20:18:13,795 - INFO - Epoch [184/10000] train_loss: -1.3194, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,802 - INFO - epoch complete!
+2024-03-16 20:18:13,802 - INFO - evaluating now!
+2024-03-16 20:18:13,802 - INFO - Epoch [185/10000] train_loss: -1.3515, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,809 - INFO - epoch complete!
+2024-03-16 20:18:13,809 - INFO - evaluating now!
+2024-03-16 20:18:13,809 - INFO - Epoch [186/10000] train_loss: -1.3457, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,817 - INFO - epoch complete!
+2024-03-16 20:18:13,817 - INFO - evaluating now!
+2024-03-16 20:18:13,817 - INFO - Epoch [187/10000] train_loss: -1.3356, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,824 - INFO - epoch complete!
+2024-03-16 20:18:13,824 - INFO - evaluating now!
+2024-03-16 20:18:13,824 - INFO - Epoch [188/10000] train_loss: -1.3324, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,832 - INFO - epoch complete!
+2024-03-16 20:18:13,832 - INFO - evaluating now!
+2024-03-16 20:18:13,832 - INFO - Epoch [189/10000] train_loss: -1.3385, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,839 - INFO - epoch complete!
+2024-03-16 20:18:13,839 - INFO - evaluating now!
+2024-03-16 20:18:13,839 - INFO - Epoch [190/10000] train_loss: -1.3503, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,847 - INFO - epoch complete!
+2024-03-16 20:18:13,847 - INFO - evaluating now!
+2024-03-16 20:18:13,847 - INFO - Epoch [191/10000] train_loss: -1.3452, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,854 - INFO - epoch complete!
+2024-03-16 20:18:13,854 - INFO - evaluating now!
+2024-03-16 20:18:13,854 - INFO - Epoch [192/10000] train_loss: -1.3404, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,861 - INFO - epoch complete!
+2024-03-16 20:18:13,861 - INFO - evaluating now!
+2024-03-16 20:18:13,861 - INFO - Epoch [193/10000] train_loss: -1.3470, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,869 - INFO - epoch complete!
+2024-03-16 20:18:13,869 - INFO - evaluating now!
+2024-03-16 20:18:13,869 - INFO - Epoch [194/10000] train_loss: -1.3488, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,876 - INFO - epoch complete!
+2024-03-16 20:18:13,876 - INFO - evaluating now!
+2024-03-16 20:18:13,876 - INFO - Epoch [195/10000] train_loss: -1.3416, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,884 - INFO - epoch complete!
+2024-03-16 20:18:13,884 - INFO - evaluating now!
+2024-03-16 20:18:13,884 - INFO - Epoch [196/10000] train_loss: -1.3559, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,891 - INFO - epoch complete!
+2024-03-16 20:18:13,892 - INFO - evaluating now!
+2024-03-16 20:18:13,892 - INFO - Epoch [197/10000] train_loss: -1.3327, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,899 - INFO - epoch complete!
+2024-03-16 20:18:13,899 - INFO - evaluating now!
+2024-03-16 20:18:13,899 - INFO - Epoch [198/10000] train_loss: -1.3463, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,907 - INFO - epoch complete!
+2024-03-16 20:18:13,907 - INFO - evaluating now!
+2024-03-16 20:18:13,907 - INFO - Epoch [199/10000] train_loss: -1.3512, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,914 - INFO - epoch complete!
+2024-03-16 20:18:13,914 - INFO - evaluating now!
+2024-03-16 20:18:13,914 - INFO - Epoch [200/10000] train_loss: -1.3399, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,921 - INFO - epoch complete!
+2024-03-16 20:18:13,921 - INFO - evaluating now!
+2024-03-16 20:18:13,921 - INFO - Epoch [201/10000] train_loss: -1.3372, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,929 - INFO - epoch complete!
+2024-03-16 20:18:13,929 - INFO - evaluating now!
+2024-03-16 20:18:13,929 - INFO - Epoch [202/10000] train_loss: -1.3456, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,936 - INFO - epoch complete!
+2024-03-16 20:18:13,936 - INFO - evaluating now!
+2024-03-16 20:18:13,936 - INFO - Epoch [203/10000] train_loss: -1.3511, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,944 - INFO - epoch complete!
+2024-03-16 20:18:13,944 - INFO - evaluating now!
+2024-03-16 20:18:13,944 - INFO - Epoch [204/10000] train_loss: -1.3423, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,951 - INFO - epoch complete!
+2024-03-16 20:18:13,951 - INFO - evaluating now!
+2024-03-16 20:18:13,951 - INFO - Epoch [205/10000] train_loss: -1.3416, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,959 - INFO - epoch complete!
+2024-03-16 20:18:13,959 - INFO - evaluating now!
+2024-03-16 20:18:13,959 - INFO - Epoch [206/10000] train_loss: -1.3323, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,966 - INFO - epoch complete!
+2024-03-16 20:18:13,966 - INFO - evaluating now!
+2024-03-16 20:18:13,966 - INFO - Epoch [207/10000] train_loss: -1.3450, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,973 - INFO - epoch complete!
+2024-03-16 20:18:13,973 - INFO - evaluating now!
+2024-03-16 20:18:13,973 - INFO - Epoch [208/10000] train_loss: -1.3624, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,981 - INFO - epoch complete!
+2024-03-16 20:18:13,981 - INFO - evaluating now!
+2024-03-16 20:18:13,981 - INFO - Epoch [209/10000] train_loss: -1.3639, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,988 - INFO - epoch complete!
+2024-03-16 20:18:13,988 - INFO - evaluating now!
+2024-03-16 20:18:13,988 - INFO - Epoch [210/10000] train_loss: -1.3479, lr: 0.010000, 0.01s
+2024-03-16 20:18:13,996 - INFO - epoch complete!
+2024-03-16 20:18:13,996 - INFO - evaluating now!
+2024-03-16 20:18:13,996 - INFO - Epoch [211/10000] train_loss: -1.3560, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,003 - INFO - epoch complete!
+2024-03-16 20:18:14,004 - INFO - evaluating now!
+2024-03-16 20:18:14,004 - INFO - Epoch [212/10000] train_loss: -1.3297, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,010 - INFO - epoch complete!
+2024-03-16 20:18:14,010 - INFO - evaluating now!
+2024-03-16 20:18:14,010 - INFO - Epoch [213/10000] train_loss: -1.3467, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,017 - INFO - epoch complete!
+2024-03-16 20:18:14,017 - INFO - evaluating now!
+2024-03-16 20:18:14,018 - INFO - Epoch [214/10000] train_loss: -1.3542, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,025 - INFO - epoch complete!
+2024-03-16 20:18:14,025 - INFO - evaluating now!
+2024-03-16 20:18:14,025 - INFO - Epoch [215/10000] train_loss: -1.3595, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,033 - INFO - epoch complete!
+2024-03-16 20:18:14,033 - INFO - evaluating now!
+2024-03-16 20:18:14,033 - INFO - Epoch [216/10000] train_loss: -1.3546, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,040 - INFO - epoch complete!
+2024-03-16 20:18:14,040 - INFO - evaluating now!
+2024-03-16 20:18:14,040 - INFO - Epoch [217/10000] train_loss: -1.3617, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,048 - INFO - epoch complete!
+2024-03-16 20:18:14,048 - INFO - evaluating now!
+2024-03-16 20:18:14,048 - INFO - Epoch [218/10000] train_loss: -1.3644, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,055 - INFO - epoch complete!
+2024-03-16 20:18:14,056 - INFO - evaluating now!
+2024-03-16 20:18:14,056 - INFO - Epoch [219/10000] train_loss: -1.3594, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,063 - INFO - epoch complete!
+2024-03-16 20:18:14,063 - INFO - evaluating now!
+2024-03-16 20:18:14,063 - INFO - Epoch [220/10000] train_loss: -1.3598, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,071 - INFO - epoch complete!
+2024-03-16 20:18:14,071 - INFO - evaluating now!
+2024-03-16 20:18:14,071 - INFO - Epoch [221/10000] train_loss: -1.3623, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,078 - INFO - epoch complete!
+2024-03-16 20:18:14,078 - INFO - evaluating now!
+2024-03-16 20:18:14,078 - INFO - Epoch [222/10000] train_loss: -1.3575, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,085 - INFO - epoch complete!
+2024-03-16 20:18:14,085 - INFO - evaluating now!
+2024-03-16 20:18:14,085 - INFO - Epoch [223/10000] train_loss: -1.3639, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,093 - INFO - epoch complete!
+2024-03-16 20:18:14,093 - INFO - evaluating now!
+2024-03-16 20:18:14,093 - INFO - Epoch [224/10000] train_loss: -1.3660, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,100 - INFO - epoch complete!
+2024-03-16 20:18:14,100 - INFO - evaluating now!
+2024-03-16 20:18:14,100 - INFO - Epoch [225/10000] train_loss: -1.3515, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,108 - INFO - epoch complete!
+2024-03-16 20:18:14,108 - INFO - evaluating now!
+2024-03-16 20:18:14,108 - INFO - Epoch [226/10000] train_loss: -1.3563, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,115 - INFO - epoch complete!
+2024-03-16 20:18:14,115 - INFO - evaluating now!
+2024-03-16 20:18:14,115 - INFO - Epoch [227/10000] train_loss: -1.3697, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,123 - INFO - epoch complete!
+2024-03-16 20:18:14,123 - INFO - evaluating now!
+2024-03-16 20:18:14,123 - INFO - Epoch [228/10000] train_loss: -1.3631, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,130 - INFO - epoch complete!
+2024-03-16 20:18:14,130 - INFO - evaluating now!
+2024-03-16 20:18:14,130 - INFO - Epoch [229/10000] train_loss: -1.3637, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,137 - INFO - epoch complete!
+2024-03-16 20:18:14,137 - INFO - evaluating now!
+2024-03-16 20:18:14,137 - INFO - Epoch [230/10000] train_loss: -1.3519, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,145 - INFO - epoch complete!
+2024-03-16 20:18:14,145 - INFO - evaluating now!
+2024-03-16 20:18:14,145 - INFO - Epoch [231/10000] train_loss: -1.3521, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,152 - INFO - epoch complete!
+2024-03-16 20:18:14,152 - INFO - evaluating now!
+2024-03-16 20:18:14,152 - INFO - Epoch [232/10000] train_loss: -1.3628, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,160 - INFO - epoch complete!
+2024-03-16 20:18:14,160 - INFO - evaluating now!
+2024-03-16 20:18:14,160 - INFO - Epoch [233/10000] train_loss: -1.3611, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,167 - INFO - epoch complete!
+2024-03-16 20:18:14,168 - INFO - evaluating now!
+2024-03-16 20:18:14,168 - INFO - Epoch [234/10000] train_loss: -1.3601, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,175 - INFO - epoch complete!
+2024-03-16 20:18:14,175 - INFO - evaluating now!
+2024-03-16 20:18:14,175 - INFO - Epoch [235/10000] train_loss: -1.3614, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,182 - INFO - epoch complete!
+2024-03-16 20:18:14,183 - INFO - evaluating now!
+2024-03-16 20:18:14,183 - INFO - Epoch [236/10000] train_loss: -1.3479, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,189 - INFO - epoch complete!
+2024-03-16 20:18:14,190 - INFO - evaluating now!
+2024-03-16 20:18:14,190 - INFO - Epoch [237/10000] train_loss: -1.3669, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,197 - INFO - epoch complete!
+2024-03-16 20:18:14,197 - INFO - evaluating now!
+2024-03-16 20:18:14,197 - INFO - Epoch [238/10000] train_loss: -1.3619, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,205 - INFO - epoch complete!
+2024-03-16 20:18:14,205 - INFO - evaluating now!
+2024-03-16 20:18:14,205 - INFO - Epoch [239/10000] train_loss: -1.3653, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,212 - INFO - epoch complete!
+2024-03-16 20:18:14,213 - INFO - evaluating now!
+2024-03-16 20:18:14,213 - INFO - Epoch [240/10000] train_loss: -1.3660, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,220 - INFO - epoch complete!
+2024-03-16 20:18:14,220 - INFO - evaluating now!
+2024-03-16 20:18:14,220 - INFO - Epoch [241/10000] train_loss: -1.3660, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,228 - INFO - epoch complete!
+2024-03-16 20:18:14,228 - INFO - evaluating now!
+2024-03-16 20:18:14,228 - INFO - Epoch [242/10000] train_loss: -1.3615, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,235 - INFO - epoch complete!
+2024-03-16 20:18:14,236 - INFO - evaluating now!
+2024-03-16 20:18:14,236 - INFO - Epoch [243/10000] train_loss: -1.3681, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,243 - INFO - epoch complete!
+2024-03-16 20:18:14,243 - INFO - evaluating now!
+2024-03-16 20:18:14,243 - INFO - Epoch [244/10000] train_loss: -1.3604, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,251 - INFO - epoch complete!
+2024-03-16 20:18:14,251 - INFO - evaluating now!
+2024-03-16 20:18:14,251 - INFO - Epoch [245/10000] train_loss: -1.3616, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,258 - INFO - epoch complete!
+2024-03-16 20:18:14,259 - INFO - evaluating now!
+2024-03-16 20:18:14,259 - INFO - Epoch [246/10000] train_loss: -1.3626, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,265 - INFO - epoch complete!
+2024-03-16 20:18:14,266 - INFO - evaluating now!
+2024-03-16 20:18:14,266 - INFO - Epoch [247/10000] train_loss: -1.3734, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,273 - INFO - epoch complete!
+2024-03-16 20:18:14,273 - INFO - evaluating now!
+2024-03-16 20:18:14,273 - INFO - Epoch [248/10000] train_loss: -1.3757, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,281 - INFO - epoch complete!
+2024-03-16 20:18:14,281 - INFO - evaluating now!
+2024-03-16 20:18:14,281 - INFO - Epoch [249/10000] train_loss: -1.3607, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,288 - INFO - epoch complete!
+2024-03-16 20:18:14,289 - INFO - evaluating now!
+2024-03-16 20:18:14,289 - INFO - Epoch [250/10000] train_loss: -1.3593, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,296 - INFO - epoch complete!
+2024-03-16 20:18:14,296 - INFO - evaluating now!
+2024-03-16 20:18:14,296 - INFO - Epoch [251/10000] train_loss: -1.3569, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,304 - INFO - epoch complete!
+2024-03-16 20:18:14,304 - INFO - evaluating now!
+2024-03-16 20:18:14,304 - INFO - Epoch [252/10000] train_loss: -1.3529, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,311 - INFO - epoch complete!
+2024-03-16 20:18:14,312 - INFO - evaluating now!
+2024-03-16 20:18:14,312 - INFO - Epoch [253/10000] train_loss: -1.3632, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,319 - INFO - epoch complete!
+2024-03-16 20:18:14,320 - INFO - evaluating now!
+2024-03-16 20:18:14,320 - INFO - Epoch [254/10000] train_loss: -1.3505, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,327 - INFO - epoch complete!
+2024-03-16 20:18:14,327 - INFO - evaluating now!
+2024-03-16 20:18:14,327 - INFO - Epoch [255/10000] train_loss: -1.3645, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,335 - INFO - epoch complete!
+2024-03-16 20:18:14,335 - INFO - evaluating now!
+2024-03-16 20:18:14,335 - INFO - Epoch [256/10000] train_loss: -1.3677, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,342 - INFO - epoch complete!
+2024-03-16 20:18:14,342 - INFO - evaluating now!
+2024-03-16 20:18:14,343 - INFO - Epoch [257/10000] train_loss: -1.3753, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,349 - INFO - epoch complete!
+2024-03-16 20:18:14,349 - INFO - evaluating now!
+2024-03-16 20:18:14,350 - INFO - Epoch [258/10000] train_loss: -1.3619, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,357 - INFO - epoch complete!
+2024-03-16 20:18:14,357 - INFO - evaluating now!
+2024-03-16 20:18:14,357 - INFO - Epoch [259/10000] train_loss: -1.3714, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,365 - INFO - epoch complete!
+2024-03-16 20:18:14,365 - INFO - evaluating now!
+2024-03-16 20:18:14,365 - INFO - Epoch [260/10000] train_loss: -1.3584, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,372 - INFO - epoch complete!
+2024-03-16 20:18:14,373 - INFO - evaluating now!
+2024-03-16 20:18:14,373 - INFO - Epoch [261/10000] train_loss: -1.3776, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,380 - INFO - epoch complete!
+2024-03-16 20:18:14,380 - INFO - evaluating now!
+2024-03-16 20:18:14,380 - INFO - Epoch [262/10000] train_loss: -1.3664, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,388 - INFO - epoch complete!
+2024-03-16 20:18:14,388 - INFO - evaluating now!
+2024-03-16 20:18:14,388 - INFO - Epoch [263/10000] train_loss: -1.3623, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,395 - INFO - epoch complete!
+2024-03-16 20:18:14,396 - INFO - evaluating now!
+2024-03-16 20:18:14,396 - INFO - Epoch [264/10000] train_loss: -1.3659, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,403 - INFO - epoch complete!
+2024-03-16 20:18:14,403 - INFO - evaluating now!
+2024-03-16 20:18:14,403 - INFO - Epoch [265/10000] train_loss: -1.3600, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,411 - INFO - epoch complete!
+2024-03-16 20:18:14,411 - INFO - evaluating now!
+2024-03-16 20:18:14,411 - INFO - Epoch [266/10000] train_loss: -1.3742, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,418 - INFO - epoch complete!
+2024-03-16 20:18:14,419 - INFO - evaluating now!
+2024-03-16 20:18:14,419 - INFO - Epoch [267/10000] train_loss: -1.3767, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,425 - INFO - epoch complete!
+2024-03-16 20:18:14,426 - INFO - evaluating now!
+2024-03-16 20:18:14,426 - INFO - Epoch [268/10000] train_loss: -1.3676, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,433 - INFO - epoch complete!
+2024-03-16 20:18:14,433 - INFO - evaluating now!
+2024-03-16 20:18:14,433 - INFO - Epoch [269/10000] train_loss: -1.3655, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,441 - INFO - epoch complete!
+2024-03-16 20:18:14,441 - INFO - evaluating now!
+2024-03-16 20:18:14,441 - INFO - Epoch [270/10000] train_loss: -1.3735, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,448 - INFO - epoch complete!
+2024-03-16 20:18:14,449 - INFO - evaluating now!
+2024-03-16 20:18:14,449 - INFO - Epoch [271/10000] train_loss: -1.3799, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,456 - INFO - epoch complete!
+2024-03-16 20:18:14,456 - INFO - evaluating now!
+2024-03-16 20:18:14,456 - INFO - Epoch [272/10000] train_loss: -1.3786, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,464 - INFO - epoch complete!
+2024-03-16 20:18:14,464 - INFO - evaluating now!
+2024-03-16 20:18:14,464 - INFO - Epoch [273/10000] train_loss: -1.3736, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,471 - INFO - epoch complete!
+2024-03-16 20:18:14,472 - INFO - evaluating now!
+2024-03-16 20:18:14,472 - INFO - Epoch [274/10000] train_loss: -1.3624, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,479 - INFO - epoch complete!
+2024-03-16 20:18:14,479 - INFO - evaluating now!
+2024-03-16 20:18:14,479 - INFO - Epoch [275/10000] train_loss: -1.3768, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,487 - INFO - epoch complete!
+2024-03-16 20:18:14,487 - INFO - evaluating now!
+2024-03-16 20:18:14,487 - INFO - Epoch [276/10000] train_loss: -1.3620, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,494 - INFO - epoch complete!
+2024-03-16 20:18:14,494 - INFO - evaluating now!
+2024-03-16 20:18:14,495 - INFO - Epoch [277/10000] train_loss: -1.3666, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,501 - INFO - epoch complete!
+2024-03-16 20:18:14,502 - INFO - evaluating now!
+2024-03-16 20:18:14,502 - INFO - Epoch [278/10000] train_loss: -1.3628, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,509 - INFO - epoch complete!
+2024-03-16 20:18:14,509 - INFO - evaluating now!
+2024-03-16 20:18:14,509 - INFO - Epoch [279/10000] train_loss: -1.3646, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,517 - INFO - epoch complete!
+2024-03-16 20:18:14,517 - INFO - evaluating now!
+2024-03-16 20:18:14,517 - INFO - Epoch [280/10000] train_loss: -1.3607, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,524 - INFO - epoch complete!
+2024-03-16 20:18:14,525 - INFO - evaluating now!
+2024-03-16 20:18:14,525 - INFO - Epoch [281/10000] train_loss: -1.3693, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,532 - INFO - epoch complete!
+2024-03-16 20:18:14,532 - INFO - evaluating now!
+2024-03-16 20:18:14,532 - INFO - Epoch [282/10000] train_loss: -1.3676, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,540 - INFO - epoch complete!
+2024-03-16 20:18:14,540 - INFO - evaluating now!
+2024-03-16 20:18:14,540 - INFO - Epoch [283/10000] train_loss: -1.3752, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,547 - INFO - epoch complete!
+2024-03-16 20:18:14,548 - INFO - evaluating now!
+2024-03-16 20:18:14,548 - INFO - Epoch [284/10000] train_loss: -1.3744, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,555 - INFO - epoch complete!
+2024-03-16 20:18:14,555 - INFO - evaluating now!
+2024-03-16 20:18:14,555 - INFO - Epoch [285/10000] train_loss: -1.3731, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,563 - INFO - epoch complete!
+2024-03-16 20:18:14,563 - INFO - evaluating now!
+2024-03-16 20:18:14,563 - INFO - Epoch [286/10000] train_loss: -1.3624, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,570 - INFO - epoch complete!
+2024-03-16 20:18:14,571 - INFO - evaluating now!
+2024-03-16 20:18:14,571 - INFO - Epoch [287/10000] train_loss: -1.3749, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,577 - INFO - epoch complete!
+2024-03-16 20:18:14,578 - INFO - evaluating now!
+2024-03-16 20:18:14,578 - INFO - Epoch [288/10000] train_loss: -1.3756, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,585 - INFO - epoch complete!
+2024-03-16 20:18:14,585 - INFO - evaluating now!
+2024-03-16 20:18:14,585 - INFO - Epoch [289/10000] train_loss: -1.3671, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,593 - INFO - epoch complete!
+2024-03-16 20:18:14,593 - INFO - evaluating now!
+2024-03-16 20:18:14,593 - INFO - Epoch [290/10000] train_loss: -1.3751, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,600 - INFO - epoch complete!
+2024-03-16 20:18:14,601 - INFO - evaluating now!
+2024-03-16 20:18:14,601 - INFO - Epoch [291/10000] train_loss: -1.3679, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,608 - INFO - epoch complete!
+2024-03-16 20:18:14,608 - INFO - evaluating now!
+2024-03-16 20:18:14,608 - INFO - Epoch [292/10000] train_loss: -1.3656, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,616 - INFO - epoch complete!
+2024-03-16 20:18:14,616 - INFO - evaluating now!
+2024-03-16 20:18:14,616 - INFO - Epoch [293/10000] train_loss: -1.3692, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,623 - INFO - epoch complete!
+2024-03-16 20:18:14,624 - INFO - evaluating now!
+2024-03-16 20:18:14,624 - INFO - Epoch [294/10000] train_loss: -1.3726, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,631 - INFO - epoch complete!
+2024-03-16 20:18:14,631 - INFO - evaluating now!
+2024-03-16 20:18:14,631 - INFO - Epoch [295/10000] train_loss: -1.3825, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,639 - INFO - epoch complete!
+2024-03-16 20:18:14,639 - INFO - evaluating now!
+2024-03-16 20:18:14,639 - INFO - Epoch [296/10000] train_loss: -1.3782, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,646 - INFO - epoch complete!
+2024-03-16 20:18:14,646 - INFO - evaluating now!
+2024-03-16 20:18:14,647 - INFO - Epoch [297/10000] train_loss: -1.3733, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,653 - INFO - epoch complete!
+2024-03-16 20:18:14,654 - INFO - evaluating now!
+2024-03-16 20:18:14,654 - INFO - Epoch [298/10000] train_loss: -1.3703, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,661 - INFO - epoch complete!
+2024-03-16 20:18:14,661 - INFO - evaluating now!
+2024-03-16 20:18:14,661 - INFO - Epoch [299/10000] train_loss: -1.3553, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,669 - INFO - epoch complete!
+2024-03-16 20:18:14,669 - INFO - evaluating now!
+2024-03-16 20:18:14,669 - INFO - Epoch [300/10000] train_loss: -1.3775, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,677 - INFO - epoch complete!
+2024-03-16 20:18:14,677 - INFO - evaluating now!
+2024-03-16 20:18:14,677 - INFO - Epoch [301/10000] train_loss: -1.3744, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,684 - INFO - epoch complete!
+2024-03-16 20:18:14,684 - INFO - evaluating now!
+2024-03-16 20:18:14,684 - INFO - Epoch [302/10000] train_loss: -1.3664, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,692 - INFO - epoch complete!
+2024-03-16 20:18:14,692 - INFO - evaluating now!
+2024-03-16 20:18:14,692 - INFO - Epoch [303/10000] train_loss: -1.3673, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,699 - INFO - epoch complete!
+2024-03-16 20:18:14,700 - INFO - evaluating now!
+2024-03-16 20:18:14,700 - INFO - Epoch [304/10000] train_loss: -1.3726, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,707 - INFO - epoch complete!
+2024-03-16 20:18:14,707 - INFO - evaluating now!
+2024-03-16 20:18:14,707 - INFO - Epoch [305/10000] train_loss: -1.3634, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,715 - INFO - epoch complete!
+2024-03-16 20:18:14,715 - INFO - evaluating now!
+2024-03-16 20:18:14,715 - INFO - Epoch [306/10000] train_loss: -1.3673, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,722 - INFO - epoch complete!
+2024-03-16 20:18:14,723 - INFO - evaluating now!
+2024-03-16 20:18:14,723 - INFO - Epoch [307/10000] train_loss: -1.3695, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,729 - INFO - epoch complete!
+2024-03-16 20:18:14,730 - INFO - evaluating now!
+2024-03-16 20:18:14,730 - INFO - Epoch [308/10000] train_loss: -1.3639, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,737 - INFO - epoch complete!
+2024-03-16 20:18:14,737 - INFO - evaluating now!
+2024-03-16 20:18:14,737 - INFO - Epoch [309/10000] train_loss: -1.3746, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,745 - INFO - epoch complete!
+2024-03-16 20:18:14,745 - INFO - evaluating now!
+2024-03-16 20:18:14,745 - INFO - Epoch [310/10000] train_loss: -1.3736, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,752 - INFO - epoch complete!
+2024-03-16 20:18:14,753 - INFO - evaluating now!
+2024-03-16 20:18:14,753 - INFO - Epoch [311/10000] train_loss: -1.3634, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,760 - INFO - epoch complete!
+2024-03-16 20:18:14,760 - INFO - evaluating now!
+2024-03-16 20:18:14,760 - INFO - Epoch [312/10000] train_loss: -1.3750, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,767 - INFO - epoch complete!
+2024-03-16 20:18:14,768 - INFO - evaluating now!
+2024-03-16 20:18:14,768 - INFO - Epoch [313/10000] train_loss: -1.3690, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,775 - INFO - epoch complete!
+2024-03-16 20:18:14,775 - INFO - evaluating now!
+2024-03-16 20:18:14,775 - INFO - Epoch [314/10000] train_loss: -1.3683, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,783 - INFO - epoch complete!
+2024-03-16 20:18:14,783 - INFO - evaluating now!
+2024-03-16 20:18:14,783 - INFO - Epoch [315/10000] train_loss: -1.3766, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,790 - INFO - epoch complete!
+2024-03-16 20:18:14,791 - INFO - evaluating now!
+2024-03-16 20:18:14,791 - INFO - Epoch [316/10000] train_loss: -1.3685, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,797 - INFO - epoch complete!
+2024-03-16 20:18:14,798 - INFO - evaluating now!
+2024-03-16 20:18:14,798 - INFO - Epoch [317/10000] train_loss: -1.3708, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,805 - INFO - epoch complete!
+2024-03-16 20:18:14,805 - INFO - evaluating now!
+2024-03-16 20:18:14,805 - INFO - Epoch [318/10000] train_loss: -1.3662, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,813 - INFO - epoch complete!
+2024-03-16 20:18:14,813 - INFO - evaluating now!
+2024-03-16 20:18:14,813 - INFO - Epoch [319/10000] train_loss: -1.3736, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,821 - INFO - epoch complete!
+2024-03-16 20:18:14,821 - INFO - evaluating now!
+2024-03-16 20:18:14,821 - INFO - Epoch [320/10000] train_loss: -1.3725, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,828 - INFO - epoch complete!
+2024-03-16 20:18:14,828 - INFO - evaluating now!
+2024-03-16 20:18:14,828 - INFO - Epoch [321/10000] train_loss: -1.3767, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,836 - INFO - epoch complete!
+2024-03-16 20:18:14,836 - INFO - evaluating now!
+2024-03-16 20:18:14,836 - INFO - Epoch [322/10000] train_loss: -1.3585, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,843 - INFO - epoch complete!
+2024-03-16 20:18:14,844 - INFO - evaluating now!
+2024-03-16 20:18:14,844 - INFO - Epoch [323/10000] train_loss: -1.3727, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,851 - INFO - epoch complete!
+2024-03-16 20:18:14,851 - INFO - evaluating now!
+2024-03-16 20:18:14,851 - INFO - Epoch [324/10000] train_loss: -1.3835, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,859 - INFO - epoch complete!
+2024-03-16 20:18:14,859 - INFO - evaluating now!
+2024-03-16 20:18:14,859 - INFO - Epoch [325/10000] train_loss: -1.3787, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,866 - INFO - epoch complete!
+2024-03-16 20:18:14,867 - INFO - evaluating now!
+2024-03-16 20:18:14,867 - INFO - Epoch [326/10000] train_loss: -1.3685, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,874 - INFO - epoch complete!
+2024-03-16 20:18:14,874 - INFO - evaluating now!
+2024-03-16 20:18:14,874 - INFO - Epoch [327/10000] train_loss: -1.3735, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,881 - INFO - epoch complete!
+2024-03-16 20:18:14,881 - INFO - evaluating now!
+2024-03-16 20:18:14,881 - INFO - Epoch [328/10000] train_loss: -1.3669, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,889 - INFO - epoch complete!
+2024-03-16 20:18:14,889 - INFO - evaluating now!
+2024-03-16 20:18:14,889 - INFO - Epoch [329/10000] train_loss: -1.3628, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,897 - INFO - epoch complete!
+2024-03-16 20:18:14,897 - INFO - evaluating now!
+2024-03-16 20:18:14,897 - INFO - Epoch [330/10000] train_loss: -1.3777, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,904 - INFO - epoch complete!
+2024-03-16 20:18:14,905 - INFO - evaluating now!
+2024-03-16 20:18:14,905 - INFO - Epoch [331/10000] train_loss: -1.3777, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,912 - INFO - epoch complete!
+2024-03-16 20:18:14,912 - INFO - evaluating now!
+2024-03-16 20:18:14,912 - INFO - Epoch [332/10000] train_loss: -1.3573, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,920 - INFO - epoch complete!
+2024-03-16 20:18:14,920 - INFO - evaluating now!
+2024-03-16 20:18:14,920 - INFO - Epoch [333/10000] train_loss: -1.3717, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,927 - INFO - epoch complete!
+2024-03-16 20:18:14,928 - INFO - evaluating now!
+2024-03-16 20:18:14,928 - INFO - Epoch [334/10000] train_loss: -1.3668, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,935 - INFO - epoch complete!
+2024-03-16 20:18:14,935 - INFO - evaluating now!
+2024-03-16 20:18:14,935 - INFO - Epoch [335/10000] train_loss: -1.3697, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,943 - INFO - epoch complete!
+2024-03-16 20:18:14,943 - INFO - evaluating now!
+2024-03-16 20:18:14,943 - INFO - Epoch [336/10000] train_loss: -1.3594, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,950 - INFO - epoch complete!
+2024-03-16 20:18:14,950 - INFO - evaluating now!
+2024-03-16 20:18:14,951 - INFO - Epoch [337/10000] train_loss: -1.3722, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,957 - INFO - epoch complete!
+2024-03-16 20:18:14,958 - INFO - evaluating now!
+2024-03-16 20:18:14,958 - INFO - Epoch [338/10000] train_loss: -1.3565, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,965 - INFO - epoch complete!
+2024-03-16 20:18:14,965 - INFO - evaluating now!
+2024-03-16 20:18:14,965 - INFO - Epoch [339/10000] train_loss: -1.3766, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,973 - INFO - epoch complete!
+2024-03-16 20:18:14,973 - INFO - evaluating now!
+2024-03-16 20:18:14,973 - INFO - Epoch [340/10000] train_loss: -1.3678, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,980 - INFO - epoch complete!
+2024-03-16 20:18:14,981 - INFO - evaluating now!
+2024-03-16 20:18:14,981 - INFO - Epoch [341/10000] train_loss: -1.3714, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,988 - INFO - epoch complete!
+2024-03-16 20:18:14,988 - INFO - evaluating now!
+2024-03-16 20:18:14,988 - INFO - Epoch [342/10000] train_loss: -1.3763, lr: 0.010000, 0.01s
+2024-03-16 20:18:14,996 - INFO - epoch complete!
+2024-03-16 20:18:14,996 - INFO - evaluating now!
+2024-03-16 20:18:14,996 - INFO - Epoch [343/10000] train_loss: -1.3749, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,003 - INFO - epoch complete!
+2024-03-16 20:18:15,004 - INFO - evaluating now!
+2024-03-16 20:18:15,004 - INFO - Epoch [344/10000] train_loss: -1.3771, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,011 - INFO - epoch complete!
+2024-03-16 20:18:15,011 - INFO - evaluating now!
+2024-03-16 20:18:15,011 - INFO - Epoch [345/10000] train_loss: -1.3721, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,019 - INFO - epoch complete!
+2024-03-16 20:18:15,019 - INFO - evaluating now!
+2024-03-16 20:18:15,019 - INFO - Epoch [346/10000] train_loss: -1.3760, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,026 - INFO - epoch complete!
+2024-03-16 20:18:15,026 - INFO - evaluating now!
+2024-03-16 20:18:15,027 - INFO - Epoch [347/10000] train_loss: -1.3758, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,033 - INFO - epoch complete!
+2024-03-16 20:18:15,033 - INFO - evaluating now!
+2024-03-16 20:18:15,034 - INFO - Epoch [348/10000] train_loss: -1.3613, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,041 - INFO - epoch complete!
+2024-03-16 20:18:15,041 - INFO - evaluating now!
+2024-03-16 20:18:15,041 - INFO - Epoch [349/10000] train_loss: -1.3668, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,049 - INFO - epoch complete!
+2024-03-16 20:18:15,049 - INFO - evaluating now!
+2024-03-16 20:18:15,049 - INFO - Epoch [350/10000] train_loss: -1.3731, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,056 - INFO - epoch complete!
+2024-03-16 20:18:15,057 - INFO - evaluating now!
+2024-03-16 20:18:15,057 - INFO - Epoch [351/10000] train_loss: -1.3686, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,064 - INFO - epoch complete!
+2024-03-16 20:18:15,064 - INFO - evaluating now!
+2024-03-16 20:18:15,064 - INFO - Epoch [352/10000] train_loss: -1.3649, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,072 - INFO - epoch complete!
+2024-03-16 20:18:15,072 - INFO - evaluating now!
+2024-03-16 20:18:15,072 - INFO - Epoch [353/10000] train_loss: -1.3649, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,079 - INFO - epoch complete!
+2024-03-16 20:18:15,080 - INFO - evaluating now!
+2024-03-16 20:18:15,080 - INFO - Epoch [354/10000] train_loss: -1.3746, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,086 - INFO - epoch complete!
+2024-03-16 20:18:15,086 - INFO - evaluating now!
+2024-03-16 20:18:15,086 - INFO - Epoch [355/10000] train_loss: -1.3749, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,094 - INFO - epoch complete!
+2024-03-16 20:18:15,094 - INFO - evaluating now!
+2024-03-16 20:18:15,094 - INFO - Epoch [356/10000] train_loss: -1.3719, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,101 - INFO - epoch complete!
+2024-03-16 20:18:15,101 - INFO - evaluating now!
+2024-03-16 20:18:15,101 - INFO - Epoch [357/10000] train_loss: -1.3734, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,109 - INFO - epoch complete!
+2024-03-16 20:18:15,109 - INFO - evaluating now!
+2024-03-16 20:18:15,109 - INFO - Epoch [358/10000] train_loss: -1.3830, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,117 - INFO - epoch complete!
+2024-03-16 20:18:15,117 - INFO - evaluating now!
+2024-03-16 20:18:15,117 - INFO - Epoch [359/10000] train_loss: -1.3676, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,124 - INFO - epoch complete!
+2024-03-16 20:18:15,124 - INFO - evaluating now!
+2024-03-16 20:18:15,124 - INFO - Epoch [360/10000] train_loss: -1.3656, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,132 - INFO - epoch complete!
+2024-03-16 20:18:15,132 - INFO - evaluating now!
+2024-03-16 20:18:15,132 - INFO - Epoch [361/10000] train_loss: -1.3794, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,139 - INFO - epoch complete!
+2024-03-16 20:18:15,140 - INFO - evaluating now!
+2024-03-16 20:18:15,140 - INFO - Epoch [362/10000] train_loss: -1.3755, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,147 - INFO - epoch complete!
+2024-03-16 20:18:15,147 - INFO - evaluating now!
+2024-03-16 20:18:15,147 - INFO - Epoch [363/10000] train_loss: -1.3742, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,155 - INFO - epoch complete!
+2024-03-16 20:18:15,155 - INFO - evaluating now!
+2024-03-16 20:18:15,155 - INFO - Epoch [364/10000] train_loss: -1.3686, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,162 - INFO - epoch complete!
+2024-03-16 20:18:15,163 - INFO - evaluating now!
+2024-03-16 20:18:15,163 - INFO - Epoch [365/10000] train_loss: -1.3710, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,169 - INFO - epoch complete!
+2024-03-16 20:18:15,170 - INFO - evaluating now!
+2024-03-16 20:18:15,170 - INFO - Epoch [366/10000] train_loss: -1.3738, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,177 - INFO - epoch complete!
+2024-03-16 20:18:15,177 - INFO - evaluating now!
+2024-03-16 20:18:15,177 - INFO - Epoch [367/10000] train_loss: -1.3680, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,185 - INFO - epoch complete!
+2024-03-16 20:18:15,185 - INFO - evaluating now!
+2024-03-16 20:18:15,185 - INFO - Epoch [368/10000] train_loss: -1.3817, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,192 - INFO - epoch complete!
+2024-03-16 20:18:15,193 - INFO - evaluating now!
+2024-03-16 20:18:15,193 - INFO - Epoch [369/10000] train_loss: -1.3698, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,200 - INFO - epoch complete!
+2024-03-16 20:18:15,200 - INFO - evaluating now!
+2024-03-16 20:18:15,200 - INFO - Epoch [370/10000] train_loss: -1.3828, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,208 - INFO - epoch complete!
+2024-03-16 20:18:15,208 - INFO - evaluating now!
+2024-03-16 20:18:15,208 - INFO - Epoch [371/10000] train_loss: -1.3682, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,215 - INFO - epoch complete!
+2024-03-16 20:18:15,216 - INFO - evaluating now!
+2024-03-16 20:18:15,216 - INFO - Epoch [372/10000] train_loss: -1.3773, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,223 - INFO - epoch complete!
+2024-03-16 20:18:15,223 - INFO - evaluating now!
+2024-03-16 20:18:15,223 - INFO - Epoch [373/10000] train_loss: -1.3750, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,231 - INFO - epoch complete!
+2024-03-16 20:18:15,231 - INFO - evaluating now!
+2024-03-16 20:18:15,231 - INFO - Epoch [374/10000] train_loss: -1.3566, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,238 - INFO - epoch complete!
+2024-03-16 20:18:15,239 - INFO - evaluating now!
+2024-03-16 20:18:15,239 - INFO - Epoch [375/10000] train_loss: -1.3711, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,246 - INFO - epoch complete!
+2024-03-16 20:18:15,246 - INFO - evaluating now!
+2024-03-16 20:18:15,246 - INFO - Epoch [376/10000] train_loss: -1.3828, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,253 - INFO - epoch complete!
+2024-03-16 20:18:15,253 - INFO - evaluating now!
+2024-03-16 20:18:15,253 - INFO - Epoch [377/10000] train_loss: -1.3797, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,261 - INFO - epoch complete!
+2024-03-16 20:18:15,261 - INFO - evaluating now!
+2024-03-16 20:18:15,261 - INFO - Epoch [378/10000] train_loss: -1.3648, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,268 - INFO - epoch complete!
+2024-03-16 20:18:15,269 - INFO - evaluating now!
+2024-03-16 20:18:15,269 - INFO - Epoch [379/10000] train_loss: -1.3620, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,276 - INFO - epoch complete!
+2024-03-16 20:18:15,276 - INFO - evaluating now!
+2024-03-16 20:18:15,276 - INFO - Epoch [380/10000] train_loss: -1.3546, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,284 - INFO - epoch complete!
+2024-03-16 20:18:15,284 - INFO - evaluating now!
+2024-03-16 20:18:15,284 - INFO - Epoch [381/10000] train_loss: -1.3510, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,291 - INFO - epoch complete!
+2024-03-16 20:18:15,292 - INFO - evaluating now!
+2024-03-16 20:18:15,292 - INFO - Epoch [382/10000] train_loss: -1.3462, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,299 - INFO - epoch complete!
+2024-03-16 20:18:15,299 - INFO - evaluating now!
+2024-03-16 20:18:15,299 - INFO - Epoch [383/10000] train_loss: -1.3433, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,307 - INFO - epoch complete!
+2024-03-16 20:18:15,307 - INFO - evaluating now!
+2024-03-16 20:18:15,307 - INFO - Epoch [384/10000] train_loss: -1.3732, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,314 - INFO - epoch complete!
+2024-03-16 20:18:15,315 - INFO - evaluating now!
+2024-03-16 20:18:15,315 - INFO - Epoch [385/10000] train_loss: -1.3327, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,321 - INFO - epoch complete!
+2024-03-16 20:18:15,322 - INFO - evaluating now!
+2024-03-16 20:18:15,322 - INFO - Epoch [386/10000] train_loss: -1.3444, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,329 - INFO - epoch complete!
+2024-03-16 20:18:15,329 - INFO - evaluating now!
+2024-03-16 20:18:15,329 - INFO - Epoch [387/10000] train_loss: -1.3595, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,337 - INFO - epoch complete!
+2024-03-16 20:18:15,337 - INFO - evaluating now!
+2024-03-16 20:18:15,337 - INFO - Epoch [388/10000] train_loss: -1.3479, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,344 - INFO - epoch complete!
+2024-03-16 20:18:15,345 - INFO - evaluating now!
+2024-03-16 20:18:15,345 - INFO - Epoch [389/10000] train_loss: -1.3458, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,352 - INFO - epoch complete!
+2024-03-16 20:18:15,352 - INFO - evaluating now!
+2024-03-16 20:18:15,352 - INFO - Epoch [390/10000] train_loss: -1.3532, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,361 - INFO - epoch complete!
+2024-03-16 20:18:15,361 - INFO - evaluating now!
+2024-03-16 20:18:15,361 - INFO - Epoch [391/10000] train_loss: -1.3678, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,369 - INFO - epoch complete!
+2024-03-16 20:18:15,369 - INFO - evaluating now!
+2024-03-16 20:18:15,369 - INFO - Epoch [392/10000] train_loss: -1.3491, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,376 - INFO - epoch complete!
+2024-03-16 20:18:15,377 - INFO - evaluating now!
+2024-03-16 20:18:15,377 - INFO - Epoch [393/10000] train_loss: -1.3713, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,384 - INFO - epoch complete!
+2024-03-16 20:18:15,384 - INFO - evaluating now!
+2024-03-16 20:18:15,384 - INFO - Epoch [394/10000] train_loss: -1.3750, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,392 - INFO - epoch complete!
+2024-03-16 20:18:15,392 - INFO - evaluating now!
+2024-03-16 20:18:15,392 - INFO - Epoch [395/10000] train_loss: -1.3760, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,399 - INFO - epoch complete!
+2024-03-16 20:18:15,400 - INFO - evaluating now!
+2024-03-16 20:18:15,400 - INFO - Epoch [396/10000] train_loss: -1.3793, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,407 - INFO - epoch complete!
+2024-03-16 20:18:15,407 - INFO - evaluating now!
+2024-03-16 20:18:15,407 - INFO - Epoch [397/10000] train_loss: -1.3677, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,415 - INFO - epoch complete!
+2024-03-16 20:18:15,415 - INFO - evaluating now!
+2024-03-16 20:18:15,415 - INFO - Epoch [398/10000] train_loss: -1.3720, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,422 - INFO - epoch complete!
+2024-03-16 20:18:15,423 - INFO - evaluating now!
+2024-03-16 20:18:15,423 - INFO - Epoch [399/10000] train_loss: -1.3707, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,429 - INFO - epoch complete!
+2024-03-16 20:18:15,430 - INFO - evaluating now!
+2024-03-16 20:18:15,430 - INFO - Epoch [400/10000] train_loss: -1.3706, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,437 - INFO - epoch complete!
+2024-03-16 20:18:15,437 - INFO - evaluating now!
+2024-03-16 20:18:15,437 - INFO - Epoch [401/10000] train_loss: -1.3713, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,445 - INFO - epoch complete!
+2024-03-16 20:18:15,445 - INFO - evaluating now!
+2024-03-16 20:18:15,445 - INFO - Epoch [402/10000] train_loss: -1.3695, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,452 - INFO - epoch complete!
+2024-03-16 20:18:15,453 - INFO - evaluating now!
+2024-03-16 20:18:15,453 - INFO - Epoch [403/10000] train_loss: -1.3777, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,460 - INFO - epoch complete!
+2024-03-16 20:18:15,460 - INFO - evaluating now!
+2024-03-16 20:18:15,460 - INFO - Epoch [404/10000] train_loss: -1.3737, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,468 - INFO - epoch complete!
+2024-03-16 20:18:15,468 - INFO - evaluating now!
+2024-03-16 20:18:15,468 - INFO - Epoch [405/10000] train_loss: -1.3735, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,475 - INFO - epoch complete!
+2024-03-16 20:18:15,476 - INFO - evaluating now!
+2024-03-16 20:18:15,476 - INFO - Epoch [406/10000] train_loss: -1.3706, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,483 - INFO - epoch complete!
+2024-03-16 20:18:15,483 - INFO - evaluating now!
+2024-03-16 20:18:15,483 - INFO - Epoch [407/10000] train_loss: -1.3742, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,490 - INFO - epoch complete!
+2024-03-16 20:18:15,491 - INFO - evaluating now!
+2024-03-16 20:18:15,491 - INFO - Epoch [408/10000] train_loss: -1.3719, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,498 - INFO - epoch complete!
+2024-03-16 20:18:15,498 - INFO - evaluating now!
+2024-03-16 20:18:15,498 - INFO - Epoch [409/10000] train_loss: -1.3695, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,505 - INFO - epoch complete!
+2024-03-16 20:18:15,505 - INFO - evaluating now!
+2024-03-16 20:18:15,505 - INFO - Epoch [410/10000] train_loss: -1.3734, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,513 - INFO - epoch complete!
+2024-03-16 20:18:15,513 - INFO - evaluating now!
+2024-03-16 20:18:15,513 - INFO - Epoch [411/10000] train_loss: -1.3783, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,520 - INFO - epoch complete!
+2024-03-16 20:18:15,521 - INFO - evaluating now!
+2024-03-16 20:18:15,521 - INFO - Epoch [412/10000] train_loss: -1.3740, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,528 - INFO - epoch complete!
+2024-03-16 20:18:15,528 - INFO - evaluating now!
+2024-03-16 20:18:15,528 - INFO - Epoch [413/10000] train_loss: -1.3725, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,536 - INFO - epoch complete!
+2024-03-16 20:18:15,536 - INFO - evaluating now!
+2024-03-16 20:18:15,536 - INFO - Epoch [414/10000] train_loss: -1.3621, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,543 - INFO - epoch complete!
+2024-03-16 20:18:15,544 - INFO - evaluating now!
+2024-03-16 20:18:15,544 - INFO - Epoch [415/10000] train_loss: -1.3771, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,551 - INFO - epoch complete!
+2024-03-16 20:18:15,551 - INFO - evaluating now!
+2024-03-16 20:18:15,551 - INFO - Epoch [416/10000] train_loss: -1.3723, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,559 - INFO - epoch complete!
+2024-03-16 20:18:15,559 - INFO - evaluating now!
+2024-03-16 20:18:15,559 - INFO - Epoch [417/10000] train_loss: -1.3735, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,566 - INFO - epoch complete!
+2024-03-16 20:18:15,566 - INFO - evaluating now!
+2024-03-16 20:18:15,567 - INFO - Epoch [418/10000] train_loss: -1.3760, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,573 - INFO - epoch complete!
+2024-03-16 20:18:15,574 - INFO - evaluating now!
+2024-03-16 20:18:15,574 - INFO - Epoch [419/10000] train_loss: -1.3673, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,581 - INFO - epoch complete!
+2024-03-16 20:18:15,581 - INFO - evaluating now!
+2024-03-16 20:18:15,581 - INFO - Epoch [420/10000] train_loss: -1.3729, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,589 - INFO - epoch complete!
+2024-03-16 20:18:15,589 - INFO - evaluating now!
+2024-03-16 20:18:15,589 - INFO - Epoch [421/10000] train_loss: -1.3721, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,597 - INFO - epoch complete!
+2024-03-16 20:18:15,597 - INFO - evaluating now!
+2024-03-16 20:18:15,597 - INFO - Epoch [422/10000] train_loss: -1.3751, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,604 - INFO - epoch complete!
+2024-03-16 20:18:15,605 - INFO - evaluating now!
+2024-03-16 20:18:15,605 - INFO - Epoch [423/10000] train_loss: -1.3795, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,612 - INFO - epoch complete!
+2024-03-16 20:18:15,613 - INFO - evaluating now!
+2024-03-16 20:18:15,613 - INFO - Epoch [424/10000] train_loss: -1.3721, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,620 - INFO - epoch complete!
+2024-03-16 20:18:15,620 - INFO - evaluating now!
+2024-03-16 20:18:15,620 - INFO - Epoch [425/10000] train_loss: -1.3797, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,628 - INFO - epoch complete!
+2024-03-16 20:18:15,628 - INFO - evaluating now!
+2024-03-16 20:18:15,628 - INFO - Epoch [426/10000] train_loss: -1.3645, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,636 - INFO - epoch complete!
+2024-03-16 20:18:15,636 - INFO - evaluating now!
+2024-03-16 20:18:15,636 - INFO - Epoch [427/10000] train_loss: -1.3803, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,643 - INFO - epoch complete!
+2024-03-16 20:18:15,644 - INFO - evaluating now!
+2024-03-16 20:18:15,644 - INFO - Epoch [428/10000] train_loss: -1.3754, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,651 - INFO - epoch complete!
+2024-03-16 20:18:15,652 - INFO - evaluating now!
+2024-03-16 20:18:15,652 - INFO - Epoch [429/10000] train_loss: -1.3804, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,659 - INFO - epoch complete!
+2024-03-16 20:18:15,659 - INFO - evaluating now!
+2024-03-16 20:18:15,659 - INFO - Epoch [430/10000] train_loss: -1.3784, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,667 - INFO - epoch complete!
+2024-03-16 20:18:15,667 - INFO - evaluating now!
+2024-03-16 20:18:15,667 - INFO - Epoch [431/10000] train_loss: -1.3833, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,675 - INFO - epoch complete!
+2024-03-16 20:18:15,675 - INFO - evaluating now!
+2024-03-16 20:18:15,675 - INFO - Epoch [432/10000] train_loss: -1.3693, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,682 - INFO - epoch complete!
+2024-03-16 20:18:15,683 - INFO - evaluating now!
+2024-03-16 20:18:15,683 - INFO - Epoch [433/10000] train_loss: -1.3710, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,691 - INFO - epoch complete!
+2024-03-16 20:18:15,691 - INFO - evaluating now!
+2024-03-16 20:18:15,691 - INFO - Epoch [434/10000] train_loss: -1.3850, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,698 - INFO - epoch complete!
+2024-03-16 20:18:15,698 - INFO - evaluating now!
+2024-03-16 20:18:15,698 - INFO - Epoch [435/10000] train_loss: -1.3810, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,705 - INFO - epoch complete!
+2024-03-16 20:18:15,705 - INFO - evaluating now!
+2024-03-16 20:18:15,706 - INFO - Epoch [436/10000] train_loss: -1.3746, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,713 - INFO - epoch complete!
+2024-03-16 20:18:15,713 - INFO - evaluating now!
+2024-03-16 20:18:15,713 - INFO - Epoch [437/10000] train_loss: -1.3812, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,721 - INFO - epoch complete!
+2024-03-16 20:18:15,721 - INFO - evaluating now!
+2024-03-16 20:18:15,721 - INFO - Epoch [438/10000] train_loss: -1.3768, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,729 - INFO - epoch complete!
+2024-03-16 20:18:15,729 - INFO - evaluating now!
+2024-03-16 20:18:15,729 - INFO - Epoch [439/10000] train_loss: -1.3751, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,736 - INFO - epoch complete!
+2024-03-16 20:18:15,737 - INFO - evaluating now!
+2024-03-16 20:18:15,737 - INFO - Epoch [440/10000] train_loss: -1.3716, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,744 - INFO - epoch complete!
+2024-03-16 20:18:15,744 - INFO - evaluating now!
+2024-03-16 20:18:15,744 - INFO - Epoch [441/10000] train_loss: -1.3812, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,752 - INFO - epoch complete!
+2024-03-16 20:18:15,752 - INFO - evaluating now!
+2024-03-16 20:18:15,752 - INFO - Epoch [442/10000] train_loss: -1.3827, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,759 - INFO - epoch complete!
+2024-03-16 20:18:15,760 - INFO - evaluating now!
+2024-03-16 20:18:15,760 - INFO - Epoch [443/10000] train_loss: -1.3671, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,767 - INFO - epoch complete!
+2024-03-16 20:18:15,767 - INFO - evaluating now!
+2024-03-16 20:18:15,767 - INFO - Epoch [444/10000] train_loss: -1.3810, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,775 - INFO - epoch complete!
+2024-03-16 20:18:15,775 - INFO - evaluating now!
+2024-03-16 20:18:15,775 - INFO - Epoch [445/10000] train_loss: -1.3789, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,782 - INFO - epoch complete!
+2024-03-16 20:18:15,782 - INFO - evaluating now!
+2024-03-16 20:18:15,783 - INFO - Epoch [446/10000] train_loss: -1.3810, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,789 - INFO - epoch complete!
+2024-03-16 20:18:15,790 - INFO - evaluating now!
+2024-03-16 20:18:15,790 - INFO - Epoch [447/10000] train_loss: -1.3826, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,797 - INFO - epoch complete!
+2024-03-16 20:18:15,797 - INFO - evaluating now!
+2024-03-16 20:18:15,797 - INFO - Epoch [448/10000] train_loss: -1.3774, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,803 - INFO - epoch complete!
+2024-03-16 20:18:15,804 - INFO - evaluating now!
+2024-03-16 20:18:15,804 - INFO - Epoch [449/10000] train_loss: -1.3609, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,811 - INFO - epoch complete!
+2024-03-16 20:18:15,811 - INFO - evaluating now!
+2024-03-16 20:18:15,811 - INFO - Epoch [450/10000] train_loss: -1.3747, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,819 - INFO - epoch complete!
+2024-03-16 20:18:15,819 - INFO - evaluating now!
+2024-03-16 20:18:15,819 - INFO - Epoch [451/10000] train_loss: -1.3784, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,826 - INFO - epoch complete!
+2024-03-16 20:18:15,827 - INFO - evaluating now!
+2024-03-16 20:18:15,827 - INFO - Epoch [452/10000] train_loss: -1.3824, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,833 - INFO - epoch complete!
+2024-03-16 20:18:15,834 - INFO - evaluating now!
+2024-03-16 20:18:15,834 - INFO - Epoch [453/10000] train_loss: -1.3688, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,841 - INFO - epoch complete!
+2024-03-16 20:18:15,841 - INFO - evaluating now!
+2024-03-16 20:18:15,841 - INFO - Epoch [454/10000] train_loss: -1.3802, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,849 - INFO - epoch complete!
+2024-03-16 20:18:15,849 - INFO - evaluating now!
+2024-03-16 20:18:15,849 - INFO - Epoch [455/10000] train_loss: -1.3797, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,856 - INFO - epoch complete!
+2024-03-16 20:18:15,857 - INFO - evaluating now!
+2024-03-16 20:18:15,857 - INFO - Epoch [456/10000] train_loss: -1.3842, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,864 - INFO - epoch complete!
+2024-03-16 20:18:15,864 - INFO - evaluating now!
+2024-03-16 20:18:15,864 - INFO - Epoch [457/10000] train_loss: -1.3770, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,872 - INFO - epoch complete!
+2024-03-16 20:18:15,872 - INFO - evaluating now!
+2024-03-16 20:18:15,872 - INFO - Epoch [458/10000] train_loss: -1.3758, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,879 - INFO - epoch complete!
+2024-03-16 20:18:15,880 - INFO - evaluating now!
+2024-03-16 20:18:15,880 - INFO - Epoch [459/10000] train_loss: -1.3784, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,887 - INFO - epoch complete!
+2024-03-16 20:18:15,887 - INFO - evaluating now!
+2024-03-16 20:18:15,887 - INFO - Epoch [460/10000] train_loss: -1.3830, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,895 - INFO - epoch complete!
+2024-03-16 20:18:15,895 - INFO - evaluating now!
+2024-03-16 20:18:15,895 - INFO - Epoch [461/10000] train_loss: -1.3822, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,902 - INFO - epoch complete!
+2024-03-16 20:18:15,903 - INFO - evaluating now!
+2024-03-16 20:18:15,903 - INFO - Epoch [462/10000] train_loss: -1.3734, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,909 - INFO - epoch complete!
+2024-03-16 20:18:15,910 - INFO - evaluating now!
+2024-03-16 20:18:15,910 - INFO - Epoch [463/10000] train_loss: -1.3792, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,917 - INFO - epoch complete!
+2024-03-16 20:18:15,917 - INFO - evaluating now!
+2024-03-16 20:18:15,917 - INFO - Epoch [464/10000] train_loss: -1.3748, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,925 - INFO - epoch complete!
+2024-03-16 20:18:15,925 - INFO - evaluating now!
+2024-03-16 20:18:15,925 - INFO - Epoch [465/10000] train_loss: -1.3808, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,932 - INFO - epoch complete!
+2024-03-16 20:18:15,933 - INFO - evaluating now!
+2024-03-16 20:18:15,933 - INFO - Epoch [466/10000] train_loss: -1.3756, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,940 - INFO - epoch complete!
+2024-03-16 20:18:15,940 - INFO - evaluating now!
+2024-03-16 20:18:15,940 - INFO - Epoch [467/10000] train_loss: -1.3738, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,948 - INFO - epoch complete!
+2024-03-16 20:18:15,948 - INFO - evaluating now!
+2024-03-16 20:18:15,948 - INFO - Epoch [468/10000] train_loss: -1.3832, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,955 - INFO - epoch complete!
+2024-03-16 20:18:15,956 - INFO - evaluating now!
+2024-03-16 20:18:15,956 - INFO - Epoch [469/10000] train_loss: -1.3812, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,963 - INFO - epoch complete!
+2024-03-16 20:18:15,963 - INFO - evaluating now!
+2024-03-16 20:18:15,963 - INFO - Epoch [470/10000] train_loss: -1.3739, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,971 - INFO - epoch complete!
+2024-03-16 20:18:15,971 - INFO - evaluating now!
+2024-03-16 20:18:15,971 - INFO - Epoch [471/10000] train_loss: -1.3817, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,978 - INFO - epoch complete!
+2024-03-16 20:18:15,979 - INFO - evaluating now!
+2024-03-16 20:18:15,979 - INFO - Epoch [472/10000] train_loss: -1.3797, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,985 - INFO - epoch complete!
+2024-03-16 20:18:15,986 - INFO - evaluating now!
+2024-03-16 20:18:15,986 - INFO - Epoch [473/10000] train_loss: -1.3714, lr: 0.010000, 0.01s
+2024-03-16 20:18:15,993 - INFO - epoch complete!
+2024-03-16 20:18:15,993 - INFO - evaluating now!
+2024-03-16 20:18:15,993 - INFO - Epoch [474/10000] train_loss: -1.3813, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,001 - INFO - epoch complete!
+2024-03-16 20:18:16,001 - INFO - evaluating now!
+2024-03-16 20:18:16,001 - INFO - Epoch [475/10000] train_loss: -1.3792, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,008 - INFO - epoch complete!
+2024-03-16 20:18:16,008 - INFO - evaluating now!
+2024-03-16 20:18:16,008 - INFO - Epoch [476/10000] train_loss: -1.3812, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,015 - INFO - epoch complete!
+2024-03-16 20:18:16,016 - INFO - evaluating now!
+2024-03-16 20:18:16,016 - INFO - Epoch [477/10000] train_loss: -1.3802, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,023 - INFO - epoch complete!
+2024-03-16 20:18:16,023 - INFO - evaluating now!
+2024-03-16 20:18:16,023 - INFO - Epoch [478/10000] train_loss: -1.3770, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,031 - INFO - epoch complete!
+2024-03-16 20:18:16,031 - INFO - evaluating now!
+2024-03-16 20:18:16,031 - INFO - Epoch [479/10000] train_loss: -1.3810, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,038 - INFO - epoch complete!
+2024-03-16 20:18:16,039 - INFO - evaluating now!
+2024-03-16 20:18:16,039 - INFO - Epoch [480/10000] train_loss: -1.3753, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,046 - INFO - epoch complete!
+2024-03-16 20:18:16,046 - INFO - evaluating now!
+2024-03-16 20:18:16,046 - INFO - Epoch [481/10000] train_loss: -1.3785, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,053 - INFO - epoch complete!
+2024-03-16 20:18:16,053 - INFO - evaluating now!
+2024-03-16 20:18:16,053 - INFO - Epoch [482/10000] train_loss: -1.3840, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,061 - INFO - epoch complete!
+2024-03-16 20:18:16,061 - INFO - evaluating now!
+2024-03-16 20:18:16,061 - INFO - Epoch [483/10000] train_loss: -1.3817, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,068 - INFO - epoch complete!
+2024-03-16 20:18:16,069 - INFO - evaluating now!
+2024-03-16 20:18:16,069 - INFO - Epoch [484/10000] train_loss: -1.3742, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,076 - INFO - epoch complete!
+2024-03-16 20:18:16,076 - INFO - evaluating now!
+2024-03-16 20:18:16,076 - INFO - Epoch [485/10000] train_loss: -1.3762, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,083 - INFO - epoch complete!
+2024-03-16 20:18:16,083 - INFO - evaluating now!
+2024-03-16 20:18:16,083 - INFO - Epoch [486/10000] train_loss: -1.3619, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,091 - INFO - epoch complete!
+2024-03-16 20:18:16,091 - INFO - evaluating now!
+2024-03-16 20:18:16,091 - INFO - Epoch [487/10000] train_loss: -1.3843, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,098 - INFO - epoch complete!
+2024-03-16 20:18:16,099 - INFO - evaluating now!
+2024-03-16 20:18:16,099 - INFO - Epoch [488/10000] train_loss: -1.3640, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,105 - INFO - epoch complete!
+2024-03-16 20:18:16,106 - INFO - evaluating now!
+2024-03-16 20:18:16,106 - INFO - Epoch [489/10000] train_loss: -1.3696, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,113 - INFO - epoch complete!
+2024-03-16 20:18:16,113 - INFO - evaluating now!
+2024-03-16 20:18:16,113 - INFO - Epoch [490/10000] train_loss: -1.3733, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,121 - INFO - epoch complete!
+2024-03-16 20:18:16,121 - INFO - evaluating now!
+2024-03-16 20:18:16,121 - INFO - Epoch [491/10000] train_loss: -1.3613, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,128 - INFO - epoch complete!
+2024-03-16 20:18:16,129 - INFO - evaluating now!
+2024-03-16 20:18:16,129 - INFO - Epoch [492/10000] train_loss: -1.3831, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,136 - INFO - epoch complete!
+2024-03-16 20:18:16,136 - INFO - evaluating now!
+2024-03-16 20:18:16,136 - INFO - Epoch [493/10000] train_loss: -1.3802, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,144 - INFO - epoch complete!
+2024-03-16 20:18:16,144 - INFO - evaluating now!
+2024-03-16 20:18:16,144 - INFO - Epoch [494/10000] train_loss: -1.3733, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,151 - INFO - epoch complete!
+2024-03-16 20:18:16,152 - INFO - evaluating now!
+2024-03-16 20:18:16,152 - INFO - Epoch [495/10000] train_loss: -1.3749, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,159 - INFO - epoch complete!
+2024-03-16 20:18:16,159 - INFO - evaluating now!
+2024-03-16 20:18:16,159 - INFO - Epoch [496/10000] train_loss: -1.3530, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,167 - INFO - epoch complete!
+2024-03-16 20:18:16,167 - INFO - evaluating now!
+2024-03-16 20:18:16,167 - INFO - Epoch [497/10000] train_loss: -1.3783, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,174 - INFO - epoch complete!
+2024-03-16 20:18:16,174 - INFO - evaluating now!
+2024-03-16 20:18:16,175 - INFO - Epoch [498/10000] train_loss: -1.3636, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,181 - INFO - epoch complete!
+2024-03-16 20:18:16,182 - INFO - evaluating now!
+2024-03-16 20:18:16,182 - INFO - Epoch [499/10000] train_loss: -1.3677, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,187 - INFO - Saved model at 499
+2024-03-16 20:18:16,187 - INFO - saving to ./libgptb/cache/43327/model_cache/DGI_Cora_epoch499.tar
+2024-03-16 20:18:16,195 - INFO - epoch complete!
+2024-03-16 20:18:16,195 - INFO - evaluating now!
+2024-03-16 20:18:16,195 - INFO - Epoch [500/10000] train_loss: -1.3650, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,201 - INFO - epoch complete!
+2024-03-16 20:18:16,202 - INFO - evaluating now!
+2024-03-16 20:18:16,202 - INFO - Epoch [501/10000] train_loss: -1.3768, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,209 - INFO - epoch complete!
+2024-03-16 20:18:16,209 - INFO - evaluating now!
+2024-03-16 20:18:16,209 - INFO - Epoch [502/10000] train_loss: -1.3756, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,217 - INFO - epoch complete!
+2024-03-16 20:18:16,217 - INFO - evaluating now!
+2024-03-16 20:18:16,217 - INFO - Epoch [503/10000] train_loss: -1.3814, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,224 - INFO - epoch complete!
+2024-03-16 20:18:16,224 - INFO - evaluating now!
+2024-03-16 20:18:16,224 - INFO - Epoch [504/10000] train_loss: -1.3824, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,232 - INFO - epoch complete!
+2024-03-16 20:18:16,232 - INFO - evaluating now!
+2024-03-16 20:18:16,232 - INFO - Epoch [505/10000] train_loss: -1.3804, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,239 - INFO - epoch complete!
+2024-03-16 20:18:16,239 - INFO - evaluating now!
+2024-03-16 20:18:16,239 - INFO - Epoch [506/10000] train_loss: -1.3738, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,247 - INFO - epoch complete!
+2024-03-16 20:18:16,247 - INFO - evaluating now!
+2024-03-16 20:18:16,247 - INFO - Epoch [507/10000] train_loss: -1.3817, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,254 - INFO - epoch complete!
+2024-03-16 20:18:16,254 - INFO - evaluating now!
+2024-03-16 20:18:16,254 - INFO - Epoch [508/10000] train_loss: -1.3815, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,261 - INFO - epoch complete!
+2024-03-16 20:18:16,261 - INFO - evaluating now!
+2024-03-16 20:18:16,261 - INFO - Epoch [509/10000] train_loss: -1.3778, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,269 - INFO - epoch complete!
+2024-03-16 20:18:16,269 - INFO - evaluating now!
+2024-03-16 20:18:16,269 - INFO - Epoch [510/10000] train_loss: -1.3812, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,276 - INFO - epoch complete!
+2024-03-16 20:18:16,276 - INFO - evaluating now!
+2024-03-16 20:18:16,276 - INFO - Epoch [511/10000] train_loss: -1.3580, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,284 - INFO - epoch complete!
+2024-03-16 20:18:16,284 - INFO - evaluating now!
+2024-03-16 20:18:16,284 - INFO - Epoch [512/10000] train_loss: -1.3779, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,291 - INFO - epoch complete!
+2024-03-16 20:18:16,291 - INFO - evaluating now!
+2024-03-16 20:18:16,291 - INFO - Epoch [513/10000] train_loss: -1.3772, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,299 - INFO - epoch complete!
+2024-03-16 20:18:16,299 - INFO - evaluating now!
+2024-03-16 20:18:16,299 - INFO - Epoch [514/10000] train_loss: -1.3790, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,306 - INFO - epoch complete!
+2024-03-16 20:18:16,306 - INFO - evaluating now!
+2024-03-16 20:18:16,306 - INFO - Epoch [515/10000] train_loss: -1.3818, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,313 - INFO - epoch complete!
+2024-03-16 20:18:16,313 - INFO - evaluating now!
+2024-03-16 20:18:16,313 - INFO - Epoch [516/10000] train_loss: -1.3807, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,321 - INFO - epoch complete!
+2024-03-16 20:18:16,321 - INFO - evaluating now!
+2024-03-16 20:18:16,321 - INFO - Epoch [517/10000] train_loss: -1.3818, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,328 - INFO - epoch complete!
+2024-03-16 20:18:16,328 - INFO - evaluating now!
+2024-03-16 20:18:16,328 - INFO - Epoch [518/10000] train_loss: -1.3828, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,336 - INFO - epoch complete!
+2024-03-16 20:18:16,336 - INFO - evaluating now!
+2024-03-16 20:18:16,336 - INFO - Epoch [519/10000] train_loss: -1.3769, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,343 - INFO - epoch complete!
+2024-03-16 20:18:16,343 - INFO - evaluating now!
+2024-03-16 20:18:16,343 - INFO - Epoch [520/10000] train_loss: -1.3760, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,351 - INFO - epoch complete!
+2024-03-16 20:18:16,351 - INFO - evaluating now!
+2024-03-16 20:18:16,351 - INFO - Epoch [521/10000] train_loss: -1.3808, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,358 - INFO - epoch complete!
+2024-03-16 20:18:16,358 - INFO - evaluating now!
+2024-03-16 20:18:16,358 - INFO - Epoch [522/10000] train_loss: -1.3680, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,365 - INFO - epoch complete!
+2024-03-16 20:18:16,365 - INFO - evaluating now!
+2024-03-16 20:18:16,365 - INFO - Epoch [523/10000] train_loss: -1.3747, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,373 - INFO - epoch complete!
+2024-03-16 20:18:16,373 - INFO - evaluating now!
+2024-03-16 20:18:16,373 - INFO - Epoch [524/10000] train_loss: -1.3818, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,380 - INFO - epoch complete!
+2024-03-16 20:18:16,380 - INFO - evaluating now!
+2024-03-16 20:18:16,380 - INFO - Epoch [525/10000] train_loss: -1.3795, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,388 - INFO - epoch complete!
+2024-03-16 20:18:16,388 - INFO - evaluating now!
+2024-03-16 20:18:16,388 - INFO - Epoch [526/10000] train_loss: -1.3784, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,395 - INFO - epoch complete!
+2024-03-16 20:18:16,395 - INFO - evaluating now!
+2024-03-16 20:18:16,395 - INFO - Epoch [527/10000] train_loss: -1.3852, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,403 - INFO - epoch complete!
+2024-03-16 20:18:16,403 - INFO - evaluating now!
+2024-03-16 20:18:16,403 - INFO - Epoch [528/10000] train_loss: -1.3682, lr: 0.010000, 0.01s
+2024-03-16 20:18:16,410 - INFO - epoch complete!
+2024-03-16 20:18:16,410 - INFO - evaluating now!
+2024-03-16 20:18:16,410 - INFO - Epoch [529/10000] train_loss: -1.3807, lr: 0.010000, 0.01s
