@@ -25,7 +25,6 @@ class GNN(torch.nn.Module):
             num_tasks (int): number of labels to be predicted
             virtual_node (bool): whether to add virtual node or not
         '''
-        print("GNN begins")
         super(GNN, self).__init__()
 
         self.num_layer = num_layer

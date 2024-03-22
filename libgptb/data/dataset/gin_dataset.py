@@ -19,9 +19,6 @@ class GINDataset(AbstractDataset):
 
     def __init__(self, config):
         self.config = config
-        print("data intizlize begin")
-        print(self.config.get("training_ratio",0.6))
-        
         self.datasetName = self.config.get('dataset', '')
         self._load_data()
 

@@ -22,13 +22,9 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
         other_args(dict): the rest parameter args, which will be pass to the Config
     """
     # load config
-    print("loading")
     config = ConfigParser(task, model_name, dataset_name,
                           config_file, saved_model, train, other_args)
-    print("loading finish")
     #emb_dim2=config.get(emb_dim,0)
-    #print(emb_dim2)
-    print("configure is ok")
 
     exp_id = config.get('exp_id', None)
     if exp_id is None:
@@ -46,43 +42,29 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     print(seed)
     
     # load dataset
-    #print(config.config)f
     dataset = get_dataset(config)
-   # return
-    #print(dataset)
-    #print(len(dataset))
     # transform the dataset and split
     data = dataset.get_data()
-    print("get data successfully")
-    #print(data_feature)
-    #print(len(data_feature))
-    #print(data)
+
     train_data = data
     valid_data = data
     test_data = data
-    #print(data)
+
     # train_data, valid_data, test_data = data
     if model_name=="GIN":
-        print("It is GIN model")
         train_data = data.get('train')
         valid_data = data.get('valid')
         test_data = data.get('test')
     data_feature = dataset.get_data_feature()
-    print("get data feature successfully")
-    #print(data_feature)
-    #print(len(data_feature))
-    #print(data)
+
 
     
     #load executor
     model_cache_file = './libgptb/cache/{}/model_cache/{}_{}.m'.format(
         exp_id, model_name, dataset_name)
     model = get_model(config, data_feature)
-    print("get data model successfully")
-    
-    print(config['model'])
     executor = get_executor(config, model, data_feature)
-    print("get data executor successfully")
+
 
     # train
     if train or not os.path.exists(model_cache_file):

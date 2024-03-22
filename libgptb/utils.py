@@ -24,7 +24,6 @@ def get_executor(config, model, data_feature):
     """
     # getattr(importlib.import_module('libgptb.executors'),
     #                     config['executor'])(config, model, data_feature)
-    print("executor is",config['executor'])
     try:
         return getattr(importlib.import_module('libgptb.executors'),
                        config['executor'])(config, model, data_feature)
