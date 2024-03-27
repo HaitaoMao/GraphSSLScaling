@@ -12,10 +12,10 @@ class GIN(AbstractGCLModel):
         self.num_tasks = data_feature.get('num_tasks')
         self.emb_dim = config.get('emb_dim', 384)
         self.num_layer = config.get('num_layer', 5)
-        
+        self.drop_ratio = config.get('drop_ratio',0)
         super().__init__(config, data_feature)
 
-        self.gnn=GNN(self.num_tasks, self.num_layer, self.emb_dim)
+        self.gnn=GNN(num_tasks = self.num_tasks, num_layer = self.num_layer, emb_dim = self.emb_dim, drop_ratio = self.drop_ratio)
 
 class GNN(torch.nn.Module):
 

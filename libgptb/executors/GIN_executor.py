@@ -23,6 +23,7 @@ class GINExecutor(AbstractExecutor):
         self.data_feature=data_feature
         self.device = self.config.get('device', torch.device('cpu'))
         self.model=model.gnn.to(self.device)
+        self.exp_id = self.config.get('exp_id', None)
 
         self.num_params=sum(p.numel() for p in self.model.parameters())
         self.learning_rate=self.config.get('learning_rate',0.001)
@@ -33,11 +34,25 @@ class GINExecutor(AbstractExecutor):
         self.training_ratio=config.get('training_ratio',0.2)
         self.random=config.get('random_seed',7)
         self.task_type=data_feature.get("task_type")
-        self.optimizer=optim.Adam(model.parameters(), lr=self.learning_rate)
+        self.optimizer=optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
+            
+        self.cache_dir = './libgptb/cache/{}/model_cache'.format(self.exp_id)
+        self.evaluate_res_dir = './libgptb/cache/{}/evaluate_cache'.format(self.exp_id)
+        self.summary_writer_dir = './libgptb/cache/{}/'.format(self.exp_id)
+        ensure_dir(self.cache_dir)
+        ensure_dir(self.evaluate_res_dir)
+        ensure_dir(self.summary_writer_dir)
+
+        self._writer = SummaryWriter(self.summary_writer_dir)
         self._logger = getLogger()
         self._scaler = self.data_feature.get('scaler')
         self._logger.info(self.model)
+        # for name, param in self.model.named_parameters():
+        #     self._logger.info(str(name) + '\t' + str(param.shape) + '\t' +
+        #                       str(param.device) + '\t' + str(param.requires_grad))
+        total_num = sum(p.numel() for p in self.model.parameters())
+        self._logger.info('Total parameter numbers: {}'.format(total_num))
     def save_model(self, cache_name):
         """
         将当前的模型保存到文件
@@ -68,8 +83,9 @@ class GINExecutor(AbstractExecutor):
         val_loss_curve = []
         self._logger.info('Start training ...')
         for epoch in range(1, self.epochs + 1):
-            self._logger.info("=====Epoch {}".format(epoch))
+            # self._logger.info("=====Epoch {}".format(epoch))
             train_loss=_train_epoch(self.model, self.device, train_dataloader, self.optimizer, self.task_type)
+            # self._writer.add_scalar('training loss', np.mean(train_loss), epoch)
             self._logger.info("epoch complete!")
             self._logger.info("evaluating now!")
             valid_perf,val_loss = _eval_epoch(self.model, self.device, eval_dataloader, self.evaluator, self.task_type)
@@ -93,8 +109,8 @@ class GINExecutor(AbstractExecutor):
         self._logger.info('Best validation score: {}'.format(valid_curve[best_val_epoch]))
         self._logger.info('Best val loss: {}'.format(val_loss_curve[best_val_loss_epoch]))
 
-        message = 'para num: {}, best val score: {},best val loss:{}'.\
-                    format(self.num_params, valid_curve[best_val_epoch], val_loss_curve[best_val_loss_epoch])
+        message = 'best val score: {},best val loss:{}'.\
+                    format(valid_curve[best_val_epoch], val_loss_curve[best_val_loss_epoch])
         self._logger.info(message)
     def evaluate(self, test_dataloader):
         """
@@ -111,9 +127,9 @@ class GINExecutor(AbstractExecutor):
             test_perf, test_loss = _eval_epoch(self.model, self.device, test_dataloader, self.evaluator, self.task_type)
             test_curve.append(test_perf[self.data_feature.get('eval_metric')])
             test_loss_curve.append(test_loss)
-        message = 'para num : {},  best test score : {},  best test loss : {}'.\
-                    format(self.num_params, test_curve[self.best_val_epoch], test_loss_curve[self.best_val_loss_epoch])
-        self._logger.info(message)# wandb.log({"train loss":train_loss,"val acc": valid_perf, "val loss": val_loss, "test acc": test_perf, "test loss":test_loss})
+        message = 'best test score : {},  best test loss : {}'.\
+                    format(test_curve[self.best_val_epoch], test_loss_curve[self.best_val_loss_epoch])
+        self._logger.info(message)
 
 def _train_epoch(model, device, loader, optimizer, task_type):
     model.train()
