@@ -15,11 +15,11 @@ class GIN(AbstractGCLModel):
         self.drop_ratio = config.get('drop_ratio',0)
         super().__init__(config, data_feature)
 
-        self.gnn=GNN(num_tasks = self.num_tasks, num_layer = self.num_layer, emb_dim = self.emb_dim, drop_ratio = self.drop_ratio)
+        self.gnn=GNN(num_tasks = self.num_tasks, num_layer = self.num_layer, emb_dim = self.emb_dim, drop_ratio = self.drop_ratio, virtual_node=False)
 
 class GNN(torch.nn.Module):
 
-    def __init__(self, num_tasks, num_layer = 5, emb_dim = 300, 
+    def __init__(self, num_tasks, num_layer = 5, emb_dim = 384, 
                     gnn_type = 'gin', virtual_node = True, residual = False, drop_ratio = 0.5, JK = "last", graph_pooling = "sum"):
         '''
             num_tasks (int): number of labels to be predicted

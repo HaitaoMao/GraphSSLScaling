@@ -40,9 +40,9 @@ class SGCDataset(AbstractDataset):
 
     def get_data(self):
         train_index = self.split_idx["train"]
-        train_loader = DataLoader(self.data[train_index[:int(self.config.get("training_ratio",0.2)*len(train_index))]], batch_size=self.config.get("batch_size",200), shuffle=True, num_workers = self.config.get("num_workers",10))
-        valid_loader = DataLoader(self.data[self.split_idx["valid"]], batch_size=self.config.get("batch_size",200), shuffle=False, num_workers = self.config.get("num_workers",10))
-        test_loader = DataLoader(self.data[self.split_idx["test"]], batch_size=self.config.get("batch_size",200), shuffle=False, num_workers = self.config.get("num_workers",10))
+        train_loader = DataLoader(self.data[train_index[:int(self.config.get("training_ratio",0.2)*len(train_index))]], batch_size=self.config.get("batch_size",128), shuffle=True, num_workers = self.config.get("num_workers",10))
+        valid_loader = DataLoader(self.data[self.split_idx["valid"]], batch_size=self.config.get("batch_size",128), shuffle=False, num_workers = self.config.get("num_workers",10))
+        test_loader = DataLoader(self.data[self.split_idx["test"]], batch_size=self.config.get("batch_size",128), shuffle=False, num_workers = self.config.get("num_workers",10))
         return {'train':train_loader,'valid':valid_loader,'test':test_loader}
     
     def get_data_feature(self):

@@ -25,7 +25,6 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     config = ConfigParser(task, model_name, dataset_name,
                           config_file, saved_model, train, other_args)
     #emb_dim2=config.get(emb_dim,0)
-    print(config)
     exp_id = config.get('exp_id', None)
     if exp_id is None:
         # Make a new experiment ID

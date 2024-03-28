@@ -75,26 +75,63 @@ class GINExecutor(AbstractExecutor):
         model_state, optimizer_state = torch.load(cache_name)
         self.model.load_state_dict(model_state)
         self.optimizer.load_state_dict(optimizer_state)
-    
+    def save_model_with_epoch(self, epoch):
+        """
+        保存某个epoch的模型
+
+        Args:
+            epoch(int): 轮数
+        """
+        ensure_dir(self.cache_dir)
+        config = dict()
+        config['model_state_dict'] = self.model.state_dict()
+        config['optimizer_state_dict'] = self.optimizer.state_dict()
+        config['epoch'] = epoch
+        model_path = self.cache_dir + '/' + self.config['model'] + '_' + self.config['dataset'] + '_epoch%d.tar' % epoch
+        torch.save(config, model_path)
+        self._logger.info("Saved model at {}".format(epoch))
+        return model_path
+
+    def load_model_with_epoch(self, epoch):
+        """
+        加载某个epoch的模型
+
+        Args:
+            epoch(int): 轮数
+        """
+        model_path = self.cache_dir + '/' + self.config['model'] + '_' + self.config['dataset'] + '_epoch%d.tar' % epoch
+        assert os.path.exists(model_path), 'Weights at epoch %d not found' % epoch
+        checkpoint = torch.load(model_path, map_location='cpu')
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        self._logger.info("Loaded model at {}".format(epoch))
     
         
     def train(self, train_dataloader, eval_dataloader):
         valid_curve = []
+        test_curve = []
         val_loss_curve = []
+        test_loss_curve = []
+
         self._logger.info('Start training ...')
         for epoch in range(1, self.epochs + 1):
-            # self._logger.info("=====Epoch {}".format(epoch))
+
             train_loss=_train_epoch(self.model, self.device, train_dataloader, self.optimizer, self.task_type)
+
             # self._writer.add_scalar('training loss', np.mean(train_loss), epoch)
             self._logger.info("epoch complete!")
             self._logger.info("evaluating now!")
             valid_perf,val_loss = _eval_epoch(self.model, self.device, eval_dataloader, self.evaluator, self.task_type)
+            # test_perf, test_loss = _eval_epoch(self.model, self.device, test_dataloader, self.evaluator, self.task_type)
             message = 'Epoch [{}/{}] train_loss: {:.4f}'.\
                     format(epoch, self.epochs, train_loss)
             self._logger.info(message)
-
+            
+            
             valid_curve.append(valid_perf[self.data_feature.get('eval_metric')])
             val_loss_curve.append(val_loss)
+            # test_curve.append(test_perf[self.data_feature.get('eval_metric')])
+            # test_loss_curve.append(test_loss)
 
         if 'classification' in self.data_feature.get('task_type'):
             best_val_epoch = np.argmax(np.array(valid_curve))
@@ -108,10 +145,11 @@ class GINExecutor(AbstractExecutor):
         self._logger.info('Finished training!')
         self._logger.info('Best validation score: {}'.format(valid_curve[best_val_epoch]))
         self._logger.info('Best val loss: {}'.format(val_loss_curve[best_val_loss_epoch]))
-
-        message = 'best val score: {},best val loss:{}'.\
-                    format(valid_curve[best_val_epoch], val_loss_curve[best_val_loss_epoch])
-        self._logger.info(message)
+        # self._logger.info('Test score: {}'.format(test_curve[best_val_epoch]))
+        # self._logger.info('Best test loss: {}'.format(test_loss_curve[best_val_loss_epoch]))
+        # message = 'best val score: {},best val loss:{}'.\
+        #             format(valid_curve[best_val_epoch], val_loss_curve[best_val_loss_epoch])
+        # self._logger.info(message)
     def evaluate(self, test_dataloader):
         """
         use model to test data
