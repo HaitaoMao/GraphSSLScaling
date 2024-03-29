@@ -112,7 +112,7 @@ class GINExecutor(AbstractExecutor):
         test_curve = []
         val_loss_curve = []
         test_loss_curve = []
-
+        min_loss=1.0
         self._logger.info('Start training ...')
         for epoch in range(1, self.epochs + 1):
 
@@ -126,7 +126,8 @@ class GINExecutor(AbstractExecutor):
             message = 'Epoch [{}/{}] train_loss: {:.4f}'.\
                     format(epoch, self.epochs, train_loss)
             self._logger.info(message)
-            
+            if min_loss>val_loss:
+                self.save_model_with_epoch(epoch)
             
             valid_curve.append(valid_perf[self.data_feature.get('eval_metric')])
             val_loss_curve.append(val_loss)
@@ -160,14 +161,21 @@ class GINExecutor(AbstractExecutor):
         self._logger.info('Start evaluating ...')
         test_curve = []
         test_loss_curve = []
-        for epoch in range(1, self.epochs + 1):
-            self._logger.info("=====Epoch {}".format(epoch))
-            test_perf, test_loss = _eval_epoch(self.model, self.device, test_dataloader, self.evaluator, self.task_type)
-            test_curve.append(test_perf[self.data_feature.get('eval_metric')])
-            test_loss_curve.append(test_loss)
-        message = 'best test score : {},  best test loss : {}'.\
-                    format(test_curve[self.best_val_epoch], test_loss_curve[self.best_val_loss_epoch])
-        self._logger.info(message)
+        self.load_model_with_epoch(self.best_val_epoch)
+        #self._logger.info("=====Epoch {}".format(epoch))
+        test_perf, test_loss = _eval_epoch(self.model, self.device, test_dataloader, self.evaluator, self.task_type)
+        #test_curve.append(test_perf[self.data_feature.get('eval_metric')])
+        #    test_loss_curve.append(test_loss)
+        #for epoch in range(1, self.epochs + 1):
+        print('test_pref: {},  test_loss: {}'.format(test_perf,test_loss))    
+        #    self._logger.info("=====Epoch {}".format(epoch))
+        #    test_perf, test_loss = _eval_epoch(self.model, self.device, test_dataloader, self.evaluator, self.task_type)
+        #    test_curve.append(test_perf[self.data_feature.get('eval_metric')])
+        #    test_loss_curve.append(test_loss)
+        #message = 'best test score : {},  best test loss : {}'.\
+        #            format(test_curve[self.best_val_epoch], test_loss_curve[self.best_val_loss_epoch])
+        
+        #self._logger.info(message)
 
 def _train_epoch(model, device, loader, optimizer, task_type):
     model.train()
