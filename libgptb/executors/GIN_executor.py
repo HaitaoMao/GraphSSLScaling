@@ -167,7 +167,7 @@ class GINExecutor(AbstractExecutor):
         #test_curve.append(test_perf[self.data_feature.get('eval_metric')])
         #    test_loss_curve.append(test_loss)
         #for epoch in range(1, self.epochs + 1):
-        print('test_pref: {},  test_loss: {}'.format(test_perf,test_loss))    
+        self._logger.info('test_pref: {},  test_loss: {}'.format(test_perf,test_loss))    
         #    self._logger.info("=====Epoch {}".format(epoch))
         #    test_perf, test_loss = _eval_epoch(self.model, self.device, test_dataloader, self.evaluator, self.task_type)
         #    test_curve.append(test_perf[self.data_feature.get('eval_metric')])
