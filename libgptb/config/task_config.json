@@ -1,7 +1,7 @@
 {
     "GCL": {
-        "allowed_model": ["DGI", "GRACE", "MVGRL", "CCA", "BGRL", "GBT", "SUGRL", "SFA", "AFGRL", "COSTA", "HomoGCL"],
-        "allowed_dataset": ["Cora", "CiteSeer", "PubMed","Computers", "Photo","CS","Physics"],
+        "allowed_model": ["DGI", "GRACE", "MVGRL", "CCA", "BGRL", "GBT", "SUGRL", "SFA", "AFGRL", "COSTA", "HomoGCL","MVGRLg"],
+        "allowed_dataset": ["Cora", "CiteSeer", "PubMed","Computers", "Photo","CS","Physics","MUTAG"],
         "DGI": {
             "dataset_class": "PyGDataset",
             "executor": "DGIExecutor",
@@ -51,6 +51,11 @@
             "dataset_class": "DGLDataset",
             "executor": "HomoGCLExecutor",
             "evaluator": "HomoGCLEvaluator"
+        },
+        "MVGRLg": {
+            "dataset_class": "TUDataset",
+            "executor": "MVGRLgExecutor",
+            "evaluator": "MVGRLgEvaluator"
         }
     }
 }
