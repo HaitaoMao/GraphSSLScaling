@@ -54,12 +54,17 @@
         }
     },
     "SGC":{
-        "allowed_model":["GIN"],
+        "allowed_model":["GIN","GraphCL"],
         "allowed_dataset":["ogbg-molhiv","ogbg-ppa"],
         "GIN": {
             "dataset_class": "SGCDataset",
             "executor": "GINExecutor",
             "evaluator": "GINEvaluator"
+        },
+        "GraphCL":{
+            "dataset_class": "TUDataset",
+            "executor": "GraphCLExecutor",
+            "evaluator": "GraphCLEvaluator"
         }
     }
 }

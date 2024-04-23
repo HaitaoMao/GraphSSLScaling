@@ -83,7 +83,7 @@ def get_logger(config, name=None):
     log_dir = './libgptb/log'
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
-    if config['task']=="SSL":
+    if config['task']=="GCL":
         log_filename = '{}-{}-{}-{}-{}.log'.format(config['model'],config['dataset'],
                                                 config['config_file'], config['exp_id'], get_local_time())
     else:

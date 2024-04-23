@@ -11,3 +11,4 @@ __pycache__/
 /libgptb/data/dataset/*/__pycache__
 /libgptb/__pycache__/
 /dataset/ogbg_molhiv
+/BZR

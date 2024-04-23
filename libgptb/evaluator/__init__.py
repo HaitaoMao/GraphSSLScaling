@@ -9,6 +9,7 @@ from libgptb.evaluator.MVGRL_evaluator import MVGRLEvaluator
 from libgptb.evaluator.COSTA_evaluator import COSTAEvaluator
 from libgptb.evaluator.HomoGCL_evaluator import HomoGCLEvaluator
 from libgptb.evaluator.GIN_evaluator import GINEvaluator
+from libgptb.evaluator.GraphCL_evaluator import GraphCLEvaluator
 
 
 __all__ = [
@@ -21,5 +22,6 @@ __all__ = [
     "GRACEEvaluator",
     "MVGRLEvaluator",
     'COSTA_evaluator',
-    'GINEvaluator'
+    'GINEvaluator',
+    'GraphCLEvaluator'
 ]

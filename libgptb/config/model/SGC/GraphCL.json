@@ -1,0 +1,8 @@
+{
+    "num_gc_layers": 3,
+    "learning_rate": 0.01,
+    "input_dim": 5,
+    "hidden_dim":32,
+    "prior": "False",
+    "num_features":1
+}
