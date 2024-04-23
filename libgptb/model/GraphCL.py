@@ -10,7 +10,6 @@ from torch import optim
 from libgptb.cortex_DIM.nn_modules.mi_networks import MIFCNet, MI1x1ConvNet
 from libgptb.losses import *
 #from gin import Encoder
-from libgptb.model.conv import GNN_node, GNN_node_Virtualnode
 from libgptb.model.abstract_gcl_model import AbstractGCLModel
 import os.path as osp
 from tqdm import tqdm
@@ -25,11 +24,7 @@ from torch_geometric.nn import GINConv, global_add_pool
 import numpy as np
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV, KFold, StratifiedKFold
-from sklearn.svm import SVC, LinearSVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn import preprocessing
-from sklearn.metrics import accuracy_score
+
 import sys
 
 class GraphCL(AbstractGCLModel):

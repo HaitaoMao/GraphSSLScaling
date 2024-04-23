@@ -19,7 +19,11 @@ class GraphCLExecutor(AbstractExecutor):
         self.learning_rate=self.config.get('learning_rate',0.001)
         self.optimizer = torch.optim.Adam(model.parameters(), lr=self.learning_rate)
         self.epochs=self.config.get("epochs",20)
+        self.exp_id = self.config.get('exp_id', None)
+
+        self.cache_dir = './libgptb/cache/{}/model_cache'.format(self.exp_id)
         self.log_interval=self.config.get("log_interval",10)
+
         self.batch_size=self.config.get("batch_size",128)
         self.aug=self.config.get("augs","random2")
         self.accuracies= {'val':[], 'test':[]}
@@ -28,6 +32,8 @@ class GraphCLExecutor(AbstractExecutor):
         self.prior=self.config.get("prior")=="True"
         self.DS=self.config.get("DS","BZR")
         self.num_gc_layers=model.num_gc_layers
+
+        self._logger = getLogger()
 
     def save_model(self, cache_name):
         """
@@ -52,7 +58,31 @@ class GraphCLExecutor(AbstractExecutor):
         self.model.load_state_dict(model_state)
         self.optimizer.load_state_dict(optimizer_state)
     
-    
+    def save_model_with_epoch(self, epoch):
+
+        ensure_dir(self.cache_dir)
+        config = dict()
+        config['model_state_dict'] = self.model.state_dict()
+        config['optimizer_state_dict'] = self.optimizer.state_dict()
+        config['epoch'] = epoch
+        model_path = self.cache_dir + '/' + self.config['model'] + '_' + self.config['dataset'] + '_epoch%d.tar' % epoch
+        torch.save(config, model_path)
+        self._logger.info("Saved model at {}".format(epoch))
+        return model_path
+
+    def load_model_with_epoch(self, epoch):
+        """
+        加载某个epoch的模型
+
+        Args:
+            epoch(int): 轮数
+        """
+        model_path = self.cache_dir + '/' + self.config['model'] + '_' + self.config['dataset'] + '_epoch%d.tar' % epoch
+        assert os.path.exists(model_path), 'Weights at epoch %d not found' % epoch
+        checkpoint = torch.load(model_path, map_location='cpu')
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        self._logger.info("Loaded model at {}".format(epoch))
         
     def train(self, train_dataloader, eval_dataloader):
         # self.model.eval()
@@ -115,11 +145,7 @@ class GraphCLExecutor(AbstractExecutor):
             print('Epoch {}, Loss {}'.format(epoch, loss_all / len(train_dataloader)))
 
             if epoch % self.log_interval == 0:
-                self.model.eval()
-                emb, y = self.model.encoder.get_embeddings(eval_dataloader)
-                acc_val, acc = evaluate_embedding(emb, y)
-                self.accuracies['val'].append(acc_val)
-                self.accuracies['test'].append(acc)
+                self.save_model_with_epoch(epoch)
                 # print(accuracies['val'][-1], accuracies['test'][-1])
 
         tpe  = ('local' if self.local else '') + ('prior' if self.prior else '')
@@ -135,5 +161,12 @@ class GraphCLExecutor(AbstractExecutor):
         Args:
             test_dataloader(torch.Dataloader): Dataloader
         """
-
+        for epoch in range(1, self.epochs+1):
+            if epoch % self.log_interval == 0:
+                self.load_model_with_epoch(epoch)
+                self.model.eval()
+                emb, y = self.model.encoder.get_embeddings(test_dataloader)
+                acc_val, acc = evaluate_embedding(emb, y)
+                self.accuracies['val'].append(acc_val)
+                self.accuracies['test'].append(acc)
         
