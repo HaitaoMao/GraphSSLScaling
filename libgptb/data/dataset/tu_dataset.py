@@ -8,7 +8,6 @@ from logging import getLogger
 import torch_geometric.transforms as T
 from torch_geometric.datasets import TUDataset
 from libgptb.data.dataset.abstract_dataset import AbstractDataset
-#from abstract_dataset import AbstractDataset
 import importlib
 from torch_geometric.loader import DataLoader
 
@@ -23,13 +22,14 @@ class TUDataset(AbstractDataset):
         device = torch.device('cuda')
         path = osp.join(os.getcwd(), 'raw_data')
 
-        if self.datasetName in ['MUTAG', 'PTC_MR', 'IMDB-BINARY', 'IMDB-MULTI', 'REDDIT-BINARY', 'REDDIT-MULTI-5K']:
+        # orignal paper choices of datasets.
+        #if self.datasetName in ['MUTAG', 'PTC_MR', 'IMDB-BINARY', 'IMDB-MULTI', 'REDDIT-BINARY', 'REDDIT-MULTI-5K']:
+        if self.datasetName in ["MUTAG", "MCF-7", "MOLT-4","P388","ZINC_full","reddit_threads"]:   
             tu_dataset = getattr(importlib.import_module('torch_geometric.datasets'), 'TUDataset')
         self.dataset = tu_dataset(path, name=self.datasetName, transform=T.NormalizeFeatures())
-        
     
     def get_data(self):
-        return DataLoader(self.dataset, batch_size=128)
+        return DataLoader(self.dataset, batch_size=64)
 
 
     def get_data_feature(self):
@@ -47,6 +47,5 @@ class TUDataset(AbstractDataset):
 
 
 if __name__ == '__main__':
-    tu = TUDataset({"dataset":"MUTAG"})
-    tmp = tu.get_data_feature()
-
+    for d in ['MCF-7', 'QM9']:   
+        tu = TUDataset({"dataset":f"{d}"})

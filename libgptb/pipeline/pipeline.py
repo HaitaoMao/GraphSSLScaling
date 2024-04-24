@@ -37,7 +37,7 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     seed = config.get('seed', 0)
     set_random_seed(seed)
     # load dataset
-    print(config.config)
+    #print(config.config)
     dataset = get_dataset(config)
     # transform the dataset and split
     data = dataset.get_data()

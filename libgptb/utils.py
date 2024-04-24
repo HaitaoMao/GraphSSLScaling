@@ -43,7 +43,7 @@ def get_model(config, data_feature):
     Returns:
         AbstractModel: the loaded model
     """
-    if config['task'] == 'GCL':
+    if config['task'] == 'GCL' or config['task'] == 'SSGCL':
         try:
             return getattr(importlib.import_module('libgptb.model'),
                            config['model'])(config, data_feature)

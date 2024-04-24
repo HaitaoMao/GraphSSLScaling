@@ -41,7 +41,7 @@ class MVGRLgExecutor(AbstractExecutor):
         self.epochs = self.config.get('max_epoch', 100)
         self.train_loss = self.config.get('train_loss', 'none')
         self.learner = self.config.get('learner', 'adam')
-        self.learning_rate = self.config.get('learning_rate', 0.01)
+        self.learning_rate = self.config.get('learning_rate', 0.001)
         self.weight_decay = self.config.get('weight_decay', 0)
         self.lr_beta1 = self.config.get('lr_beta1', 0.9)
         self.lr_beta2 = self.config.get('lr_beta2', 0.999)
@@ -199,7 +199,8 @@ class MVGRLgExecutor(AbstractExecutor):
             test_dataloader(torch.Dataloader): Dataloader
         """
         self._logger.info('Start evaluating ...')
-        for epoch_idx in [50-1, 100-1, 500-1, 1000-1, 10000-1]:
+        #for epoch_idx in [50-1, 100-1, 500-1, 1000-1, 10000-1]:
+        for epoch_idx in [100-1]:
             self.load_model_with_epoch(epoch_idx)
             self.model.encoder_model.eval()
             x = []
