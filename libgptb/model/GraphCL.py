@@ -34,7 +34,7 @@ class GraphCL(AbstractGCLModel):
         self.num_gc_layers = config.get('num_gc_layers', 5)
         self.prior = config.get('prior',0)
         self.hidden_dim=config.get("hidden_dim",32)
-        self.num_features=config.get("num_features",1)
+        self.num_features=data_feature.get("num_features",1)
         super().__init__(config, data_feature)
 
         self.GraphCL=simclr(self.num_features,hidden_dim=self.hidden_dim, num_gc_layers=self.num_gc_layers, alpha=0.5, beta=1., gamma=.1)

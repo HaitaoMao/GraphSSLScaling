@@ -12,3 +12,15 @@ __pycache__/
 /libgptb/__pycache__/
 /dataset/ogbg_molhiv
 /BZR
+/AIDS
+/Cora
+/DD
+/MCF-7
+/MOLT-4
+/MUTAG
+/NCI1
+/NCI109
+/P388
+/PROTEINS
+/PTC_MR
+/ZINC_full

@@ -20,13 +20,15 @@ class TUDataset(AbstractDataset):
         self.config = config
         self.datasetName = self.config.get('dataset', '')
         self._load_data()
+        
     def _load_data(self):
-        self.DS=self.config.get("DS","BZR")
+        self.DS=self.config.get("dataset","MCF-7")
         print(self.DS)
         self.aug=self.config.get("aug","random2")
         self.path = ""
         self.batch_size=self.config.get("batch_size",128)
         self.data=TUDataset_aug(self.path,name=self.DS,aug=self.aug).shuffle()
+        self.num_features=TUDataset_aug(self.path,name=self.DS,aug=self.aug).get_num_feature()
         self.data_eval=TUDataset_aug(self.path,name=self.DS,aug="none").shuffle()
 
 
@@ -43,7 +45,7 @@ class TUDataset(AbstractDataset):
         Returns:
             dict: 包含数据集的相关特征的字典
         """
-        return {}
+        return {"num_features":self.num_features}
 class TUDataset_aug(InMemoryDataset):
     r"""A variety of graph kernel benchmark datasets, *.e.g.* "IMDB-BINARY",
     "REDDIT-BINARY" or "PROTEINS", collected from the `TU Dortmund University
@@ -107,7 +109,8 @@ class TUDataset_aug(InMemoryDataset):
         if self.data.edge_attr is not None and not use_edge_attr:
             num_edge_attributes = self.num_edge_attributes
             self.data.edge_attr = self.data.edge_attr[:, num_edge_attributes:]
-        if not (self.name == 'MUTAG' or self.name == 'PTC_MR' or self.name == 'DD' or self.name == 'PROTEINS' or self.name == 'NCI1' or self.name == 'NCI109'):
+        if not (self.name == 'MUTAG' or self.name == 'PTC_MR' or self.name == 'DD' or self.name == 'PROTEINS' or self.name == 'NCI1'
+                 or self.name == 'NCI109' or self.name == 'MOLT-4'):
             edge_index = self.data.edge_index[0, :].numpy()
             _, num_edge = self.data.edge_index.size()
             nlist = [edge_index[n] + 1 for n in range(num_edge - 1) if edge_index[n] > edge_index[n + 1]]

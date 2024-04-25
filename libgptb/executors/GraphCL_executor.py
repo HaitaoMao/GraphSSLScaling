@@ -4,15 +4,14 @@ import torch
 from logging import getLogger
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
-from ogb.graphproppred import Evaluator
 from libgptb.evaluators.evaluate_embedding import evaluate_embedding
 from functools import partial
+from libgptb.evaluators import get_split,SVMEvaluator
 
 
 class GraphCLExecutor(AbstractExecutor):
     def __init__(self, config, model, data_feature):
         self.config=config
-        self.evaluator=Evaluator(self.config.get('dataset'))
         self.data_feature=data_feature
         self.device = self.config.get('device', torch.device('cpu'))
         self.model = model.GraphCL.to(self.device)
@@ -166,7 +165,7 @@ class GraphCLExecutor(AbstractExecutor):
                 self.load_model_with_epoch(epoch)
                 self.model.eval()
                 emb, y = self.model.encoder.get_embeddings(test_dataloader)
-                acc_val, acc = evaluate_embedding(emb, y)
-                self.accuracies['val'].append(acc_val)
-                self.accuracies['test'].append(acc)
+                split = get_split(num_samples=emb.shape[0], train_ratio=0.8, test_ratio=0.1,dataset=self.config['dataset'])
+                result = evaluate_embedding(emb,y,split)
+                print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
         

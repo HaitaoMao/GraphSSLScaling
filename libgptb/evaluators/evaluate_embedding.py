@@ -15,7 +15,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+from libgptb.evaluators import SVMEvaluator
 import warnings
 
 def draw_plot(datadir, DS, embeddings, fname, max_nodes=None):
@@ -238,13 +238,15 @@ def linearsvc_classify(x, y, search):
 
     return np.mean(accuracies_val), np.mean(accuracies)
 
-def evaluate_embedding(embeddings, labels, search=True):
+def evaluate_embedding(embeddings, labels, split,search=True,linear=True):
 
     labels = preprocessing.LabelEncoder().fit_transform(labels)
     x, y = np.array(embeddings), np.array(labels)
 
     acc = 0
     acc_val = 0
+    x = torch.from_numpy(x)
+    y = torch.from_numpy(y)
 
     '''
     _acc_val, _acc = logistic_classify(x, y)
@@ -252,12 +254,9 @@ def evaluate_embedding(embeddings, labels, search=True):
         acc_val = _acc_val
         acc = _acc
     '''
+    result=SVMEvaluator()(x,y,split)
 
-    _acc_val, _acc = svc_classify(x,y, search)
-    if _acc_val > acc_val:
-        acc_val = _acc_val
-        acc = _acc
-
+    return result
     """
     _acc_val, _acc = linearsvc_classify(x, y, search)
     if _acc_val > acc_val:
