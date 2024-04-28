@@ -16,7 +16,9 @@ class TUDataset(AbstractDataset):
         self.config = config
         self.datasetName = self.config.get('dataset', '')
         self._load_data()
-
+        self.split_ratio = self.config.get('split_ratio', 0)
+        if self.split_ratio != 0:
+            self.split_for_train(self.split_ratio)
 
     def _load_data(self):
         device = torch.device('cuda')
@@ -29,8 +31,34 @@ class TUDataset(AbstractDataset):
         self.dataset = tu_dataset(path, name=self.datasetName, transform=T.NormalizeFeatures())
     
     def get_data(self):
-        return DataLoader(self.dataset, batch_size=64)
+        return DataLoader(self.dataset, batch_size=self.config.get('batch_size', 64))
 
+    def split_for_train(self,ratio):
+        """
+        @parameter (float ratio): ratio of the dataset
+        @return: return a dataloader with splited dataset
+        """
+        torch.manual_seed(self.config.get("seed",0))
+        indices = torch.randperm(len(self.dataset))
+        #indices = torch.load("./split/{}_{}.pt".format(dataset)) 
+        if not os.path.exists(f"./split/{self.datasetName}"):
+                os.makedirs(f"./split/{self.datasetName}") 
+
+        train_ratio = ratio
+        while train_ratio <= 1:
+            split_size = int(len(self.dataset) * train_ratio)
+            torch.save(indices[:split_size],f"./split/{self.datasetName}/{self.datasetName}_{train_ratio}.pt")
+            train_ratio = round(train_ratio + ratio, 1)
+
+    def load_split_data(self,ratio):
+        # load indice 
+        indices_path = f"./split/{self.datasetName}/{self.datasetName}_{ratio}.pt"
+        indices = torch.load(indices_path)
+        # creat subset dataloader 
+        subset  = [self.dataset[i] for i in indices]
+        dataloader = DataLoader(subset, batch_size=self.config.get('batch_size', 64))
+
+        return dataloader
 
     def get_data_feature(self):
         """

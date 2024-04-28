@@ -17,6 +17,8 @@
     "dfr": 0.2,
     "k": 2,
     "temp": 0.9,
-    "tau": 0.4
+    "tau": 0.4,
+    "split_ratio":0.1,
+    "batch_size":64
   }
   

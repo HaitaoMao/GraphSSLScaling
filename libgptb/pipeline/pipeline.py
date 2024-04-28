@@ -36,8 +36,9 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     # seed
     seed = config.get('seed', 0)
     set_random_seed(seed)
+    # split_ratio
+    split_ratio = config.get('split_ratio', 0)
     # load dataset
-    #print(config.config)
     dataset = get_dataset(config)
     # transform the dataset and split
     data = dataset.get_data()
@@ -53,8 +54,21 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     model = get_model(config, data_feature)
     print(config['model'])
     executor = get_executor(config, model, data_feature)
-    # train
-    if train or not os.path.exists(model_cache_file):
+    # train without split
+
+    if train and split_ratio != 0:
+        train_ratio = split_ratio
+        while train_ratio <= 1:
+            logger.info(f'Training With Split Data Ratio of {train_ratio}')
+            train_data = dataset.load_split_data(train_ratio)
+            executor.train(train_data, valid_data)
+            if saved_model:
+                executor.save_model(model_cache_file)
+            train_ratio = round(train_ratio + split_ratio, 1)
+            executor.evaluate(test_data)
+        
+    elif (train and split_ratio == 0) or not os.path.exists(model_cache_file):
+        logger.info('Training With Full Data ')
         executor.train(train_data, valid_data)
         if saved_model:
             executor.save_model(model_cache_file)
