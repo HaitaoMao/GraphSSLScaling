@@ -15,6 +15,11 @@ class TUDataset(AbstractDataset):
     def __init__(self, config):
         self.config = config
         self.datasetName = self.config.get('dataset', '')
+        self.batch_size = self.config.get('batch_size', 64)
+        self.train_ratio = self.config.get("train_ratio",0.8)
+        self.valid_ratio = self.config.get("valid_ratio",0.1)
+        self.test_ratio = self.config.get("test_ratio",0.1)
+        
         self._load_data()
         self.split_ratio = self.config.get('split_ratio', 0)
         if self.split_ratio != 0:
@@ -31,34 +36,69 @@ class TUDataset(AbstractDataset):
         self.dataset = tu_dataset(path, name=self.datasetName, transform=T.NormalizeFeatures())
     
     def get_data(self):
-        return DataLoader(self.dataset, batch_size=self.config.get('batch_size', 64))
+        train_set = [self.dataset[i] for i in self.train]
+        valid_set = [self.dataset[i] for i in self.valid]
+        test_set = [self.dataset[i] for i in self.test]
+
+        return {
+        'train': DataLoader(train_set, batch_size=self.batch_size),
+        'valid': DataLoader(valid_set, batch_size=self.batch_size),
+        'test': DataLoader(test_set, batch_size=self.batch_size),
+        'full': DataLoader(self.dataset, batch_size=self.batch_size)
+        }
 
     def split_for_train(self,ratio):
         """
         @parameter (float ratio): ratio of the dataset
         @return: return a dataloader with splited dataset
         """
+        assert self.train_ratio + self.test_ratio + self.test_ratio <= 1
+        seed = self.config.get("seed",0)
         torch.manual_seed(self.config.get("seed",0))
         indices = torch.randperm(len(self.dataset))
-        #indices = torch.load("./split/{}_{}.pt".format(dataset)) 
+        torch.save(indices,"./split/{}.pt".format(self.datasetName))
+        print(f"split_for_train seed{seed}:{indices[0:10]}")
+        train_size = int(len(self.dataset) * self.train_ratio)
+        valid_size = int(len(self.dataset) * self.valid_ratio)
+        test_size = int(len(self.dataset) * self.test_ratio)
+
+        self.train = indices[:train_size]
+        self.valid = indices[train_size: train_size + valid_size],
+        self.test = indices[train_size + valid_size:]
+        
         if not os.path.exists(f"./split/{self.datasetName}"):
                 os.makedirs(f"./split/{self.datasetName}") 
+        cur_ratio = ratio
+        while cur_ratio <= 1:
+            cur_partial = min(int(cur_ratio*train_size),train_size)
+            torch.save(indices[:cur_partial],f"./split/{self.datasetName}/{self.datasetName}_train{self.train_ratio}_{cur_ratio}.pt")
+            cur_ratio = round(cur_ratio + ratio, 1)
 
-        train_ratio = ratio
-        while train_ratio <= 1:
-            split_size = int(len(self.dataset) * train_ratio)
-            torch.save(indices[:split_size],f"./split/{self.datasetName}/{self.datasetName}_{train_ratio}.pt")
-            train_ratio = round(train_ratio + ratio, 1)
+        torch.save(self.train,f"./split/{self.datasetName}/{self.datasetName}_train{self.train_ratio}.pt")
+        torch.save(self.valid,f"./split/{self.datasetName}/{self.datasetName}_valid{self.valid_ratio}.pt")
+        torch.save(self.test,f"./split/{self.datasetName}/{self.datasetName}_test{self.test_ratio}.pt")   
 
     def load_split_data(self,ratio):
         # load indice 
-        indices_path = f"./split/{self.datasetName}/{self.datasetName}_{ratio}.pt"
-        indices = torch.load(indices_path)
+        train_path = f"./split/{self.datasetName}/{self.datasetName}_train{self.train_ratio}_{ratio}.pt"
+        print(train_path)
+        #valid_path = f"./split/{self.datasetName}/{self.datasetName}_valid{self.valid_ratio}.pt"
+        #test_path = f"./split/{self.datasetName}/{self.datasetName}_test{self.test_ratio}.pt"
+        
+        train_indices = torch.load(train_path)
+        #valid_indices = torch.load(valid_path)
+        #test_indices = torch.load(test_path)
+        
         # creat subset dataloader 
-        subset  = [self.dataset[i] for i in indices]
-        dataloader = DataLoader(subset, batch_size=self.config.get('batch_size', 64))
+        train_set = [self.dataset[i] for i in train_indices]
+        valid_set = [self.dataset[i] for i in self.valid]
+        test_set = [self.dataset[i] for i in self.test]
 
-        return dataloader
+        return {
+        'train': DataLoader(train_set, batch_size=self.batch_size),
+        'valid': DataLoader(valid_set, batch_size=self.batch_size),
+        'test': DataLoader(test_set, batch_size=self.batch_size)
+        }
 
     def get_data_feature(self):
         """

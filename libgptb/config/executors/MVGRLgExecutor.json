@@ -11,5 +11,9 @@
     "log_every": 1,
     "saved_model": true,
     "load_best_epoch": false,
-    "hyper_tune": false
+    "hyper_tune": false,
+    "train_ratio":0.8,
+    "valid_ratio":0.1,
+    "test_ratio":0.1,
+    "seed":0
   }

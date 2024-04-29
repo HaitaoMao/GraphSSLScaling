@@ -6,15 +6,15 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import PredefinedSplit, GridSearchCV
 
 
-def get_split(num_samples: int, train_ratio: float = 0.1, test_ratio: float = 0.8, dataset = 'Cora'):
+def get_split(num_samples: int, train_ratio: float = 0.8, test_ratio: float = 0.1, dataset = 'Cora'):
     torch.manual_seed(0)
     assert train_ratio + test_ratio < 1
     train_size = int(num_samples * train_ratio)
     test_size = int(num_samples * test_ratio)
-    #indices = torch.load("./split/{}.pt".format(dataset))
-    indices = torch.randperm(num_samples)
-    print(indices[0:10])
-    torch.save(indices,"./split/{}.pt".format(dataset)) #tensor([ 772,  728, 1741,  688, 1511, 2555, 1895, 1662, 2205,  380])
+    indices = torch.load("./split/{}.pt".format(dataset))
+    #indices = torch.randperm(num_samples)
+    print(f"get_split:{indices[0:10]}")
+    #torch.save(indices,"./split/{}.pt".format(dataset)) #tensor([ 772,  728, 1741,  688, 1511, 2555, 1895, 1662, 2205,  380])
     return {
         'train': indices[:train_size],
         'valid': indices[train_size: test_size + train_size],

@@ -43,9 +43,10 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     # transform the dataset and split
     data = dataset.get_data()
     # train_data, valid_data, test_data = data
-    train_data = data
-    valid_data = data
-    test_data = data
+    train_data = data['train']
+    valid_data = data['valid']
+    test_data = data['test']
+    full_data = data['full']
   
     data_feature = dataset.get_data_feature()
     # load executor
@@ -60,12 +61,15 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
         train_ratio = split_ratio
         while train_ratio <= 1:
             logger.info(f'Training With Split Data Ratio of {train_ratio}')
-            train_data = dataset.load_split_data(train_ratio)
+            data = dataset.load_split_data(train_ratio)
+            train_data = data['train']
+            valid_data = data['valid']
+            test_data = data['test']
             executor.train(train_data, valid_data)
             if saved_model:
                 executor.save_model(model_cache_file)
             train_ratio = round(train_ratio + split_ratio, 1)
-            executor.evaluate(test_data)
+            executor.evaluate(full_data)
         
     elif (train and split_ratio == 0) or not os.path.exists(model_cache_file):
         logger.info('Training With Full Data ')
