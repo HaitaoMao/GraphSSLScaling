@@ -36,17 +36,23 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     # seed
     seed = config.get('seed', 0)
     set_random_seed(seed)
-    # split_ratio
-    split_ratio = config.get('split_ratio', 0)
+    # ratio
+    ratio = config.get('ratio', 0)
     # load dataset
     dataset = get_dataset(config)
     # transform the dataset and split
     data = dataset.get_data()
     # train_data, valid_data, test_data = data
-    train_data = data['train']
-    valid_data = data['valid']
-    test_data = data['test']
-    full_data = data['full']
+    if config['task'] == 'SSGCL':
+        train_data = data['train']
+        valid_data = data['valid']
+        test_data = data['test']
+        full_data = data['full']
+    else:
+        train_data = data
+        valid_data = data
+        test_data = data
+        full_data = data
   
     data_feature = dataset.get_data_feature()
     # load executor
@@ -55,31 +61,13 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     model = get_model(config, data_feature)
     print(config['model'])
     executor = get_executor(config, model, data_feature)
-    # train without split
-
-    if train and split_ratio != 0:
-        train_ratio = split_ratio
-        while train_ratio <= 1:
-            logger.info(f'Training With Split Data Ratio of {train_ratio}')
-            data = dataset.load_split_data(train_ratio)
-            train_data = data['train']
-            valid_data = data['valid']
-            test_data = data['test']
-            executor.train(train_data, valid_data)
-            if saved_model:
-                executor.save_model(model_cache_file)
-            train_ratio = round(train_ratio + split_ratio, 1)
-            executor.evaluate(full_data)
-        
-    elif (train and split_ratio == 0) or not os.path.exists(model_cache_file):
-        logger.info('Training With Full Data ')
+    # train
+    if train or not os.path.exists(model_cache_file):
         executor.train(train_data, valid_data)
         if saved_model:
             executor.save_model(model_cache_file)
     else:
         executor.load_model(model_cache_file)
     # evaluate and the result will be under cache/evaluate_cache
-    executor.evaluate(test_data)
+    executor.evaluate(full_data)
     
-
-

@@ -6,4 +6,3 @@ __pycache__/
 /libgptb/losses/*/__pycache__
 /libgptb/log
 /raw_data
-/split
