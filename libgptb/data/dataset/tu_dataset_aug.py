@@ -6,7 +6,7 @@ import torch
 from torch_geometric.data import InMemoryDataset, download_url, extract_zip
 from torch_geometric.io import read_tu_data
 from libgptb.data.dataset.abstract_dataset import AbstractDataset
-from torch_geometric.data import DataLoader 
+from torch_geometric.loader import DataLoader 
 
 from itertools import repeat, product
 import numpy as np
@@ -14,38 +14,6 @@ import numpy as np
 from copy import deepcopy
 import pdb
 
-class TUDataset(AbstractDataset):
-
-    def __init__(self, config):
-        self.config = config
-        self.datasetName = self.config.get('dataset', '')
-        self._load_data()
-        
-    def _load_data(self):
-        self.DS=self.config.get("dataset","MCF-7")
-        print(self.DS)
-        self.aug=self.config.get("aug","random2")
-        self.path = ""
-        self.batch_size=self.config.get("batch_size",128)
-        self.data=TUDataset_aug(self.path,name=self.DS,aug=self.aug).shuffle()
-        self.num_features=TUDataset_aug(self.path,name=self.DS,aug=self.aug).get_num_feature()
-        self.data_eval=TUDataset_aug(self.path,name=self.DS,aug="none").shuffle()
-
-
-    def get_data(self):
-        dataloader = DataLoader(self.data, batch_size=self.batch_size)
-        dataloader_eval = DataLoader(self.data_eval, batch_size=self.batch_size)
-
-        return{"train":dataloader,"eval":dataloader_eval}
-    
-    def get_data_feature(self):
-        """
-        返回一个 dict，包含数据集的相关特征
-
-        Returns:
-            dict: 包含数据集的相关特征的字典
-        """
-        return {"num_features":self.num_features}
 class TUDataset_aug(InMemoryDataset):
     r"""A variety of graph kernel benchmark datasets, *.e.g.* "IMDB-BINARY",
     "REDDIT-BINARY" or "PROTEINS", collected from the `TU Dortmund University

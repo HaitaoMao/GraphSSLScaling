@@ -62,7 +62,7 @@
             "evaluator": "GINEvaluator"
         },
         "GraphCL":{
-            "dataset_class": "TUDataset",
+            "dataset_class": "TUDataset_graphcl",
             "executor": "GraphCLExecutor",
             "evaluator": "GraphCLEvaluator"
         }

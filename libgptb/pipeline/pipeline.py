@@ -49,7 +49,7 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     if task=="SGC":
         train_data = data.get('train')
         valid_data = data.get('valid')
-        test_data = data.get('test')
+        test_data = data.get('valid')
     elif task=="GCL":
         train_data = data
         valid_data = data

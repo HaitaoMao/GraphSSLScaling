@@ -160,11 +160,16 @@ class GraphCLExecutor(AbstractExecutor):
         Args:
             test_dataloader(torch.Dataloader): Dataloader
         """
+        # accuracies = {'val':[], 'test':[]}
         for epoch in range(1, self.epochs+1):
             if epoch % self.log_interval == 0:
                 self.load_model_with_epoch(epoch)
                 self.model.eval()
                 emb, y = self.model.encoder.get_embeddings(test_dataloader)
+                #evaluator original code used
+                # acc_val, acc = evaluate_embedding(emb, y)
+                # accuracies['val'].append(acc_val)
+                # accuracies['test'].append(acc)
                 split = get_split(num_samples=emb.shape[0], train_ratio=0.8, test_ratio=0.1,dataset=self.config['dataset'])
                 result = evaluate_embedding(emb,y,split)
                 print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')

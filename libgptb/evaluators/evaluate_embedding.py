@@ -238,43 +238,57 @@ def linearsvc_classify(x, y, search):
 
     return np.mean(accuracies_val), np.mean(accuracies)
 
-def evaluate_embedding(embeddings, labels, split,search=True,linear=True):
+def evaluate_embedding(embeddings, labels, split):
 
     labels = preprocessing.LabelEncoder().fit_transform(labels)
     x, y = np.array(embeddings), np.array(labels)
 
-    acc = 0
-    acc_val = 0
     x = torch.from_numpy(x)
     y = torch.from_numpy(y)
 
-    '''
-    _acc_val, _acc = logistic_classify(x, y)
-    if _acc_val > acc_val:
-        acc_val = _acc_val
-        acc = _acc
-    '''
     result=SVMEvaluator()(x,y,split)
 
     return result
-    """
-    _acc_val, _acc = linearsvc_classify(x, y, search)
-    if _acc_val > acc_val:
-        acc_val = _acc_val
-        acc = _acc
-    """
-    '''
-    _acc_val, _acc = randomforest_classify(x, y, search)
-    if _acc_val > acc_val:
-        acc_val = _acc_val
-        acc = _acc
-    '''
 
-    print(acc_val, acc)
+# def evaluate_embedding(embeddings, labels, search=True):
 
-    return acc_val, acc
+#     labels = preprocessing.LabelEncoder().fit_transform(labels)
+#     x, y = np.array(embeddings), np.array(labels)
 
-'''
-if __name__ == '__main__':
-    evaluate_embedding('./data', 'ENZYMES', np.load('tmp/emb.npy'))
-'''
+#     acc = 0
+#     acc_val = 0
+
+#     '''
+#     _acc_val, _acc = logistic_classify(x, y)
+#     if _acc_val > acc_val:
+#         acc_val = _acc_val
+#         acc = _acc
+#     '''
+
+#     _acc_val, _acc = svc_classify(x,y, search)
+#     if _acc_val > acc_val:
+#         acc_val = _acc_val
+#         acc = _acc
+
+#     """
+#     _acc_val, _acc = linearsvc_classify(x, y, search)
+#     if _acc_val > acc_val:
+#         acc_val = _acc_val
+#         acc = _acc
+#     """
+#     '''
+#     _acc_val, _acc = randomforest_classify(x, y, search)
+#     if _acc_val > acc_val:
+#         acc_val = _acc_val
+#         acc = _acc
+#     '''
+
+#     print(acc_val, acc)
+
+#     return acc_val, acc
+
+
+# '''
+# if __name__ == '__main__':
+#     evaluate_embedding('./data', 'ENZYMES', np.load('tmp/emb.npy'))
+# '''
