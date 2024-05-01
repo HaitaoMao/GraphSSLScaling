@@ -41,15 +41,17 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     set_random_seed(seed)
     print(seed)
     
+    ratio=config.get('ratio',0)
     # load dataset
     dataset = get_dataset(config)
     # transform the dataset and split
     data = dataset.get_data()
-
+    data_split = dataset.load_split_data(ratio)
+    
     if task=="SGC":
         train_data = data.get('train')
         valid_data = data.get('valid')
-        test_data = data.get('valid')
+        test_data = data.get('test')
     elif task=="GCL":
         train_data = data
         valid_data = data

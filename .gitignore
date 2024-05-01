@@ -24,3 +24,5 @@ __pycache__/
 /PROTEINS
 /PTC_MR
 /ZINC_full
+/split/*
+/reddit_threads
