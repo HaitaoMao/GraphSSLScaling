@@ -1,0 +1,8 @@
+__pycache__/
+/libgptb/__pycache__
+/libgptb/*/__pycache__
+/libgptb/cache
+/libgptb/data/dataset/__pycache__
+/libgptb/losses/*/__pycache__
+/libgptb/log
+/raw_data

@@ -1,2 +1,2 @@
 #! /bin/bash
-singularity exec --writable-tmpfs --nv --nvccli ../SIF/PyG.sif python3 ./run_model.py --task GCL --model DGI --dataset Cora --config_file config1
+singularity exec --writable-tmpfs --nv  /data/zhehua/SIF/mvgrl.sif  python3 ./run_model.py --task SSGCL --model MVGRLg --dataset MUTAG --ratio 1 --config_file random_config/mvgrlg

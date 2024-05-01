@@ -36,15 +36,23 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     # seed
     seed = config.get('seed', 0)
     set_random_seed(seed)
+    # ratio
+    ratio = config.get('ratio', 0)
     # load dataset
-    print(config.config)
     dataset = get_dataset(config)
     # transform the dataset and split
     data = dataset.get_data()
     # train_data, valid_data, test_data = data
-    train_data = data
-    valid_data = data
-    test_data = data
+    if config['task'] == 'SSGCL':
+        train_data = data['train']
+        valid_data = data['valid']
+        test_data = data['test']
+        full_data = data['full']
+    else:
+        train_data = data
+        valid_data = data
+        test_data = data
+        full_data = data
   
     data_feature = dataset.get_data_feature()
     # load executor
@@ -61,7 +69,5 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     else:
         executor.load_model(model_cache_file)
     # evaluate and the result will be under cache/evaluate_cache
-    executor.evaluate(test_data)
+    executor.evaluate(full_data)
     
-
-
