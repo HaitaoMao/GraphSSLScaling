@@ -46,7 +46,6 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     dataset = get_dataset(config)
     # transform the dataset and split
     data = dataset.get_data()
-    data_split = dataset.load_split_data(ratio)
     
     if task=="SGC":
         train_data = data.get('train')

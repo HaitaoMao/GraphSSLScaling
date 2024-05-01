@@ -104,26 +104,6 @@ class TUDataset_graphcl(AbstractDataset):
         torch.save(self.valid,f"./split/{self.datasetName}/{self.datasetName}_valid{self.valid_ratio}.pt")
         torch.save(self.test,f"./split/{self.datasetName}/{self.datasetName}_test{self.test_ratio}.pt") 
 
-    def load_split_data(self,ratio):
-        # load indice 
-        train_path = f"./split/{self.datasetName}/{self.datasetName}_train{self.train_ratio}_{ratio}.pt"
-        #valid_path = f"./split/{self.datasetName}/{self.datasetName}_valid{self.valid_ratio}.pt"
-        #test_path = f"./split/{self.datasetName}/{self.datasetName}_test{self.test_ratio}.pt"
-        
-        train_indices = torch.load(train_path)
-        #valid_indices = torch.load(valid_path)
-        #test_indices = torch.load(test_path)
-        
-        # creat subset dataloader 
-        train_set = [self.dataset[i] for i in train_indices]
-        valid_set = [self.dataset[i] for i in self.valid]
-        test_set = [self.dataset[i] for i in self.test]
-
-        return {
-        'train': DataLoader(train_set, batch_size=self.batch_size),
-        'valid': self.dataset_eval,
-        'test': self.dataset_eval
-        }
     
     def get_data_feature(self):
         """
