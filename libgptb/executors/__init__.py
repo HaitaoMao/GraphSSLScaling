@@ -10,6 +10,8 @@ from libgptb.executors.COSTA_executor import COSTAExecutor
 from libgptb.executors.HomoGCL_executor import HomoGCLExecutor
 from libgptb.executors.GIN_executor import GINExecutor
 from libgptb.executors.GraphCL_executor import GraphCLExecutor
+from libgptb.executors.MVGRLg_executor import MVGRLgExecutor
+
 __all__ = [
     "DGIExecutor",
     "CCAExecutor",
@@ -22,6 +24,6 @@ __all__ = [
     "COSTAExecutor",
     "HomoGCLExecutor",
     "GINExecutor",
-    "GraphCLExecutor"
-
+    "GraphCLExecutor",
+    "MVGRLgExecutor"
 ]

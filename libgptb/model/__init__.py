@@ -10,6 +10,8 @@ from libgptb.model.COSTA import COSTA
 from libgptb.model.HomoGCL import HomoGCL
 from libgptb.model.GIN import GIN
 from libgptb.model.GraphCL import GraphCL
+from libgptb.model.MVGRLg import MVGRLg
+
 
 
 __all__ = [
@@ -24,5 +26,7 @@ __all__ = [
     COSTA,
     HomoGCL,
     GIN,
-    GraphCL
+    GraphCL,
+    MVGRLg,
+    MVGRLg
 ]

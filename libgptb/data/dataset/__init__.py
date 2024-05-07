@@ -4,11 +4,13 @@ from libgptb.data.dataset.dgl_dataset import DGLDataset
 from libgptb.data.dataset.sgc_dataset import SGCDataset
 from libgptb.data.dataset.tu_dataset_graphcl import TUDataset_graphcl
 from libgptb.data.dataset.tu_dataset_aug import TUDataset_aug
+from libgptb.data.dataset.tu_dataset import TUDataset
 __all__ = [
     "AbstractDataset",
     "PyGDataset",
     "DGLDataset",
     "SGCDataset",
     "TUDataset_graphcl",
-    "TUDataset_aug"
+    "TUDataset_aug",
+    "TUDataset"
 ]

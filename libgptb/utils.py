@@ -42,7 +42,7 @@ def get_model(config, data_feature):
     Returns:
         AbstractModel: the loaded model
     """
-    if config['task'] == 'GCL' or config['task'] == 'SGC':
+    if config['task'] == 'GCL' or config['task'] == 'SSGCL' or config['task'] == 'SGC':
         try:
             return getattr(importlib.import_module('libgptb.model'),
                            config['model'])(config, data_feature)
@@ -83,12 +83,17 @@ def get_logger(config, name=None):
     log_dir = './libgptb/log'
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
+
     if config['task']=="GCL":
         log_filename = '{}-{}-{}-{}-{}.log'.format(config['model'],config['dataset'],
                                                 config['config_file'], config['exp_id'], get_local_time())
+    elif config['task'] == 'SGC':
+        log_filename = '{}-{}-{}-{}-{}-{}.log'.format(config['model'],config['dataset'],
+                                                config['epochs'],config['ratio'], config['exp_id'], get_local_time())
     else:
-        log_filename = '{}-{}-{}-{}.log'.format(config['model'],config['dataset'],
-                                                config['exp_id'], get_local_time())
+      log_filename = '{}-{}-{}-{}.log'.format(config['model'],config['dataset'],
+                                                 config['exp_id'], get_local_time())
+
     logfilepath = os.path.join(log_dir, log_filename)
 
     logger = logging.getLogger(name)

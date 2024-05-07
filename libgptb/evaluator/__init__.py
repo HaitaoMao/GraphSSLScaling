@@ -10,7 +10,7 @@ from libgptb.evaluator.COSTA_evaluator import COSTAEvaluator
 from libgptb.evaluator.HomoGCL_evaluator import HomoGCLEvaluator
 from libgptb.evaluator.GIN_evaluator import GINEvaluator
 from libgptb.evaluator.GraphCL_evaluator import GraphCLEvaluator
-
+from libgptb.evaluator.MVGRLg_evaluator import MVGRLgEvaluator
 
 __all__ = [
     "DGIEvaluator",
@@ -23,5 +23,7 @@ __all__ = [
     "MVGRLEvaluator",
     'COSTA_evaluator',
     'GINEvaluator',
-    'GraphCLEvaluator'
+    'GraphCLEvaluator',
+    'MVGRLgEvaluator'
+
 ]
