@@ -87,7 +87,7 @@ def get_logger(config, name=None):
     if config['task']=="GCL":
         log_filename = '{}-{}-{}-{}-{}.log'.format(config['model'],config['dataset'],
                                                 config['config_file'], config['exp_id'], get_local_time())
-    elif config['task'] == 'SGC':
+    elif config['task'] == 'SSGCL':
         log_filename = '{}-{}-{}-{}-{}-{}.log'.format(config['model'],config['dataset'],
                                                 config['epochs'],config['ratio'], config['exp_id'], get_local_time())
     else:

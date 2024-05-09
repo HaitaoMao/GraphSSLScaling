@@ -55,27 +55,28 @@
     },
 
     "SGC":{
-        "allowed_model":["GIN","GraphCL"],
-        "allowed_dataset":["ogbg-molhiv","ogbg-ppa","AIDS","MCF-7","MOLT-4","BZR","P388","ZINC_full","reddit_threads","MUTAG","PTC_MR","DD","PROTEINS","NCI1","NCI109"],
+        "allowed_model":["GIN"],
+        "allowed_dataset":["ogbg-molhiv","ogbg-ppa"],
         "GIN": {
             "dataset_class": "SGCDataset",
             "executor": "GINExecutor",
             "evaluator": "GINEvaluator"
-        },
-        "GraphCL":{
-            "dataset_class": "TUDataset_graphcl",
-            "executor": "GraphCLExecutor",
-            "evaluator": "GraphCLEvaluator"
         }
+        
     },
     "SSGCL": {
-        "allowed_model": ["MVGRLg"],
+        "allowed_model": ["MVGRLg","GraphCL"],
         "allowed_dataset": ["MUTAG", "MCF-7", "MOLT-4","P388","ZINC_full","reddit_threads"],
         "MVGRLg": {
             "dataset_class": "TUDataset",
             "executor": "MVGRLgExecutor",
             "evaluator": "MVGRLgEvaluator"
 
+        },
+        "GraphCL":{
+            "dataset_class": "TUDataset_graphcl",
+            "executor": "GraphCLExecutor",
+            "evaluator": "GraphCLEvaluator"
         }
     }
 }

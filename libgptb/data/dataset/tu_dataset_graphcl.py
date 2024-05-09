@@ -47,25 +47,15 @@ class TUDataset_graphcl(AbstractDataset):
         assert self.train_ratio + self.test_ratio + self.test_ratio <= 1
         indices = torch.load("./split/{}.pt".format(self.datasetName))
         
-        if self.split_ratio==1:
-            train_size = int(len(self.dataset) * self.train_ratio)
-            # valid_size = int(len(self.dataset) * self.valid_ratio)
-            # test_size = int(len(self.dataset) * self.test_ratio)
-            partial_size = min(int(self.split_ratio*train_size),train_size)
-            
-            train_set = [self.dataset[i] for i in indices[:partial_size]]
-            # valid_set = [self.dataset[i] for i in indices[train_size: train_size + valid_size]]
-            # test_set = [self.dataset[i] for i in indices[train_size + valid_size:]]
-        else:
-            train_path = f"./split/{self.datasetName}/{self.datasetName}_train{self.train_ratio}_{self.split_ratio}.pt"
-            train_indices = torch.load(train_path)
-            train_set = [self.dataset[i] for i in train_indices]
+        train_size = int(len(self.dataset) * self.train_ratio)
+        partial_size = min(int(self.split_ratio*train_size),train_size)
+        train_set = [self.dataset[i] for i in indices[:partial_size]]
 
         dataloader = DataLoader(train_set, batch_size=self.batch_size)
         # dataloader = DataLoader(self.dataset, batch_size=self.batch_size)
         dataloader_eval = DataLoader(self.dataset_eval, batch_size=self.batch_size)
 
-        return{"train":dataloader,"valid":dataloader_eval,"test":dataloader_eval}
+        return{"train":dataloader,"valid":dataloader_eval,"test":dataloader_eval,"full":dataloader_eval}
         
     def split_for_train(self,ratio):
         """

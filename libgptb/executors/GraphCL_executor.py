@@ -1,12 +1,14 @@
 import os
 import json
 import torch
+import numpy as np
 from logging import getLogger
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
 from libgptb.evaluators.evaluate_embedding import evaluate_embedding
 from functools import partial
 from libgptb.evaluators import get_split,SVMEvaluator
+from sklearn import preprocessing
 
 
 class GraphCLExecutor(AbstractExecutor):
@@ -29,7 +31,7 @@ class GraphCLExecutor(AbstractExecutor):
         self.dataset=self.config.get('dataset')
         self.local=self.config.get("local")=="True"
         self.prior=self.config.get("prior")=="True"
-        self.DS=self.config.get("DS","BZR")
+        self.DS=self.config.get("DS","MUTAG")
         self.num_gc_layers=model.num_gc_layers
 
         self._logger = getLogger()
@@ -171,6 +173,13 @@ class GraphCLExecutor(AbstractExecutor):
                 # accuracies['val'].append(acc_val)
                 # accuracies['test'].append(acc)
                 split = get_split(num_samples=emb.shape[0], train_ratio=0.8, test_ratio=0.1,dataset=self.config['dataset'])
-                result = evaluate_embedding(emb,y,split)
+                
+                labels = preprocessing.LabelEncoder().fit_transform(y)
+                x, y = np.array(emb), np.array(labels)
+
+                x = torch.from_numpy(x)
+                y = torch.from_numpy(y)
+
+                result=SVMEvaluator()(x,y,split)
                 print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
         

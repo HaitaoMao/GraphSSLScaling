@@ -47,7 +47,7 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     data = dataset.get_data()
 
     # train_data, valid_data, test_data = data
-    if config['task'] == 'SSGCL' or config['task']=='SGC':
+    if config['task'] == 'SSGCL':
         train_data = data['train']
         valid_data = data['valid']
         test_data = data['test']
