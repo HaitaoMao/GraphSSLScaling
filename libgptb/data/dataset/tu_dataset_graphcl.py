@@ -25,7 +25,7 @@ class TUDataset_graphcl(AbstractDataset):
         self.test_ratio = self.config.get("test_ratio",0.1)
         
         self._load_data()
-        self.split_ratio = self.config.get('ratio', 0)
+        self.split_ratio = self.config.get('ratio', 1)
         if self.split_ratio != 0:
             self.split_for_train(self.split_ratio)
             print("split generated")
@@ -42,7 +42,6 @@ class TUDataset_graphcl(AbstractDataset):
         self.dataset = tu_dataset_aug(path, name=self.datasetName, aug=aug).shuffle()
         self.dataset_eval=tu_dataset_aug(path, name=self.datasetName, aug="none").shuffle()
 
-
     def get_data(self):
         assert self.train_ratio + self.test_ratio + self.test_ratio <= 1
         indices = torch.load("./split/{}.pt".format(self.datasetName))
@@ -52,6 +51,7 @@ class TUDataset_graphcl(AbstractDataset):
         train_set = [self.dataset[i] for i in indices[:partial_size]]
 
         dataloader = DataLoader(train_set, batch_size=self.batch_size)
+        dataloader_full_train=DataLoader(self.dataset, batch_size=self.batch_size)
         # dataloader = DataLoader(self.dataset, batch_size=self.batch_size)
         dataloader_eval = DataLoader(self.dataset_eval, batch_size=self.batch_size)
 
@@ -72,27 +72,6 @@ class TUDataset_graphcl(AbstractDataset):
             torch.manual_seed(self.config.get("seed",0))
             indices = torch.randperm(len(self.dataset))
             torch.save(indices,"./split/{}.pt".format(self.datasetName))
-
-        print(f"split_for_train seed{seed}:{indices[0:10]}")
-        train_size = int(len(self.dataset) * self.train_ratio)
-        valid_size = int(len(self.dataset) * self.valid_ratio)
-        test_size = int(len(self.dataset) * self.test_ratio)
-
-        self.train = indices[:train_size]
-        self.valid = indices[train_size: train_size + valid_size],
-        self.test = indices[train_size + valid_size:]
-        
-        if not os.path.exists(f"./split/{self.datasetName}"):
-                os.makedirs(f"./split/{self.datasetName}")
-        cur_ratio = ratio
-        while cur_ratio <= 1:
-            cur_partial = min(int(cur_ratio*train_size),train_size)
-            torch.save(indices[:cur_partial],f"./split/{self.datasetName}/{self.datasetName}_train{self.train_ratio}_{cur_ratio}.pt")
-            cur_ratio = round(cur_ratio + ratio, 1)
-
-        torch.save(self.train,f"./split/{self.datasetName}/{self.datasetName}_train{self.train_ratio}.pt")
-        torch.save(self.valid,f"./split/{self.datasetName}/{self.datasetName}_valid{self.valid_ratio}.pt")
-        torch.save(self.test,f"./split/{self.datasetName}/{self.datasetName}_test{self.test_ratio}.pt") 
 
     
     def get_data_feature(self):

@@ -5,14 +5,13 @@ import shutil
 import torch
 from torch_geometric.data import InMemoryDataset, download_url, extract_zip
 from torch_geometric.io import read_tu_data
-from libgptb.data.dataset.abstract_dataset import AbstractDataset
-from torch_geometric.loader import DataLoader 
 
 from itertools import repeat, product
 import numpy as np
 
 from copy import deepcopy
 import pdb
+
 
 class TUDataset_aug(InMemoryDataset):
     r"""A variety of graph kernel benchmark datasets, *.e.g.* "IMDB-BINARY",
@@ -68,6 +67,7 @@ class TUDataset_aug(InMemoryDataset):
                  cleaned=False, aug=None):
         self.name = name
         self.cleaned = cleaned
+        self.aug_P= np.ones(5) / 5
         super(TUDataset_aug, self).__init__(root, transform, pre_transform,
                                         pre_filter)
         self.data, self.slices = torch.load(self.processed_paths[0])
@@ -77,8 +77,7 @@ class TUDataset_aug(InMemoryDataset):
         if self.data.edge_attr is not None and not use_edge_attr:
             num_edge_attributes = self.num_edge_attributes
             self.data.edge_attr = self.data.edge_attr[:, num_edge_attributes:]
-        if not (self.name == 'MUTAG' or self.name == 'PTC_MR' or self.name == 'DD' or self.name == 'PROTEINS' or self.name == 'NCI1'
-                 or self.name == 'NCI109' or self.name == 'MOLT-4' or self.name == 'P388' or self.name == 'reddit_threads'):
+        if not (self.name == 'MUTAG' or self.name == 'PTC_MR' or self.name == 'DD' or self.name == 'PROTEINS' or self.name == 'NCI1' or self.name == 'NCI109'):
             edge_index = self.data.edge_index[0, :].numpy()
             _, num_edge = self.data.edge_index.size()
             nlist = [edge_index[n] + 1 for n in range(num_edge - 1) if edge_index[n] > edge_index[n + 1]]
@@ -203,13 +202,7 @@ class TUDataset_aug(InMemoryDataset):
 
     def get(self, idx):
         data = self.data.__class__()
-        #for item in self.data:
-        #    print("Attributes for item:")
-        #    if isinstance(item, tuple):  # Check if item is a tuple
-        #        for value in item:
-        #            print(value)
-        #else:
-        #    print("Not a tuple:", item)
+
         if hasattr(self.data, '__num_nodes__'):
             data.num_nodes = self.data.__num_nodes__[idx]
 
@@ -224,13 +217,6 @@ class TUDataset_aug(InMemoryDataset):
                 s = slice(slices[idx], slices[idx + 1])
             data[key] = item[s]
 
-        """
-        edge_index = data.edge_index
-        node_num = data.x.size()[0]
-        edge_num = data.edge_index.size()[1]
-        data.edge_index = torch.tensor([[edge_index[0, n], edge_index[1, n]] for n in range(edge_num) if edge_index[0, n] < node_num and edge_index[1, n] < node_num] + [[n, n] for n in range(node_num)], dtype=torch.int64).t()
-        """
-
         node_num = data.edge_index.max()
         sl = torch.tensor([[n,n] for n in range(node_num)]).t()
         data.edge_index = torch.cat((data.edge_index, sl), dim=1)
@@ -244,12 +230,6 @@ class TUDataset_aug(InMemoryDataset):
         elif self.aug == 'mask_nodes':
             data_aug = mask_nodes(deepcopy(data))
         elif self.aug == 'none':
-            """
-            if data.edge_index.max() > data.x.size()[0]:
-                print(data.edge_index)
-                print(data.x.size())
-                assert False
-            """
             data_aug = deepcopy(data)
             data_aug.x = torch.ones((data.edge_index.max()+1, 1))
 
@@ -263,7 +243,6 @@ class TUDataset_aug(InMemoryDataset):
                 print('sample error')
                 assert False
 
-
         elif self.aug == 'random3':
             n = np.random.randint(3)
             if n == 0:
@@ -275,7 +254,6 @@ class TUDataset_aug(InMemoryDataset):
             else:
                 print('sample error')
                 assert False
-
 
         elif self.aug == 'random4':
             n = np.random.randint(4)
@@ -291,32 +269,35 @@ class TUDataset_aug(InMemoryDataset):
                 print('sample error')
                 assert False
 
-
-
-
-
+        elif self.aug == 'minmax':
+            n = np.random.choice(5, 1, p=self.aug_P)[0]
+            if n == 0:
+               data_aug = drop_nodes(deepcopy(data))
+            elif n == 1:
+               data_aug = permute_edges(deepcopy(data))
+            elif n == 2:
+               data_aug = subgraph(deepcopy(data))
+            elif n == 3:
+               data_aug = mask_nodes(deepcopy(data))
+            elif n == 4:
+                data_aug = deepcopy(data)
 
         else:
             print('augmentation error')
             assert False
 
-        # print(data, data_aug)
-        # assert False
-
         return data, data_aug
 
 
 def drop_nodes(data):
-
     node_num, _ = data.x.size()
     _, edge_num = data.edge_index.size()
-    drop_num = int(node_num / 10)
+    drop_num = int(node_num * 0.2)
 
     idx_drop = np.random.choice(node_num, drop_num, replace=False)
     idx_nondrop = [n for n in range(node_num) if not n in idx_drop]
     idx_dict = {idx_nondrop[n]:n for n in list(range(node_num - drop_num))}
 
-    # data.x = data.x[idx_nondrop]
     edge_index = data.edge_index.numpy()
 
     adj = torch.zeros((node_num, node_num))
@@ -326,38 +307,28 @@ def drop_nodes(data):
     edge_index = adj.nonzero().t()
 
     data.edge_index = edge_index
-
-    # edge_index = [[idx_dict[edge_index[0, n]], idx_dict[edge_index[1, n]]] for n in range(edge_num) if (not edge_index[0, n] in idx_drop) and (not edge_index[1, n] in idx_drop)]
-    # edge_index = [[edge_index[0, n], edge_index[1, n]] for n in range(edge_num) if (not edge_index[0, n] in idx_drop) and (not edge_index[1, n] in idx_drop)] + [[n, n] for n in idx_nondrop]
-    # data.edge_index = torch.tensor(edge_index).transpose_(0, 1)
-
     return data
 
 
 def permute_edges(data):
-
     node_num, _ = data.x.size()
     _, edge_num = data.edge_index.size()
-    permute_num = int(edge_num / 10)
+    permute_num = int(edge_num * 0.2)
 
     edge_index = data.edge_index.transpose(0, 1).numpy()
 
     idx_add = np.random.choice(node_num, (permute_num, 2))
-    # idx_add = [[idx_add[0, n], idx_add[1, n]] for n in range(permute_num) if not (idx_add[0, n], idx_add[1, n]) in edge_index]
 
-    # edge_index = np.concatenate((np.array([edge_index[n] for n in range(edge_num) if not n in np.random.choice(edge_num, permute_num, replace=False)]), idx_add), axis=0)
-    # edge_index = np.concatenate((edge_index[np.random.choice(edge_num, edge_num-permute_num, replace=False)], idx_add), axis=0)
     edge_index = edge_index[np.random.choice(edge_num, edge_num-permute_num, replace=False)]
-    # edge_index = [edge_index[n] for n in range(edge_num) if not n in np.random.choice(edge_num, permute_num, replace=False)] + idx_add
     data.edge_index = torch.tensor(edge_index).transpose_(0, 1)
-
     return data
+
 
 def subgraph(data):
 
     node_num, _ = data.x.size()
     _, edge_num = data.edge_index.size()
-    sub_num = int(node_num * 0.2)
+    sub_num = int(node_num * (1-0.2))
 
     edge_index = data.edge_index.numpy()
 
@@ -381,7 +352,6 @@ def subgraph(data):
     idx_nondrop = idx_sub
     idx_dict = {idx_nondrop[n]:n for n in list(range(len(idx_nondrop)))}
 
-    # data.x = data.x[idx_nondrop]
     edge_index = data.edge_index.numpy()
 
     adj = torch.zeros((node_num, node_num))
@@ -391,20 +361,12 @@ def subgraph(data):
     edge_index = adj.nonzero().t()
 
     data.edge_index = edge_index
-
-
-
-    # edge_index = [[idx_dict[edge_index[0, n]], idx_dict[edge_index[1, n]]] for n in range(edge_num) if (not edge_index[0, n] in idx_drop) and (not edge_index[1, n] in idx_drop)]
-    # edge_index = [[edge_index[0, n], edge_index[1, n]] for n in range(edge_num) if (not edge_index[0, n] in idx_drop) and (not edge_index[1, n] in idx_drop)] + [[n, n] for n in idx_nondrop]
-    # data.edge_index = torch.tensor(edge_index).transpose_(0, 1)
-
     return data
 
 
 def mask_nodes(data):
-
     node_num, feat_dim = data.x.size()
-    mask_num = int(node_num / 10)
+    mask_num = int(node_num * 0.2)
 
     idx_mask = np.random.choice(node_num, mask_num, replace=False)
     data.x[idx_mask] = torch.tensor(np.random.normal(loc=0.5, scale=0.5, size=(mask_num, feat_dim)), dtype=torch.float32)

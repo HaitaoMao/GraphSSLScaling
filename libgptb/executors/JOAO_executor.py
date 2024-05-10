@@ -11,7 +11,7 @@ from libgptb.evaluators import get_split,SVMEvaluator
 from sklearn import preprocessing
 
 
-class GraphCLExecutor(AbstractExecutor):
+class JOAOExecutor(AbstractExecutor):
     def __init__(self, config, model, data_feature):
         self.config=config
         self.data_feature=data_feature
@@ -26,7 +26,7 @@ class GraphCLExecutor(AbstractExecutor):
         self.log_interval=self.config.get("log_interval",10)
 
         self.batch_size=self.config.get("batch_size",128)
-        self.aug=self.config.get("augs","dnodes")
+        self.aug=self.config.get("augs","minmax")
         self.accuracies= {'val':[], 'test':[]}
         self.dataset=self.config.get('dataset')
         self.local=self.config.get("local")=="True"
@@ -86,14 +86,13 @@ class GraphCLExecutor(AbstractExecutor):
         self._logger.info("Loaded model at {}".format(epoch))
         
     def train(self, train_dataloader, eval_dataloader):
-        self.model.eval()
-        self.emb, self.y = self.model.encoder.get_embeddings(eval_dataloader)
 
+        aug_P = np.ones(5) / 5
         for epoch in range(1, self.epochs+1):
             loss_all = 0
             self.model.train()
             for data in train_dataloader:
-
+                # train_dataloader.dataset.aug_P=aug_P
                 # print('start')
                 data, data_aug = data
                 self.optimizer.zero_grad()
@@ -143,17 +142,11 @@ class GraphCLExecutor(AbstractExecutor):
                 loss.backward()
                 self.optimizer.step()
                 # print('batch')
-            self._logger.info('Epoch {}, Loss {}'.format(epoch, loss_all / len(train_dataloader)))
+            print('Epoch {}, Loss {}'.format(epoch, loss_all / len(train_dataloader)))
 
             if epoch % self.log_interval == 0:
                 self.save_model_with_epoch(epoch)
                 # print(accuracies['val'][-1], accuracies['test'][-1])
-
-        tpe  = ('local' if self.local else '') + ('prior' if self.prior else '')
-        with open('libgptb/log/TU-' + self.dataset + '_' + self.aug, 'a+') as f:
-            s = json.dumps(self.accuracies)
-            f.write('{},{},{},{},{},{},{}\n'.format(self.DS, tpe, self.num_gc_layers, self.epochs, self.log_interval, self.learning_rate, s))
-            f.write('\n')
 
     def evaluate(self, test_dataloader):
         """
@@ -172,8 +165,7 @@ class GraphCLExecutor(AbstractExecutor):
                 # acc_val, acc = evaluate_embedding(emb, y)
                 # accuracies['val'].append(acc_val)
                 # accuracies['test'].append(acc)
-                split_ratio=self.config.get("ratio",1)
-                split = get_split(num_samples=emb.shape[0], train_ratio=0.8, test_ratio=0.1,split_ratio=0.2,dataset=self.config['dataset'])
+                split = get_split(num_samples=emb.shape[0], train_ratio=0.8, test_ratio=0.1,dataset=self.config['dataset'])
                 
                 labels = preprocessing.LabelEncoder().fit_transform(y)
                 x, y = np.array(emb), np.array(labels)
@@ -182,5 +174,5 @@ class GraphCLExecutor(AbstractExecutor):
                 y = torch.from_numpy(y)
 
                 result=SVMEvaluator()(x,y,split)
-                self._logger.info(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
+                print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
         

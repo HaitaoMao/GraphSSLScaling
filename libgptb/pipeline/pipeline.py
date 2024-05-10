@@ -40,7 +40,10 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     seed = config.get('seed', 0)
     set_random_seed(seed)
     # ratio
-    ratio = config.get('ratio', 0)
+    ratio = config.get('ratio', 1)
+    #epoch
+    epochs = config.get('epochs',10)
+
     # load dataset
     dataset = get_dataset(config)
     # transform the dataset and split

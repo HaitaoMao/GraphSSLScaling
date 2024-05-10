@@ -5,7 +5,8 @@
     "log_interval": 10,
     "batch_size": 128,
     "learning_rate": 0.01,
-    "aug": "dnodes",
+    "aug": "minmax",
     "local": "True",
-    "prior": "False"
+    "prior": "False",
+    "gamma": "0.01"
 }

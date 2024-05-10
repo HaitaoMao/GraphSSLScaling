@@ -11,7 +11,7 @@ from libgptb.model.HomoGCL import HomoGCL
 from libgptb.model.GIN import GIN
 from libgptb.model.GraphCL import GraphCL
 from libgptb.model.MVGRLg import MVGRLg
-
+from libgptb.model.JOAO import JOAO
 
 
 __all__ = [
@@ -28,5 +28,6 @@ __all__ = [
     GIN,
     GraphCL,
     MVGRLg,
-    MVGRLg
+    MVGRLg,
+    JOAO
 ]

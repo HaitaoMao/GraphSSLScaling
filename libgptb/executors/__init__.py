@@ -11,6 +11,7 @@ from libgptb.executors.HomoGCL_executor import HomoGCLExecutor
 from libgptb.executors.GIN_executor import GINExecutor
 from libgptb.executors.GraphCL_executor import GraphCLExecutor
 from libgptb.executors.MVGRLg_executor import MVGRLgExecutor
+from libgptb.executors.JOAO_executor import JOAOExecutor
 
 __all__ = [
     "DGIExecutor",
@@ -25,5 +26,6 @@ __all__ = [
     "HomoGCLExecutor",
     "GINExecutor",
     "GraphCLExecutor",
-    "MVGRLgExecutor"
+    "MVGRLgExecutor",
+    "JOAOExecutor"
 ]
