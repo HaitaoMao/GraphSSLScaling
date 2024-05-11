@@ -67,7 +67,8 @@ class MVGRLgExecutor(AbstractExecutor):
         self.saved = self.config.get('saved_model', True)
         self.load_best_epoch = self.config.get('load_best_epoch', False)
         self.hyper_tune = self.config.get('hyper_tune', False)
-
+        self.downstream_ratio = self.config.get('downstream_ratio', 0.1)
+        self.downstream_task = self.config.get('downstream_task','orignal')
         self.output_dim = self.config.get('output_dim', 1)
         # TODO
         self.optimizer = self._build_optimizer()
@@ -77,6 +78,8 @@ class MVGRLgExecutor(AbstractExecutor):
         if self._epoch_num > 0:
             self.load_model_with_epoch(self._epoch_num)
         self.loss_func = None
+
+        self.num_samples = self.data_feature.get('num_samples')
 
     def save_model(self, cache_name):
         """
@@ -202,24 +205,28 @@ class MVGRLgExecutor(AbstractExecutor):
         #for epoch_idx in [50-1, 100-1, 500-1, 1000-1, 10000-1]:
         for epoch_idx in [10-1,20-1,40-1,60-1,80-1,100-1]:
             self.load_model_with_epoch(epoch_idx)
-            self.model.encoder_model.eval()
-            x = []
-            y = []
-            for data in dataloader:
-                data = data.to('cuda')
-                if data.x is None:
-                    num_nodes = data.batch.size(0)
-                    data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
-                _, _, g1, g2 = self.model.encoder_model(data.x, data.edge_index, data.batch)
-                x.append(g1 + g2)
-                y.append(data.y)
-            x = torch.cat(x, dim=0)
-            y = torch.cat(y, dim=0)
+            if self.downstream_task == 'orignal':
+                self.model.encoder_model.eval()
+                x = []
+                y = []
+                for data in dataloader:
+                    data = data.to('cuda')
+                    if data.x is None:
+                        num_nodes = data.batch.size(0)
+                        data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
+                    _, _, g1, g2 = self.model.encoder_model(data.x, data.edge_index, data.batch)
+                    x.append(g1 + g2)
+                    y.append(data.y)
+                    torch.cuda.empty_cache()
+                x = torch.cat(x, dim=0)
+                y = torch.cat(y, dim=0)
 
-            split = get_split(num_samples=x.size()[0], train_ratio=0.8, test_ratio=0.1,dataset=self.config['dataset'])
-            result = SVMEvaluator()(x, y, split)
-            print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
-
+                split = get_split(num_samples=self.num_samples, train_ratio=0.8, test_ratio=0.1,downstream_ratio = self.downstream_ratio, dataset=self.config['dataset'])
+                result = SVMEvaluator()(x, y, split)
+                print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
+            elif self.downstream_task == 'loss':
+                losses = self._train_epoch(dataloader, epoch_idx, self.loss_func,train = False)
+                result = np.mean(losses) 
 
             self._logger.info('Evaluate result is ' + json.dumps(result))
             filename = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '_' + \
@@ -299,7 +306,7 @@ class MVGRLgExecutor(AbstractExecutor):
             self.load_model_with_epoch(best_epoch)
         return min_val_loss
 
-    def _train_epoch(self, train_dataloader, epoch_idx, loss_func=None):
+    def _train_epoch(self, train_dataloader, epoch_idx, loss_func=None, train = True):
         """
         完成模型一个轮次的训练
 
@@ -311,8 +318,10 @@ class MVGRLgExecutor(AbstractExecutor):
         Returns:
             list: 每个batch的损失的数组
         """
-        # self.model.encoder_model.train()
-        self.model.encoder_model.train()
+        if train:
+            self.model.encoder_model.train()
+        else:
+            self.model.encoder_model.eval()
         epoch_loss = 0
         for data in train_dataloader:
             data = data.to('cuda')

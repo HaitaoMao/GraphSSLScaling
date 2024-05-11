@@ -19,7 +19,8 @@ class TUDataset(AbstractDataset):
         self.train_ratio = self.config.get("train_ratio",0.8)
         self.valid_ratio = self.config.get("valid_ratio",0.1)
         self.test_ratio = self.config.get("test_ratio",0.1)
-        
+        self.downstream_ratio = self.config.get("downstream_ratio",0.1)
+        self.downstream_task = self.config.get('downstream_task','orignal')
         self._load_data()
         self.ratio = self.config.get('ratio', 0)
 
@@ -29,29 +30,41 @@ class TUDataset(AbstractDataset):
 
         # orignal paper choices of datasets.
         #if self.datasetName in ['MUTAG', 'PTC_MR', 'IMDB-BINARY', 'IMDB-MULTI', 'REDDIT-BINARY', 'REDDIT-MULTI-5K']:
-        if self.datasetName in ["MUTAG", "MCF-7", "MOLT-4","P388","ZINC_full","reddit_threads"]:   
+        if self.datasetName in ["MUTAG", "MCF-7", "MOLT-4","P388","ZINC_full","reddit_threads","github_stargazers"]:   
             tu_dataset = getattr(importlib.import_module('torch_geometric.datasets'), 'TUDataset')
         self.dataset = tu_dataset(path, name=self.datasetName, transform=T.NormalizeFeatures())
     
     def get_data(self):
         
         assert self.train_ratio + self.test_ratio + self.test_ratio <= 1
-        indices = torch.load("./split/{}.pt".format(self.datasetName))
+        if os.path.exists("./split/{}.pt".format(self.datasetName)):
+            indices = torch.load("./split/{}.pt".format(self.datasetName))
+        else:
+            torch.manual_seed(0)
+            indices = torch.randperm(len(self.dataset))
+            torch.save(indices,"./split/{}.pt".format(self.datasetName))
+            
 
         train_size = int(len(self.dataset) * self.train_ratio)
         valid_size = int(len(self.dataset) * self.valid_ratio)
         test_size = int(len(self.dataset) * self.test_ratio)
         partial_size = min(int(self.ratio*train_size),train_size)
+        downstream_size = min(int(self.downstream_ratio*train_size),train_size)
         
         train_set = [self.dataset[i] for i in indices[:partial_size]]
         valid_set = [self.dataset[i] for i in indices[train_size: train_size + valid_size]]
         test_set = [self.dataset[i] for i in indices[train_size + valid_size:]]
-
+        if self.downstream_task == 'orignal':
+            downstream_train = [self.dataset[i] for i in indices[:downstream_size]]
+            downstream_set = downstream_train + valid_set + test_set
+        else:
+            downstream_set = test_set # may consider agregate valid+test
         return {
         'train': DataLoader(train_set, batch_size=self.batch_size),
         'valid': DataLoader(valid_set, batch_size=self.batch_size),
         'test': DataLoader(test_set, batch_size=self.batch_size),
-        'full': DataLoader(self.dataset, batch_size=self.batch_size)
+        'full': DataLoader(self.dataset, batch_size=self.batch_size),
+        'downstream':DataLoader(downstream_set, batch_size=self.batch_size)
         }
 
     def get_data_feature(self):
@@ -64,7 +77,8 @@ class TUDataset(AbstractDataset):
         """
         
         return {
-            "input_dim": max(self.dataset.num_features, 1)
+            "input_dim": max(self.dataset.num_features, 1),
+            "num_samples": len(self.dataset)
         }
 
 

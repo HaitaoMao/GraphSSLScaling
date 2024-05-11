@@ -55,7 +55,7 @@
     },
     "SSGCL": {
         "allowed_model": ["MVGRLg"],
-        "allowed_dataset": ["MUTAG", "MCF-7", "MOLT-4","P388","ZINC_full","reddit_threads"],
+        "allowed_dataset": ["MUTAG", "MCF-7", "MOLT-4","P388","ZINC_full","reddit_threads","github_stargazers"],
         "MVGRLg": {
             "dataset_class": "TUDataset",
             "executor": "MVGRLgExecutor",
