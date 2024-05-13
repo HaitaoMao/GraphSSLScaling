@@ -222,7 +222,7 @@ class MVGRLgExecutor(AbstractExecutor):
                 y = torch.cat(y, dim=0)
 
                 split = get_split(num_samples=self.num_samples, train_ratio=0.8, test_ratio=0.1,downstream_ratio = self.downstream_ratio, dataset=self.config['dataset'])
-                result = SVMEvaluator()(x, y, split)
+                result = SVMEvaluator()(x.cpu, y.cpu, split)
                 print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
             elif self.downstream_task == 'loss':
                 losses = self._train_epoch(dataloader, epoch_idx, self.loss_func,train = False)

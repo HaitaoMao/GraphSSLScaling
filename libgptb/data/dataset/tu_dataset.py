@@ -49,13 +49,15 @@ class TUDataset(AbstractDataset):
         valid_size = int(len(self.dataset) * self.valid_ratio)
         test_size = int(len(self.dataset) * self.test_ratio)
         partial_size = min(int(self.ratio*train_size),train_size)
-        downstream_size = min(int(self.downstream_ratio*train_size),train_size)
+        downstream_size = int(self.downstream_ratio*train_size)
         
         train_set = [self.dataset[i] for i in indices[:partial_size]]
         valid_set = [self.dataset[i] for i in indices[train_size: train_size + valid_size]]
         test_set = [self.dataset[i] for i in indices[train_size + valid_size:]]
         if self.downstream_task == 'orignal':
             downstream_train = [self.dataset[i] for i in indices[:downstream_size]]
+            f = open("tu_ds.txt","w")
+            f.write(str(len(indices[:downstream_size])))
             downstream_set = downstream_train + valid_set + test_set
         else:
             downstream_set = test_set # may consider agregate valid+test

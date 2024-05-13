@@ -12,30 +12,15 @@
             "executor": "SUGRLExecutor",
             "evaluator": "SUGRLEvaluator"
         },
-        "CCA": {
-            "dataset_class": "DGLDataset",
-            "executor": "CCAExecutor",
-            "evaluator": "CCAEvaluator"
-        },
         "BGRL": {
             "dataset_class": "PyGDataset",
             "executor": "BGRLExecutor",
             "evaluator": "BGRLEvaluator"
         },
-        "SFA": {
-            "dataset_class": "DGLDataset",
-            "executor": "SFAExecutor",
-            "evaluator": "SFAEvaluator"
-        },
         "GBT": {
             "dataset_class": "PyGDataset",
             "executor": "GBTExecutor",
             "evaluator": "GBTEvaluator"
-        },
-        "GRACE": {
-            "dataset_class": "DGLDataset",
-            "executor": "GRACEExecutor",
-            "evaluator": "GRACEEvaluator"
         },
         "MVGRL": {
             "dataset_class": "PyGDataset",
@@ -46,11 +31,6 @@
             "dataset_class": "PyGDataset",
             "executor": "COSTAExecutor",
             "evaluator": "COSTAEvaluator"
-        },
-        "HomoGCL": {
-            "dataset_class": "DGLDataset",
-            "executor": "HomoGCLExecutor",
-            "evaluator": "HomoGCLEvaluator"
         }
     },
     "SSGCL": {
