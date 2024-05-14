@@ -173,7 +173,7 @@ class GraphCLExecutor(AbstractExecutor):
                 # accuracies['val'].append(acc_val)
                 # accuracies['test'].append(acc)
                 split_ratio=self.config.get("ratio",1)
-                split = get_split(num_samples=emb.shape[0], train_ratio=0.8, test_ratio=0.1,split_ratio=0.2,dataset=self.config['dataset'])
+                split = get_split(num_samples=emb.shape[0], train_ratio=0.8, test_ratio=0.1,split_ratio=split_ratio,dataset=self.config['dataset'])
                 
                 labels = preprocessing.LabelEncoder().fit_transform(y)
                 x, y = np.array(emb), np.array(labels)

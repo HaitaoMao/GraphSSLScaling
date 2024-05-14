@@ -186,6 +186,8 @@ class TUDataset_aug(InMemoryDataset):
             data.num_nodes = self.data.__num_nodes__[0]
 
         for key in self.data.keys:
+            if key=='num_nodes':
+                continue
             item, slices = self.data[key], self.slices[key]
             if torch.is_tensor(item):
                 s = list(repeat(slice(None), item.dim()))
@@ -205,8 +207,9 @@ class TUDataset_aug(InMemoryDataset):
 
         if hasattr(self.data, '__num_nodes__'):
             data.num_nodes = self.data.__num_nodes__[idx]
-
         for key in self.data.keys:
+            if key=='num_nodes':
+                continue
             item, slices = self.data[key], self.slices[key]
             if torch.is_tensor(item):
                 s = list(repeat(slice(None), item.dim()))
@@ -232,6 +235,9 @@ class TUDataset_aug(InMemoryDataset):
         elif self.aug == 'none':
             data_aug = deepcopy(data)
             data_aug.x = torch.ones((data.edge_index.max()+1, 1))
+        elif self.aug== 'minmax_none':
+            data_aug = deepcopy(data)
+
 
         elif self.aug == 'random2':
             n = np.random.randint(2)
@@ -270,7 +276,8 @@ class TUDataset_aug(InMemoryDataset):
                 assert False
 
         elif self.aug == 'minmax':
-            n = np.random.choice(5, 1, p=self.aug_P)[0]
+            # n = np.random.choice(5, 1, p=self.aug_P)[0]
+            n = np.random.randint(4)
             if n == 0:
                data_aug = drop_nodes(deepcopy(data))
             elif n == 1:
@@ -280,7 +287,7 @@ class TUDataset_aug(InMemoryDataset):
             elif n == 3:
                data_aug = mask_nodes(deepcopy(data))
             elif n == 4:
-                data_aug = deepcopy(data)
+               data_aug = deepcopy(data)
 
         else:
             print('augmentation error')

@@ -39,7 +39,7 @@ class JOAO(AbstractGCLModel):
         self.prior=config.get("prior",False)
         super().__init__(config, data_feature)
 
-        self.GraphCL=simclr(self.num_features,hidden_dim=self.hidden_dim, num_gc_layers=self.num_gc_layers, alpha=0.5, beta=1., gamma=self.gamma,prior=self.prior)
+        self.JOAO=simclr(self.num_features,hidden_dim=self.hidden_dim, num_gc_layers=self.num_gc_layers, alpha=0.5, beta=1., gamma=self.gamma,prior=self.prior)
 
 class simclr(nn.Module):
   def __init__(self, dataset_num_features, hidden_dim, num_gc_layers, alpha=0.5, beta=1., gamma=.1,prior=False):
@@ -122,7 +122,6 @@ class Encoder(torch.nn.Module):
 
         xs = []
         for i in range(self.num_gc_layers):
-
             x = F.relu(self.convs[i](x, edge_index))
             x = self.bns[i](x)
             xs.append(x)

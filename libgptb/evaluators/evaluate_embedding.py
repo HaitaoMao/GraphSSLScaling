@@ -238,25 +238,25 @@ def linearsvc_classify(x, y, search):
 
     return np.mean(accuracies_val), np.mean(accuracies)
 
-def evaluate_embedding(embeddings, labels, split):
+# def evaluate_embedding(embeddings, labels,search=True):
+
+    # labels = preprocessing.LabelEncoder().fit_transform(labels)
+    # x, y = np.array(embeddings), np.array(labels)
+
+    # x = torch.from_numpy(x)
+    # y = torch.from_numpy(y)
+
+    # result=SVMEvaluator()(x,y,split)
+
+    # return result
+
+def evaluate_embedding(embeddings, labels, search=True):
 
     labels = preprocessing.LabelEncoder().fit_transform(labels)
     x, y = np.array(embeddings), np.array(labels)
 
-    x = torch.from_numpy(x)
-    y = torch.from_numpy(y)
-
-    result=SVMEvaluator()(x,y,split)
-
-    return result
-
-# def evaluate_embedding(embeddings, labels, search=True):
-
-#     labels = preprocessing.LabelEncoder().fit_transform(labels)
-#     x, y = np.array(embeddings), np.array(labels)
-
-#     acc = 0
-#     acc_val = 0
+    acc = 0
+    acc_val = 0
 
 #     '''
 #     _acc_val, _acc = logistic_classify(x, y)
@@ -265,10 +265,10 @@ def evaluate_embedding(embeddings, labels, split):
 #         acc = _acc
 #     '''
 
-#     _acc_val, _acc = svc_classify(x,y, search)
-#     if _acc_val > acc_val:
-#         acc_val = _acc_val
-#         acc = _acc
+    _acc_val, _acc = svc_classify(x,y, search)
+    if _acc_val > acc_val:
+        acc_val = _acc_val
+        acc = _acc
 
 #     """
 #     _acc_val, _acc = linearsvc_classify(x, y, search)
@@ -283,9 +283,9 @@ def evaluate_embedding(embeddings, labels, split):
 #         acc = _acc
 #     '''
 
-#     print(acc_val, acc)
+    print(acc_val, acc)
 
-#     return acc_val, acc
+    return acc_val, acc
 
 
 # '''

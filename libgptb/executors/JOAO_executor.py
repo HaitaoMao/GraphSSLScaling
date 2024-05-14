@@ -16,7 +16,7 @@ class JOAOExecutor(AbstractExecutor):
         self.config=config
         self.data_feature=data_feature
         self.device = self.config.get('device', torch.device('cpu'))
-        self.model = model.GraphCL.to(self.device)
+        self.model = model.JOAO.to(self.device)
         self.learning_rate=self.config.get('learning_rate',0.001)
         self.optimizer = torch.optim.Adam(model.parameters(), lr=self.learning_rate)
         self.epochs=self.config.get("epochs",20)
@@ -33,6 +33,8 @@ class JOAOExecutor(AbstractExecutor):
         self.prior=self.config.get("prior")=="True"
         self.DS=self.config.get("DS","MUTAG")
         self.num_gc_layers=model.num_gc_layers
+        self.mode=self.config.get("mode","fast")
+        self.gamma=self.config.get("gamma",0.01)
 
         self._logger = getLogger()
 
@@ -86,24 +88,22 @@ class JOAOExecutor(AbstractExecutor):
         self._logger.info("Loaded model at {}".format(epoch))
         
     def train(self, train_dataloader, eval_dataloader):
-
         aug_P = np.ones(5) / 5
         for epoch in range(1, self.epochs+1):
+            dataset_aug_P = aug_P
             loss_all = 0
             self.model.train()
-            for data in train_dataloader:
-                # train_dataloader.dataset.aug_P=aug_P
-                # print('start')
-                data, data_aug = data
+            i=0
+            for data in zip(*train_dataloader):
+                n = np.random.choice(5, 1, p=aug_P)[0]
+                data, data_aug = data[n]
                 self.optimizer.zero_grad()
-
                 
                 node_num, _ = data.x.size()
                 data = data.to(self.device)
                 x = self.model(data.x, data.edge_index, data.batch, data.num_graphs)
 
-                if self.aug == 'dnodes' or self.aug == 'subgraph' or self.aug == 'random2' or self.aug == 'random3' or self.aug == 'random4':
-                    # node_num_aug, _ = data_aug.x.size()
+                if self.aug == 'dnodes' or self.aug == 'subgraph' or self.aug == 'random2' or self.aug == 'random3' or self.aug == 'random4' or self.aug == 'minmax':
                     edge_idx = data_aug.edge_index.numpy()
                     _, edge_num = edge_idx.shape
                     idx_not_missing = [n for n in range(node_num) if (n in edge_idx[0] or n in edge_idx[1])]
@@ -111,42 +111,89 @@ class JOAOExecutor(AbstractExecutor):
                     node_num_aug = len(idx_not_missing)
                     data_aug.x = data_aug.x[idx_not_missing]
 
-                    
-
                     data_aug.batch = data.batch[idx_not_missing]
                     idx_dict = {idx_not_missing[n]:n for n in range(node_num_aug)}
                     edge_idx = [[idx_dict[edge_idx[0, n]], idx_dict[edge_idx[1, n]]] for n in range(edge_num) if not edge_idx[0, n] == edge_idx[1, n]]
                     data_aug.edge_index = torch.tensor(edge_idx).transpose_(0, 1)
 
                 data_aug = data_aug.to(self.device)
-
-                '''
-                print(data.edge_index)
-                print(data.edge_index.size())
-                print(data_aug.edge_index)
-                print(data_aug.edge_index.size())
-                print(data.x.size())
-                print(data_aug.x.size())
-                print(data.batch.size())
-                print(data_aug.batch.size())
-                pdb.set_trace()
-                '''
-
                 x_aug = self.model(data_aug.x, data_aug.edge_index, data_aug.batch, data_aug.num_graphs)
 
-                # print(x)
-                # print(x_aug)
                 loss = self.model.loss_cal(x, x_aug)
                 print(loss)
                 loss_all += loss.item() * data.num_graphs
                 loss.backward()
                 self.optimizer.step()
-                # print('batch')
-            print('Epoch {}, Loss {}'.format(epoch, loss_all / len(train_dataloader)))
+            self._logger.info('Epoch {}, Loss {}'.format(epoch, loss_all / len(train_dataloader[0])))
 
             if epoch % self.log_interval == 0:
                 self.save_model_with_epoch(epoch)
-                # print(accuracies['val'][-1], accuracies['test'][-1])
+                # self.model.eval()
+                # emb, y = self.model.encoder.get_embeddings(eval_dataloader)
+                # acc_val, acc = evaluate_embedding(emb, y)
+                # accuracies['val'].append(acc_val)
+                # accuracies['test'].append(acc)
+
+            # minmax
+            loss_aug = np.zeros(5)
+            for n in range(5):
+                _aug_P = np.zeros(5)
+                _aug_P[n] = 1
+                dataset_aug_P = _aug_P
+                count, count_stop = 0, len(train_dataloader[0])//5+1
+                with torch.no_grad():
+                    for data in zip(*train_dataloader):
+                        n = np.random.choice(5, 1, p=aug_P)[0]
+                        data, data_aug = data[n]
+                        node_num, _ = data.x.size()
+                        data = data.to(self.device)
+                        x = self.model(data.x, data.edge_index, data.batch, data.num_graphs)
+
+                        if self.aug == 'dnodes' or self.aug == 'subgraph' or self.aug == 'random2' or self.aug == 'random3' or self.aug == 'random4' or self.aug == 'minmax':
+                            edge_idx = data_aug.edge_index.numpy()
+                            _, edge_num = edge_idx.shape
+                            idx_not_missing = [n for n in range(node_num) if (n in edge_idx[0] or n in edge_idx[1])]
+
+                            node_num_aug = len(idx_not_missing)
+                            data_aug.x = data_aug.x[idx_not_missing]
+
+                            data_aug.batch = data.batch[idx_not_missing]
+                            idx_dict = {idx_not_missing[n]:n for n in range(node_num_aug)}
+                            edge_idx = [[idx_dict[edge_idx[0, n]], idx_dict[edge_idx[1, n]]] for n in range(edge_num) if not edge_idx[0, n] == edge_idx[1, n]]
+                            data_aug.edge_index = torch.tensor(edge_idx).transpose_(0, 1)
+
+                        data_aug = data_aug.to(self.device)
+                        x_aug = self.model(data_aug.x, data_aug.edge_index, data_aug.batch, data_aug.num_graphs)
+
+                        loss = self.model.loss_cal(x, x_aug)
+                        loss_aug[n] += loss.item() * data.num_graphs
+                        if self.mode == 'fast':
+                            count += 1
+                            if count == count_stop:
+                                break
+
+                if self.mode == 'fast':
+                    loss_aug[n] /= (count_stop*self.batch_size)
+                else:
+                    loss_aug[n] /= len(dataloader.dataset)
+
+            gamma = float(self.gamma)
+            beta = 1
+            b = aug_P + beta * (loss_aug - gamma * (aug_P - 1/5))
+
+            mu_min, mu_max = b.min()-1/5, b.max()-1/5
+            mu = (mu_min + mu_max) / 2
+            # bisection method
+            while abs(np.maximum(b-mu, 0).sum() - 1) > 1e-2:
+                if np.maximum(b-mu, 0).sum() > 1:
+                    mu_min = mu
+                else:
+                    mu_max = mu
+                mu = (mu_min + mu_max) / 2
+
+            aug_P = np.maximum(b-mu, 0)
+            aug_P /= aug_P.sum()
+            print(loss_aug, aug_P)
 
     def evaluate(self, test_dataloader):
         """
@@ -161,11 +208,9 @@ class JOAOExecutor(AbstractExecutor):
                 self.load_model_with_epoch(epoch)
                 self.model.eval()
                 emb, y = self.model.encoder.get_embeddings(test_dataloader)
-                #evaluator original code used
-                # acc_val, acc = evaluate_embedding(emb, y)
-                # accuracies['val'].append(acc_val)
-                # accuracies['test'].append(acc)
-                split = get_split(num_samples=emb.shape[0], train_ratio=0.8, test_ratio=0.1,dataset=self.config['dataset'])
+                
+                split_ratio=self.config.get("ratio",1)
+                split = get_split(num_samples=emb.shape[0], train_ratio=0.8, test_ratio=0.1,split_ratio=split_ratio,dataset=self.config['dataset'])
                 
                 labels = preprocessing.LabelEncoder().fit_transform(y)
                 x, y = np.array(emb), np.array(labels)
@@ -174,5 +219,5 @@ class JOAOExecutor(AbstractExecutor):
                 y = torch.from_numpy(y)
 
                 result=SVMEvaluator()(x,y,split)
-                print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
+                self._logger.info(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
         
