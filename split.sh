@@ -1,28 +1,28 @@
 #!/bin/bash
 
-epochs=(10)
-ratios=(0.03125 0.0625 0.125 0.25 0.5 1)
+ratio=0.1
 
-models=('JOAO')
-datasets=('github_stargazers')
-template='singularity exec --nv /data/chunlinFeng/SIF/neural_scaling.sif python3 ./run_model.py --task SSGCL --model MODEL_PLACEHOLDER --dataset DATASET_PLACEHOLDER --ratio RATIO_PLACEHOLDER --epochs EPOCH_PLACEHOLDER'
+models=('JOAO') 
+datasets=("github_stargazers")
+#datasets=("MUTAG" "MCF-7" "MOLT-4" "P388" "ZINC_full" "reddit_threads" "github_stargazers")
+template='singularity exec --writable-tmpfs --nv /data/zhehua/SIF/mvgrl.sif python3 ./run_model.py --task SSGCL --model MODEL_PLACEHOLDER --dataset DATASET_PLACEHOLDER --ratio RATIO_PLACEHOLDER --downstream_ratio 0.1 --downstream_task loss --config_file random_config/mvgrlg'
 commands=()
 
-for epoch in "${epochs[@]}"; do
-    for ratio in "${ratios[@]}"; do
-        for dataset in "${datasets[@]}"; do
-            for model in "${models[@]}"; do
-                command="${template/MODEL_PLACEHOLDER/$model}"
-                command="${command/DATASET_PLACEHOLDER/$dataset}"
-                command="${command/RATIO_PLACEHOLDER/$ratio}"
-                command="${command/EPOCH_PLACEHOLDER/$epoch}"
-                commands+=("$command")
-            done
+for model in "${models[@]}"; do
+    for dataset in "${datasets[@]}"; do  
+        #for exp in $(seq 0 5); do #1 and 0.5 already tested
+        #    i=$(bc <<< "scale=6; 2^(-$exp)")
+        for i in $(seq $ratio $ratio 1); do
+            command="${template/MODEL_PLACEHOLDER/$model}"
+            command="${command/DATASET_PLACEHOLDER/$dataset}"
+            command="${command/RATIO_PLACEHOLDER/$i}"
+            commands+=("$command")
         done
     done
 done
 
-for command in "${commands[@]}"; do
+for command in "${commands[@]}";do
     echo $command
+    eval $command
 done
-parallel -j 1 eval ::: "${commands[@]}"
+#parallel -j 1 eval ::: "${commands[@]}"

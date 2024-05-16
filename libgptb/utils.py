@@ -80,7 +80,7 @@ def get_logger(config, name=None):
     Returns:
         Logger: logger
     """
-    log_dir = './libgptb/log/joao_shuffled_fixed'
+    log_dir = './libgptb/log/JOAO100epochs'
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 

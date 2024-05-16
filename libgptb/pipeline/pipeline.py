@@ -41,8 +41,6 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     set_random_seed(seed)
     # ratio
     ratio = config.get('ratio', 1)
-    #epoch
-    epochs = config.get('epochs',10)
 
     # load dataset
     dataset = get_dataset(config)
@@ -55,11 +53,14 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
         valid_data = data['valid']
         test_data = data['test']
         full_data = data['full']
+        downstream_data = data['downstream']
     else:
         train_data = data
         valid_data = data
         test_data = data
         full_data = data
+        downstream_data = data
+    print(f"train:{len(train_data)} test:{len(valid_data)} valid:{len(test_data)} full:{len(full_data)} down:{len(downstream_data)}")
   
 
     data_feature = dataset.get_data_feature()
@@ -74,7 +75,7 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
 
 
     # train
-    if train or not os.path.exists(model_cache_file):
+    if train:
         executor.train(train_data, valid_data)
         if saved_model:
             executor.save_model(model_cache_file)
@@ -82,6 +83,6 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
         executor.load_model(model_cache_file)
 
     # evaluate and the result will be under cache/evaluate_cache
-    executor.evaluate(full_data)
+    executor.evaluate(downstream_data)
     
 

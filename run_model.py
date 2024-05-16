@@ -25,8 +25,9 @@ if __name__ == '__main__':
                         help='whether re-train model if the model is trained before')
     parser.add_argument('--exp_id', type=str, default=None, help='id of experiment')
     parser.add_argument('--seed', type=int, default=0, help='random seed')
-    parser.add_argument('--ratio', type=float, default=1, help='random seed')
-    parser.add_argument('--epochs', type=int, default=10, help='number of training epochs')
+    parser.add_argument('--ratio', type=float, default=1, help='pretrain split ratio')
+    parser.add_argument('--downstream_ratio', type=float, default=0.1, help='downstream train ratio')
+    parser.add_argument('--downstream_task', type=str, default='orignal', help='downstream evaluation metric; default orginal')
     # 增加其他可选的参数
     add_general_args(parser)
     # 解析参数
