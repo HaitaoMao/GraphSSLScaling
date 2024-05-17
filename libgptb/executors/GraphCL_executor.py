@@ -334,6 +334,5 @@ class GraphCLExecutor(AbstractExecutor):
             if train:
                 loss.backward()
                 self.optimizer.step()
-            print(len(train_dataloader))
         return loss_all / len(train_dataloader)
     

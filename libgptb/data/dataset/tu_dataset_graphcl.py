@@ -68,8 +68,8 @@ class TUDataset_graphcl(AbstractDataset):
             test_set = [self.dataset[i] for i in indices[train_size + valid_size:]]
             train_set = [self.dataset[i] for i in indices[:partial_size]]
             dataloader_train = DataLoader(train_set, batch_size=self.batch_size)
-            
         else:
+            print("size:",len(self.dataset[0]))
             dataloader_train_set=[]
             dataloader_test_set=[]
             for i in range(5):
@@ -100,7 +100,6 @@ class TUDataset_graphcl(AbstractDataset):
             else:
                 dataloader_downstream=dataloader_test_set
         dataloader_unaug = DataLoader(self.dataset_unaug, batch_size=self.batch_size)
-
         return{
             "train":dataloader_train,
             "valid":dataloader_unaug,
