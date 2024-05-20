@@ -26,7 +26,7 @@ class PyGDataset(AbstractDataset):
 
     def _load_data(self):
         device = torch.device('cuda')
-        path = osp.join(os.getcwd(), 'raw_data')
+        path = osp.expanduser(osp.join("~/scratch", 'raw_data'))
 
         if self.datasetName in ["Cora", "CiteSeer", "PubMed"]:
             pyg = getattr(importlib.import_module('torch_geometric.datasets'), 'Planetoid')
@@ -71,7 +71,8 @@ class PyGDataset(AbstractDataset):
         downstream_size = int(self.downstream_ratio*train_size)
         
         def transform_data(data):
-            data.x = data.x.float()
+            if data.x is not None:
+                data.x = data.x.float()
             if data.edge_attr is not None:
                 data.edge_attr = data.edge_attr.float()
             T.NormalizeFeatures()(data)
@@ -103,7 +104,7 @@ class PyGDataset(AbstractDataset):
             dict: 包含数据集的相关特征的字典
         """
         return {
-            "input_dim": self.dataset.num_features,
+            "input_dim": max(self.dataset.num_features, 1),
             "num_samples": len(self.dataset)
         }
     

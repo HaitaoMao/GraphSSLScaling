@@ -203,7 +203,7 @@ class MVGRLgExecutor(AbstractExecutor):
         """
         self._logger.info('Start evaluating ...')
         #for epoch_idx in [50-1, 100-1, 500-1, 1000-1, 10000-1]:
-        for epoch_idx in [10-1,20-1,40-1,60-1,80-1,100-1]:
+        for epoch_idx in [0,10-1,20-1,40-1,60-1,80-1,100-1]:
             self.load_model_with_epoch(epoch_idx)
             if self.downstream_task == 'orignal':
                 self.model.encoder_model.eval()
@@ -214,9 +214,10 @@ class MVGRLgExecutor(AbstractExecutor):
                     if data.x is None:
                         num_nodes = data.batch.size(0)
                         data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
-                    _, _, g1, g2 = self.model.encoder_model(data.x, data.edge_index, data.batch)
-                    x.append(g1 + g2)
-                    y.append(data.y)
+                    with torch.no_grad():
+                        _, _, g1, g2 = self.model.encoder_model(data.x, data.edge_index, data.batch)
+                        x.append(g1 + g2)
+                        y.append(data.y)
                     torch.cuda.empty_cache()
                 x = torch.cat(x, dim=0)
                 y = torch.cat(y, dim=0)
@@ -280,7 +281,7 @@ class MVGRLgExecutor(AbstractExecutor):
                 self._logger.info(message)
 
             #if epoch_idx+1 in [50, 100, 500, 1000, 10000]:
-            if epoch_idx+1 in [10,20,40,60,80,100]:
+            if epoch_idx+1 in [1,10,20,40,60,80,100]:
                 model_file_name = self.save_model_with_epoch(epoch_idx)
                 self._logger.info('saving to {}'.format(model_file_name))
 

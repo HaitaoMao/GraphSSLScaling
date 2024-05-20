@@ -35,7 +35,7 @@
     },
     "SSGCL": {
         "allowed_model": ["MVGRLg"],
-        "allowed_dataset": ["MUTAG", "MCF-7", "MOLT-4","P388","ZINC_full","reddit_threads","github_stargazers","ogbg-molhiv", "ogbg-molpcba", "ogbg-ppa", "ogbg-code2"],
+        "allowed_dataset": ["MUTAG","reddit_threads","github_stargazers","ogbg-molhiv", "ogbg-ppa", "ogbg-code2"],
         "MVGRLg": {
             "dataset_class": "PyGDataset",
             "executor": "MVGRLgExecutor",

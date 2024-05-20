@@ -1,6 +1,6 @@
 {
     "gpu": true,
-    "max_epoch": 100,
+    "max_epoch": 10,
     "train_loss": "none",
     "epoch": 0,
     "learner": "adam",
