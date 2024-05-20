@@ -4,12 +4,17 @@ import json
 import torch
 import datetime
 import numpy as np
+
+import libgptb.losses as L
+import libgptb.augmentors as A
+import torch.nn.functional as F
 from logging import getLogger
 from torch.utils.tensorboard import SummaryWriter
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
 from functools import partial
 from libgptb.evaluators import get_split,SVMEvaluator
+from libgptb.models import DualBranchContrast
 from sklearn import preprocessing
 
 
@@ -18,8 +23,7 @@ class GraphCLExecutor(AbstractExecutor):
         self.config=config
         self.data_feature=data_feature
         self.device = self.config.get('device', torch.device('cpu'))
-        self.model = model.GraphCL.to(self.device)
-        self.epochs=self.config.get("epochs",20)
+        self.model = model.to(self.device)
         self.exp_id = self.config.get('exp_id', None)
 
         self.cache_dir = './libgptb/cache/{}/model_cache'.format(self.exp_id)
@@ -40,6 +44,7 @@ class GraphCLExecutor(AbstractExecutor):
         self._logger.info('Total parameter numbers: {}'.format(total_num))
         self.log_interval=self.config.get("log_interval",10)
 
+        self.epochs=self.config.get("epochs",100)
         self.batch_size=self.config.get("batch_size",128)
         self.learning_rate = self.config.get('learning_rate', 0.001)
         self.learner = self.config.get('learner', 'adam')
@@ -69,7 +74,7 @@ class GraphCLExecutor(AbstractExecutor):
         self.local=self.config.get("local")=="True"
         self.prior=self.config.get("prior")=="True"
         self.DS=self.config.get("DS","MUTAG")
-        self.num_gc_layers=model.num_gc_layers
+        self.num_layers=model.num_layers
         self.downstream_task=config.get("downstream_task","original")
         self.train_ratio = self.config.get("train_ratio",0.8)
         self.valid_ratio = self.config.get("valid_ratio",0.1)
@@ -200,27 +205,28 @@ class GraphCLExecutor(AbstractExecutor):
         """
         self._logger.info('Start evaluating ...')
         #for epoch_idx in [50-1, 100-1, 500-1, 1000-1, 10000-1]:
-        for epoch_idx in [10-1,20-1,40-1,60-1,80-1,100-1]:
+        for epoch_idx in [3,10-1,20-1,40-1,60-1,80-1,100-1]:
                 if epoch_idx+1 > self.epochs:
                     break
                 self.load_model_with_epoch(epoch_idx)
                 if self.downstream_task == 'original':
-                    self.model.eval()
-                    emb, y = self.model.encoder.get_embeddings(test_dataloader)
-                    #evaluator original code used
-                    # acc_val, acc = evaluate_embedding(emb, y)
-                    # accuracies['val'].append(acc_val)
-                    # accuracies['test'].append(acc)
-                    
-                    split = get_split(num_samples=emb.shape[0], train_ratio=self.train_ratio, test_ratio=self.test_ratio,downstream_split=self.downstream_ratio,dataset=self.config['dataset'])
-                    
-                    labels = preprocessing.LabelEncoder().fit_transform(y)
-                    x, y = np.array(emb), np.array(labels)
+                    self.model.encoder_model.eval()
+                    x = []
+                    y = []
+                    for data in test_dataloader:
+                        data = data.to('cuda')
+                        if data.x is None:
+                            num_nodes = data.batch.size(0)
+                            data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
+                        with torch.no_grad():
+                            _, g, _, _, _, _ = self.model.encoder_model(data.x, data.edge_index, data.batch)
+                            x.append(g)
+                            y.append(data.y)
+                    x = torch.cat(x, dim=0)
+                    y = torch.cat(y, dim=0)
 
-                    x = torch.from_numpy(x)
-                    y = torch.from_numpy(y)
-
-                    result=SVMEvaluator()(x,y,split)
+                    split = get_split(num_samples=x.size()[0], train_ratio=0.8, test_ratio=0.1,dataset=self.dataset)
+                    result = SVMEvaluator(linear=True)(x, y, split)
                     self._logger.info(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
                 elif self.downstream_task == 'loss':
                     losses = self._train_epoch(test_dataloader,epoch_idx, self.loss_func,train = False)
@@ -254,7 +260,7 @@ class GraphCLExecutor(AbstractExecutor):
 
             self._logger.info("evaluating now!")
             t2 = time.time()
-            val_loss = np.mean(losses) 
+            val_loss = np.mean(losses)
             end_time = time.time()
             eval_time.append(end_time - t2)
 
@@ -271,10 +277,10 @@ class GraphCLExecutor(AbstractExecutor):
                 self._logger.info(message)
 
             #if epoch_idx+1 in [50, 100, 500, 1000, 10000]:
-            if epoch_idx+1 in [10,20,40,60,80,100]:
+            if epoch_idx+1 in [3,10,20,40,60,80,100]:
                 model_file_name = self.save_model_with_epoch(epoch_idx)
                 self._logger.info('saving to {}'.format(model_file_name))
-
+            
             if val_loss < min_val_loss:
                 wait = 0
                 if self.saved:
@@ -305,34 +311,23 @@ class GraphCLExecutor(AbstractExecutor):
         else:
             self.model.eval()
         for data in train_dataloader:
-            data, data_aug = data
+            self.model.encoder_model.train()
+        epoch_loss = 0
+        for data in train_dataloader:
+            data = data.to(self.device)
             self.optimizer.zero_grad()
 
-            node_num, _ = data.x.size()
-            data = data.to(self.device)
-            x = self.model(data.x, data.edge_index, data.batch, data.num_graphs)
+            if data.x is None:
+                num_nodes = data.batch.size(0)
+                data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
 
-            if self.aug in ['dnodes', 'subgraph', 'random2', 'random3', 'random4']:
-                edge_idx = data_aug.edge_index.numpy()
-                _, edge_num = edge_idx.shape
-                idx_not_missing = [n for n in range(node_num) if (n in edge_idx[0] or n in edge_idx[1])]
-
-                node_num_aug = len(idx_not_missing)
-                data_aug.x = data_aug.x[idx_not_missing]
-
-                data_aug.batch = data.batch[idx_not_missing]
-                idx_dict = {idx_not_missing[n]: n for n in range(node_num_aug)}
-                edge_idx = [[idx_dict[edge_idx[0, n]], idx_dict[edge_idx[1, n]]] for n in range(edge_num) if edge_idx[0, n] != edge_idx[1, n]]
-                data_aug.edge_index = torch.tensor(edge_idx).transpose_(0, 1)
-
-            data_aug = data_aug.to(self.device)
-            x_aug = self.model(data_aug.x, data_aug.edge_index, data_aug.batch, data_aug.num_graphs)
-
-            loss = self.model.loss_cal(x, x_aug)
-            print(loss)
-            loss_all += loss.item() * data.num_graphs
-            if train:
-                loss.backward()
-                self.optimizer.step()
-        return loss_all / len(train_dataloader)
-    
+            _, _, _, _, g1, g2 = self.model.encoder_model(data.x, data.edge_index, data.batch)
+            g1, g2 = [self.model.encoder_model.encoder.project(g) for g in [g1, g2]]
+            loss = self.model.contrast_model(g1=g1, g2=g2, batch=data.batch)
+            loss.backward()
+            self.optimizer.step()
+            if not train:
+                self.optimizers.n
+            epoch_loss += loss.item()
+        return epoch_loss
+        

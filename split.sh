@@ -2,8 +2,8 @@
 
 ratio=0.1
 
-models=('JOAO') 
-datasets=("github_stargazers" "reddit_threads")
+models=('GraphCL') 
+datasets=("github_stargazers" "reddit_threads" "ogbg-molhiv" "ogbg-ppa" "ogbg-code2")
 tasks=('original' 'loss') 
 #datasets=("MUTAG" "MCF-7" "MOLT-4" "P388" "ZINC_full" "reddit_threads" "github_stargazers")
 template='singularity exec --writable-tmpfs --nv /data/zhehua/SIF/mvgrl.sif python3 ./run_model.py --task SSGCL --model MODEL_PLACEHOLDER --dataset DATASET_PLACEHOLDER --ratio RATIO_PLACEHOLDER --downstream_ratio 0.1 --downstream_task TASK_PLACEHOLDER'

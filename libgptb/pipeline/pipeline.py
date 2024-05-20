@@ -83,6 +83,6 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
         executor.load_model(model_cache_file)
 
     # evaluate and the result will be under cache/evaluate_cache
-    executor.evaluate(downstream_data)
+    executor.evaluate(full_data)
     
 

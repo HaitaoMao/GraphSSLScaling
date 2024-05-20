@@ -80,7 +80,7 @@ def get_logger(config, name=None):
     Returns:
         Logger: logger
     """
-    log_dir = './libgptb/log/JOAO100epochs'
+    log_dir = './libgptb/log/estimate/GraphCL'
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
