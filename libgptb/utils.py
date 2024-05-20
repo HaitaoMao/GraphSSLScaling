@@ -80,8 +80,7 @@ def get_logger(config, name=None):
     Returns:
         Logger: logger
     """
-    log_dir = os.path.expanduser('~/scratch/log')
-    #log_dir = '~/scratch/log'
+    log_dir = './libgptb/log'
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     log_filename = '{}-{}-{}-{}-{}-{}.log'.format(config['model'],config['dataset'],config.get("ratio",1),
