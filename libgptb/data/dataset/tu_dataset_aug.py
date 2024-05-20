@@ -299,7 +299,7 @@ class TUDataset_aug(InMemoryDataset):
 def drop_nodes(data):
     node_num, _ = data.x.size()
     _, edge_num = data.edge_index.size()
-    drop_num = int(node_num / 10)
+    drop_num = int(node_num * 0.2)
 
     idx_drop = np.random.choice(node_num, drop_num, replace=False)
     idx_nondrop = [n for n in range(node_num) if not n in idx_drop]
@@ -320,7 +320,7 @@ def drop_nodes(data):
 def permute_edges(data):
     node_num, _ = data.x.size()
     _, edge_num = data.edge_index.size()
-    permute_num = int(edge_num / 10)
+    permute_num = int(edge_num * 0.2)
 
     edge_index = data.edge_index.transpose(0, 1).numpy()
 
@@ -335,7 +335,7 @@ def subgraph(data):
 
     node_num, _ = data.x.size()
     _, edge_num = data.edge_index.size()
-    sub_num = int(node_num * (0.2))
+    sub_num = int(node_num * (1-0.2))
 
     edge_index = data.edge_index.numpy()
 
@@ -373,7 +373,7 @@ def subgraph(data):
 
 def mask_nodes(data):
     node_num, feat_dim = data.x.size()
-    mask_num = int(node_num / 10)
+    mask_num = int(node_num * 0.2)
 
     idx_mask = np.random.choice(node_num, mask_num, replace=False)
     data.x[idx_mask] = torch.tensor(np.random.normal(loc=0.5, scale=0.5, size=(mask_num, feat_dim)), dtype=torch.float32)

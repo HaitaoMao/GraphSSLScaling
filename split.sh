@@ -2,7 +2,7 @@
 
 ratio=0.1
 
-models=('GraphCL') 
+models=('JOAO') 
 datasets=("github_stargazers" "reddit_threads")
 tasks=('original' 'loss') 
 #datasets=("MUTAG" "MCF-7" "MOLT-4" "P388" "ZINC_full" "reddit_threads" "github_stargazers")
@@ -14,7 +14,7 @@ for model in "${models[@]}"; do
         for task in "${tasks[@]}"; do  # added loop over tasks
             #for exp in $(seq 0 5); do #1 and 0.5 already tested
             #    i=$(bc <<< "scale=6; 2^(-$exp)")
-            for i in $(seq 0.5 $ratio 1); do
+            for i in $(seq $ratio $ratio 1); do
                 command="${template/MODEL_PLACEHOLDER/$model}"
                 command="${command/DATASET_PLACEHOLDER/$dataset}"
                 command="${command/RATIO_PLACEHOLDER/$i}"

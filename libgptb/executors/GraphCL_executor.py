@@ -220,7 +220,7 @@ class GraphCLExecutor(AbstractExecutor):
                     x = torch.from_numpy(x)
                     y = torch.from_numpy(y)
 
-                    result = SVMEvaluator()(x,y,split)
+                    result=SVMEvaluator()(x,y,split)
                     self._logger.info(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
                 elif self.downstream_task == 'loss':
                     losses = self._train_epoch(test_dataloader,epoch_idx, self.loss_func,train = False)
