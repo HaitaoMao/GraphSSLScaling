@@ -82,7 +82,7 @@ class PyGDataset(AbstractDataset):
         valid_set = [transform_data(self.dataset[i])  for i in indices[train_size: train_size + valid_size]]
         test_set = [transform_data(self.dataset[i])  for i in indices[train_size + valid_size:]]
         full_set =  [transform_data(self.dataset[i])  for i in indices]
-        if self.downstream_task == 'orignal':
+        if self.downstream_task == 'original':
             downstream_train = [transform_data(self.dataset[i])  for i in indices[:downstream_size]]
             downstream_set = downstream_train + valid_set + test_set
         else:

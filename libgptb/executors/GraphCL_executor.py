@@ -205,7 +205,7 @@ class GraphCLExecutor(AbstractExecutor):
         """
         self._logger.info('Start evaluating ...')
         #for epoch_idx in [50-1, 100-1, 500-1, 1000-1, 10000-1]:
-        for epoch_idx in [3,10-1,20-1,40-1,60-1,80-1,100-1]:
+        for epoch_idx in [3-1,10-1,20-1,40-1,60-1,80-1,100-1]:
                 if epoch_idx+1 > self.epochs:
                     break
                 self.load_model_with_epoch(epoch_idx)
@@ -214,7 +214,7 @@ class GraphCLExecutor(AbstractExecutor):
                     x = []
                     y = []
                     for data in test_dataloader:
-                        data = data.to('cuda')
+                        data = data.to(self.device)
                         if data.x is None:
                             num_nodes = data.batch.size(0)
                             data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
@@ -326,8 +326,6 @@ class GraphCLExecutor(AbstractExecutor):
             loss = self.model.contrast_model(g1=g1, g2=g2, batch=data.batch)
             loss.backward()
             self.optimizer.step()
-            if not train:
-                self.optimizers.n
             epoch_loss += loss.item()
         return epoch_loss
         
