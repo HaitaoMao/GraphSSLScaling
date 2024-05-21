@@ -79,7 +79,7 @@
             "evaluator": "GraphCLEvaluator"
         },
         "JOAO":{
-            "dataset_class": "TUDataset_graphcl",
+            "dataset_class": "PyGDataset",
             "executor": "JOAOExecutor",
             "evaluator": "JOAOEvaluator"
         }
