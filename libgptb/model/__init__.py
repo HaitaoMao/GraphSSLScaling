@@ -14,6 +14,5 @@ __all__ = [
     GBT,
     MVGRL,
     COSTA,
-    MVGRLg,
     MVGRLg
 ]
