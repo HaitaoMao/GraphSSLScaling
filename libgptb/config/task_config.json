@@ -1,6 +1,6 @@
 {
     "GCL": {
-        "allowed_model": ["DGI", "GRACE", "MVGRL", "CCA", "BGRL", "GBT", "SUGRL", "SFA", "AFGRL", "COSTA", "HomoGCL","MVGRLg"],
+        "allowed_model": ["DGI", "GRACE", "MVGRL", "CCA", "BGRL", "GBT", "SUGRL", "SFA", "AFGRL", "COSTA", "HomoGCL"],
         "allowed_dataset": ["Cora", "CiteSeer", "PubMed","Computers", "Photo","CS","Physics"],
         "DGI": {
             "dataset_class": "PyGDataset",
@@ -34,12 +34,17 @@
         }
     },
     "SSGCL": {
-        "allowed_model": ["MVGRLg"],
+        "allowed_model": ["MVGRLg","InfoGraph"],
         "allowed_dataset": ["MUTAG","reddit_threads","github_stargazers","ogbg-molhiv", "ogbg-ppa", "ogbg-code2"],
         "MVGRLg": {
             "dataset_class": "PyGDataset",
             "executor": "MVGRLgExecutor",
             "evaluator": "MVGRLgEvaluator"
+        },
+        "InfoGraph": {
+            "dataset_class": "PyGDataset",
+            "executor": "InfoGraphExecutor",
+            "evaluator": "InfoGraphEvaluator"
         }
     }
 }
