@@ -29,7 +29,17 @@ class BaseSKLearnEvaluator(BaseEvaluator):
             }
 
         elif self.scoring == 'roc_auc':
-            y_proba = classifier.predict_proba(x_test)[:, 1]
-            roc_auc = roc_auc_score(y_test, y_proba)
-            return {'roc_auc' : roc_auc }
+            rocauc_list = []
+            y_pred = classifier.predict_proba(x_test)
+            for i in range(y_test.shape[1]):
+            #AUC is only defined when there is at least one positive data.
+                if np.sum(y_test[:,i] == 1) > 0 and np.sum(y_test[:,i] == 0) > 0:
+                    # ignore nan values
+                    is_labeled = y_true[:,i] == y_true[:,i]
+                    rocauc_list.append(roc_auc_score(y_test[is_labeled,i], y_pred[is_labeled,i]))
+    
+            if len(rocauc_list) == 0:
+                raise RuntimeError('No positively labeled data available. Cannot compute ROC-AUC.')
+    
+            return {'roc_auc': sum(rocauc_list)/len(rocauc_list)}
 
