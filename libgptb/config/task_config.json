@@ -71,7 +71,6 @@
             "dataset_class": "PyGDataset",
             "executor": "MVGRLgExecutor",
             "evaluator": "MVGRLgEvaluator"
-
         },
         "GraphCL":{
             "dataset_class": "PyGDataset",

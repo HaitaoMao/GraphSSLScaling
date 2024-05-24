@@ -13,7 +13,7 @@ from torch.utils.tensorboard import SummaryWriter
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
 from functools import partial
-from libgptb.evaluators import get_split,SVMEvaluator
+from libgptb.evaluators import get_split,SVMEvaluator,RocAucEvaluator,PyTorchEvaluator
 from libgptb.models import DualBranchContrast
 from sklearn import preprocessing
 
@@ -226,8 +226,17 @@ class GraphCLExecutor(AbstractExecutor):
                     y = torch.cat(y, dim=0)
 
                     split = get_split(num_samples=x.size()[0], train_ratio=0.8, test_ratio=0.1,dataset=self.dataset)
-                    result = SVMEvaluator(linear=True)(x, y, split)
-                    self._logger.info(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
+                    if self.config['dataset'] == 'ogbg-molhiv': 
+                        result = RocAucEvaluator()(x, y, split)
+                        self._logger.info(f'(E): Roc-Auc={result["roc_auc"]:.4f}')
+                    elif self.config['dataset'] == 'ogbg-ppa':
+                        unique_classes = torch.unique(y)
+                        nclasses = unique_classes.size(0)
+                        result = PyTorchEvaluator(n_features=x.shape[1],n_classes=nclasses)(x, y, split)
+                        self._logger.info(f'(E): Acc={result["accuracy"]:.4f}')
+                    else:
+                        result = SVMEvaluator(linear=True)(x, y, split)
+                        self._logger.info(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
                 elif self.downstream_task == 'loss':
                     losses = self._train_epoch(test_dataloader,epoch_idx, self.loss_func,train = False)
                     result = np.mean(losses) 

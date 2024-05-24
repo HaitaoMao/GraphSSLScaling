@@ -79,8 +79,8 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
         executor.train(train_data, valid_data)
         if saved_model:
             executor.save_model(model_cache_file)
-    else:
-        executor.load_model(model_cache_file)
+    # else:
+    #     executor.load_model(model_cache_file)
 
     # evaluate and the result will be under cache/evaluate_cache
     executor.evaluate(full_data)

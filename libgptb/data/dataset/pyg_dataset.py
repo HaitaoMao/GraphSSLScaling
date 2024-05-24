@@ -88,11 +88,11 @@ class PyGDataset(AbstractDataset):
         else:
             downstream_set = test_set # may consider agregate valid+test
         return {
-        'train': DataLoader(train_set, batch_size=self.batch_size),
-        'valid': DataLoader(valid_set, batch_size=self.batch_size),
-        'test': DataLoader(test_set, batch_size=self.batch_size),
-        'full': DataLoader(full_set, batch_size=self.batch_size),
-        'downstream':DataLoader(downstream_set, batch_size=self.batch_size)
+        'train': DataLoader(train_set, batch_size=self.batch_size,pin_memory=True),
+        'valid': DataLoader(valid_set, batch_size=self.batch_size,pin_memory=True),
+        'test': DataLoader(test_set, batch_size=self.batch_size,pin_memory=True),
+        'full': DataLoader(full_set, batch_size=self.batch_size,pin_memory=True),
+        'downstream':DataLoader(downstream_set, batch_size=self.batch_size,pin_memory=True)
         }
 
     def get_data_feature(self):
