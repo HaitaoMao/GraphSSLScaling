@@ -35,7 +35,7 @@ class BaseSKLearnEvaluator(BaseEvaluator):
             #AUC is only defined when there is at least one positive data.
                 if np.sum(y_test[:,i] == 1) > 0 and np.sum(y_test[:,i] == 0) > 0:
                     # ignore nan values
-                    is_labeled = y_true[:,i] == y_true[:,i]
+                    is_labeled = y_test[:,i] == y_test[:,i]
                     rocauc_list.append(roc_auc_score(y_test[is_labeled,i], y_pred[is_labeled,i]))
     
             if len(rocauc_list) == 0:

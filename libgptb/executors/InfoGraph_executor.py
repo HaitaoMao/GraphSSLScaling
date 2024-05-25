@@ -8,7 +8,7 @@ from logging import getLogger
 from torch.utils.tensorboard import SummaryWriter
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
-from libgptb.evaluators import get_split, SVMEvaluator, RocAucEvaluator
+from libgptb.evaluators import get_split, SVMEvaluator, RocAucEvaluator, PyTorchEvaluator
 from functools import partial
 
 
@@ -68,7 +68,7 @@ class InfoGraphExecutor(AbstractExecutor):
         self.load_best_epoch = self.config.get('load_best_epoch', False)
         self.hyper_tune = self.config.get('hyper_tune', False)
         self.downstream_ratio = self.config.get('downstream_ratio', 0.1)
-        self.downstream_task = self.config.get('downstream_task','orignal')
+        self.downstream_task = self.config.get('downstream_task','original')
         self.output_dim = self.config.get('output_dim', 1)
         # TODO
         self.optimizer = self._build_optimizer()
@@ -204,7 +204,7 @@ class InfoGraphExecutor(AbstractExecutor):
         self._logger.info('Start evaluating ...')
         for epoch_idx in [10-1,20-1,40-1,60-1,80-1,100-1]:
             self.load_model_with_epoch(epoch_idx)
-            if self.downstream_task == 'orignal':
+            if self.downstream_task == 'original':
                 self.model.encoder_model.eval()
                 x = []
                 y = []
@@ -225,6 +225,11 @@ class InfoGraphExecutor(AbstractExecutor):
                 if self.config['dataset'] == 'ogbg-molhiv': 
                     result = RocAucEvaluator()(x, y, split)
                     print(f'(E): Roc-Auc={result["roc_auc"]:.4f}')
+                elif self.config['dataset'] == 'ogbg-ppa':
+                    unique_classes = torch.unique(y)
+                    nclasses = unique_classes.size(0)
+                    self._logger.info('nclasses is {}'.format(nclasses))
+                    result = PyTorchEvaluator(n_features=x.shape[1],n_classes=nclasses)(x, y, split)
                 else:
                     result = SVMEvaluator()(x, y, split)
                     print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
@@ -285,7 +290,7 @@ class InfoGraphExecutor(AbstractExecutor):
                 self._logger.info(message)
 
             #if epoch_idx+1 in [50, 100, 500, 1000, 10000]:
-            if epoch_idx+1 in [3,10,20,40,60,80,100]:
+            if epoch_idx+1 in [10,20,40,60,80,100]:
                 model_file_name = self.save_model_with_epoch(epoch_idx)
                 self._logger.info('saving to {}'.format(model_file_name))
 

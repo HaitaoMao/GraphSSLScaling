@@ -68,7 +68,7 @@ class MVGRLgExecutor(AbstractExecutor):
         self.load_best_epoch = self.config.get('load_best_epoch', False)
         self.hyper_tune = self.config.get('hyper_tune', False)
         self.downstream_ratio = self.config.get('downstream_ratio', 0.1)
-        self.downstream_task = self.config.get('downstream_task','orignal')
+        self.downstream_task = self.config.get('downstream_task','original')
         self.output_dim = self.config.get('output_dim', 1)
         # TODO
         self.optimizer = self._build_optimizer()
@@ -202,9 +202,9 @@ class MVGRLgExecutor(AbstractExecutor):
             test_dataloader(torch.Dataloader): Dataloader
         """
         self._logger.info('Start evaluating ...')
-        for epoch_idx in [2,10-1,20-1,40-1,60-1,80-1,100-1]:
+        for epoch_idx in [10-1,20-1,40-1,60-1,80-1,100-1]:
             self.load_model_with_epoch(epoch_idx)
-            if self.downstream_task == 'orignal':
+            if self.downstream_task == 'original':
                 self.model.encoder_model.eval()
                 x = []
                 y = []

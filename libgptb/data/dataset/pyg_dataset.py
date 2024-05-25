@@ -20,14 +20,14 @@ class PyGDataset(AbstractDataset):
         self.valid_ratio = self.config.get("valid_ratio",0.1)
         self.test_ratio = self.config.get("test_ratio",0.1)
         self.downstream_ratio = self.config.get("downstream_ratio",0.1)
-        self.downstream_task = self.config.get('downstream_task','orignal')
+        self.downstream_task = self.config.get('downstream_task','original')
         self.task = self.config.get("task","GCL")
         self._load_data()
 
     def _load_data(self):
         device = torch.device('cuda')
         path = osp.join(os.getcwd(), 'raw_data')
-
+        
         if self.datasetName in ["Cora", "CiteSeer", "PubMed"]:
             pyg = getattr(importlib.import_module('torch_geometric.datasets'), 'Planetoid')
         if self.datasetName in ["Computers", "Photo"]:
@@ -82,17 +82,16 @@ class PyGDataset(AbstractDataset):
         valid_set = [transform_data(self.dataset[i])  for i in indices[train_size: train_size + valid_size]]
         test_set = [transform_data(self.dataset[i])  for i in indices[train_size + valid_size:]]
         full_set =  [transform_data(self.dataset[i])  for i in indices]
-        if self.downstream_task == 'orignal':
-            downstream_train = [transform_data(self.dataset[i])  for i in indices[:downstream_size]]
-            downstream_set = downstream_train + valid_set + test_set
+        if self.downstream_task == 'original':
+            downstream_set = full_set
         else:
             downstream_set = test_set # may consider agregate valid+test
         return {
-        'train': DataLoader(train_set, batch_size=self.batch_size),
-        'valid': DataLoader(valid_set, batch_size=self.batch_size),
-        'test': DataLoader(test_set, batch_size=self.batch_size),
-        'full': DataLoader(full_set, batch_size=self.batch_size),
-        'downstream':DataLoader(downstream_set, batch_size=self.batch_size)
+        'train': DataLoader(train_set, batch_size=self.batch_size, pin_memory=True),
+        'valid': DataLoader(valid_set, batch_size=self.batch_size, pin_memory=True),
+        'test': DataLoader(test_set, batch_size=self.batch_size, pin_memory=True),
+        'full': DataLoader(full_set, batch_size=self.batch_size, pin_memory=True),
+        'downstream':DataLoader(downstream_set, batch_size=self.batch_size, pin_memory=True)
         }
 
     def get_data_feature(self):

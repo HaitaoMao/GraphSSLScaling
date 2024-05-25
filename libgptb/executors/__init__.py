@@ -5,6 +5,7 @@ from libgptb.executors.GBT_executor import GBTExecutor
 from libgptb.executors.MVGRL_executor import MVGRLExecutor
 from libgptb.executors.COSTA_executor import COSTAExecutor
 from libgptb.executors.MVGRLg_executor import MVGRLgExecutor
+from libgptb.executors.GraphMAE_executor import GraphMAEExecutor
 from libgptb.executors.InfoGraph_executor import InfoGraphExecutor
 
 __all__ = [
@@ -14,6 +15,7 @@ __all__ = [
     "GBTExecutor",
     "MVGRLExecutor",
     "COSTAExecutor",
+    "GraphMAEExecutor",
     "MVGRLgExecutor",
     "InfoGraphExecutor"
 

@@ -6,6 +6,7 @@ from libgptb.model.MVGRL import MVGRL
 from libgptb.model.COSTA import COSTA
 from libgptb.model.MVGRLg import MVGRLg
 from libgptb.model.InfoGraph import InfoGraph
+from libgptb.model.GraphMAE import GraphMAE
 
 
 __all__ = [
@@ -16,5 +17,6 @@ __all__ = [
     MVGRL,
     COSTA,
     MVGRLg,
-    InfoGraph
+    InfoGraph,
+    GraphMAE
 ]

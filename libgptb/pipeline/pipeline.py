@@ -64,12 +64,10 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
     print(config['model'])
     executor = get_executor(config, model, data_feature)
     # train
-    if train:  # or not os.path.exists(model_cache_file):
+    if train:
         executor.train(train_data, valid_data)
         if saved_model:
             executor.save_model(model_cache_file)
-    #else:
-        #executor.load_model(model_cache_file)
     # evaluate and the result will be under cache/evaluate_cache
-    executor.evaluate(full_data)
+    executor.evaluate(downstream_data)
     
