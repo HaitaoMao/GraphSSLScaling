@@ -8,7 +8,7 @@ from logging import getLogger
 from torch.utils.tensorboard import SummaryWriter
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
-from libgptb.evaluators import get_split, SVMEvaluator, RocAucEvaluator, PyTorchEvaluator
+from libgptb.evaluators import get_split, SVMEvaluator, RocAucEvaluator, PyTorchEvaluator, Logits
 from functools import partial
 
 
@@ -80,6 +80,7 @@ class InfoGraphExecutor(AbstractExecutor):
         self.loss_func = None
 
         self.num_samples = self.data_feature.get('num_samples')
+        self.config['num_class'] = self.data_feature.get('num_class')
 
     def save_model(self, cache_name):
         """
@@ -208,7 +209,7 @@ class InfoGraphExecutor(AbstractExecutor):
                 self.model.encoder_model.eval()
                 x = []
                 y = []
-                for data in dataloader['original']:
+                for data in dataloader['full']:
                     data = data.to('cuda')
                     if data.x is None:
                         num_nodes = data.batch.size(0)
@@ -236,10 +237,18 @@ class InfoGraphExecutor(AbstractExecutor):
                 self._logger.info('Evaluate result is ' + json.dumps(result))
                 
             if self.downstream_task == 'loss' or self.downstream_task == 'both':
-                losses = self._train_epoch(dataloader['loss'], epoch_idx, self.loss_func,train = False)
+                losses = self._train_epoch(dataloader['test'], epoch_idx, self.loss_func,train = False)
                 result = np.mean(losses) 
                 self._logger.info('Evaluate loss is ' + json.dumps(result))
             
+            if self.downstream_task == 'logits':
+                logits = Logits(self.config, self.model, self._logger)
+                self._logger.info("-----Start Downstream Fine Tuning-----")
+                logits.train(dataloader['downstream_train'])
+                self._logger.info("-----Fine Tuning Done, Start Eval-----")
+                result = logits.eval(dataloader['test'])
+                self._logger.info('Evaluate acc is ' + json.dumps(result))
+
             filename = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '_' + \
                         self.config['model'] + '_' + self.config['dataset']
             save_path = self.evaluate_res_dir

@@ -23,6 +23,7 @@ class PyGDataset(AbstractDataset):
         self.downstream_task = self.config.get('downstream_task','original')
         self.task = self.config.get("task","GCL")
         self._load_data()
+        self.get_num_classes()
 
     def _load_data(self):
         device = torch.device('cuda')
@@ -46,7 +47,19 @@ class PyGDataset(AbstractDataset):
         
         self.data = self.dataset[0].to(device)
         
-    
+    def get_num_classes(self):
+        if hasattr(self.dataset, 'num_classes'):
+            self.num_class = self.dataset.num_classes
+        elif hasattr(self.dataset, 'num_tasks'):
+            self.num_class = self.dataset.num_tasks
+        else:
+            all_labels = []
+            for data in self.dataset:
+                all_labels.append(data.y)
+            all_labels = torch.cat(all_labels)
+            num_classes = torch.unique(all_labels).size(0)
+            self.num_class = num_classe
+
     def get_data(self):
         if self.task == "SSGCL":
             return self.process()
@@ -82,16 +95,18 @@ class PyGDataset(AbstractDataset):
         valid_set = [transform_data(self.dataset[i])  for i in indices[train_size: train_size + valid_size]]
         test_set = [transform_data(self.dataset[i])  for i in indices[train_size + valid_size:]]
         full_set =  [transform_data(self.dataset[i])  for i in indices]
+        downstream_set = [transform_data(self.dataset[i]) for i in indices[:downstream_size]]
         
         train_loader = DataLoader(train_set, batch_size=self.batch_size, pin_memory=True)
         valid_loader = DataLoader(valid_set, batch_size=self.batch_size, pin_memory=True)
         test_loader  = DataLoader(test_set, batch_size=self.batch_size, pin_memory=True)
         full_loader  = DataLoader(full_set, batch_size=self.batch_size, pin_memory=True)
+        downstream_train = DataLoader(downstream_set, batch_size=self.batch_size, pin_memory=True)
         down_loader  = {}
-        if self.downstream_task == 'original' or self.downstream_task == 'both' :
-            down_loader['original'] = full_loader
-        if self.downstream_task == 'loss' or self.downstream_task == 'both' :
-            down_loader['loss'] = test_loader
+        down_loader['full'] = full_loader
+        down_loader['test'] = test_loader
+        down_loader['downstream_train'] = downstream_train
+        print(f"------{len(downstream_train)}------")
         return {
         'train': train_loader,
         'valid': valid_loader,
@@ -110,6 +125,7 @@ class PyGDataset(AbstractDataset):
         """
         return {
             "input_dim": max(self.dataset.num_features, 1),
-            "num_samples": len(self.dataset)
+            "num_samples": len(self.dataset),
+            "num_class":self.num_class
         }
     
