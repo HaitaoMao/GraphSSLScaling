@@ -253,7 +253,7 @@ class GraphMAE(nn.Module):
         nhead = config["num_heads"]
         nhead_out = config["num_out_heads"]
         num_hidden = config["nhid"]
-        num_layers = config["num_layers"]
+        num_layers = config["layers"]
         residual = config["residual"]
         attn_drop = config["attn_drop"]
         feat_drop = config["drop_feature_rate"]

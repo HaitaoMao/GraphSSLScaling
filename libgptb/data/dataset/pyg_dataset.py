@@ -82,17 +82,23 @@ class PyGDataset(AbstractDataset):
         valid_set = [transform_data(self.dataset[i])  for i in indices[train_size: train_size + valid_size]]
         test_set = [transform_data(self.dataset[i])  for i in indices[train_size + valid_size:]]
         full_set =  [transform_data(self.dataset[i])  for i in indices]
-        if self.downstream_task == 'original':
-            downstream_set = full_set
-        else:
-            downstream_set = test_set # may consider agregate valid+test
+        
+        train_loader = DataLoader(train_set, batch_size=self.batch_size, pin_memory=True)
+        valid_loader = DataLoader(valid_set, batch_size=self.batch_size, pin_memory=True)
+        test_loader  = DataLoader(test_set, batch_size=self.batch_size, pin_memory=True)
+        full_loader  = DataLoader(full_set, batch_size=self.batch_size, pin_memory=True)
+        down_loader  = {}
+        if self.downstream_task == 'original' or self.downstream_task == 'both' :
+            down_loader['original'] = full_loader
+        if self.downstream_task == 'loss' or self.downstream_task == 'both' :
+            down_loader['loss'] = test_loader
         return {
-        'train': DataLoader(train_set, batch_size=self.batch_size, pin_memory=True),
-        'valid': DataLoader(valid_set, batch_size=self.batch_size, pin_memory=True),
-        'test': DataLoader(test_set, batch_size=self.batch_size, pin_memory=True),
-        'full': DataLoader(full_set, batch_size=self.batch_size, pin_memory=True),
-        'downstream':DataLoader(downstream_set, batch_size=self.batch_size, pin_memory=True)
-        }
+        'train': train_loader,
+        'valid': valid_loader,
+        'test' : test_loader,
+        'full' : full_loader,
+        'downstream':down_loader
+         }
 
     def get_data_feature(self):
         """

@@ -81,8 +81,8 @@ class InfoGraph(AbstractGCLModel):
         super().__init__(config, data_feature)
 
         gconv = GConv(input_dim=self.input_dim, hidden_dim=self.nhid, activation=torch.nn.ReLU, num_layers=self.layers).to(self.device)
-        fc1 = FC(hidden_dim=self.nhid * 2)
-        fc2 = FC(hidden_dim=self.nhid * 2)
+        fc1 = FC(hidden_dim=self.nhid * self.layers)
+        fc2 = FC(hidden_dim=self.nhid * self.layers)
 
         self.encoder_model = Encoder(encoder=gconv, local_fc=fc1, global_fc=fc2).to(self.device)
         self.contrast_model = SingleBranchContrast(loss=L.JSD(), mode='G2L').to(self.device)

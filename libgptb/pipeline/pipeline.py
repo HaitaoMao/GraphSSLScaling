@@ -55,7 +55,7 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
         test_data = data
         full_data = data
         downstream_data = data
-    print(f"train:{len(train_data)} test:{len(valid_data)} valid:{len(test_data)} full:{len(full_data)} down:{len(downstream_data)}")
+
     data_feature = dataset.get_data_feature()
     # load executor
     model_cache_file = './libgptb/cache/{}/model_cache/{}_{}.m'.format(

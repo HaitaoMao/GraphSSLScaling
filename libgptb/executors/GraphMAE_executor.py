@@ -39,7 +39,7 @@ class GraphMAEExecutor(AbstractExecutor):
         self.evaluate_res_dir = './libgptb/cache/{}/evaluate_cache'.format(self.exp_id)
         self.epochs_f =config['max_epoch_f']
         self.num_hidden = config['nhid']
-        self.num_layers = config['num_layers']
+        self.num_layers = config['layers']
         self.encoder_type = config['encoder']
         self.decoder_type = config['decoder']
         self.loss_fn = config['loss_fn']
@@ -199,7 +199,7 @@ class GraphMAEExecutor(AbstractExecutor):
         self._logger.info("Loaded model at {}".format(epoch))
     
 
-    def evaluate(self, test_dataloader):
+    def evaluate(self, dataloader):
         """
         use model to test data
 
@@ -212,12 +212,12 @@ class GraphMAEExecutor(AbstractExecutor):
         for epoch_idx in [0,10-1,20-1,40-1,60-1,80-1,100-1]:
             if epoch_idx+1 > self.epochs:
                 break
-            if self.downstream_task == 'original':
+            if self.downstream_task == 'original' or self.downstream_task == 'both':
                 self.model.eval()
                 x_list = []
                 y_list = []
                 with torch.no_grad():
-                    for i, batch_g in enumerate(test_dataloader):
+                    for i, batch_g in enumerate(dataloader['original']):
                         batch_g = batch_g.to(self.device)
                         feat = batch_g.x
                         labels = batch_g.y.cpu()
@@ -243,13 +243,14 @@ class GraphMAEExecutor(AbstractExecutor):
                     result = PyTorchEvaluator(n_features=x.shape[1],n_classes=nclasses)(x, y, split)
                 else:
                     result = SVMEvaluator(linear=True)(x, y, split)
-                    
-            elif self.downstream_task == 'loss':
-                    losses = self._train_epoch(test_dataloader,epoch_idx, self.loss_func,train = False)
-                    result = np.mean(losses) 
-
-                    
-            self._logger.info('Evaluate result is ' + json.dumps(result))
+                    print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
+                self._logger.info('Evaluate result is ' + json.dumps(result))
+                
+            if self.downstream_task == 'loss' or self.downstream_task == 'both':
+                losses = self._train_epoch(dataloader['loss'], epoch_idx, self.loss_func,train = False)
+                result = np.mean(losses) 
+                self._logger.info('Evaluate loss is ' + json.dumps(result))
+        
             filename = 'epoch'+str(epoch_idx)+"_"+datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '_' + \
                             self.config['model'] + '_' + self.config['dataset']
             save_path = self.evaluate_res_dir
@@ -346,7 +347,6 @@ class GraphMAEExecutor(AbstractExecutor):
             batch_g = batch_g.to(self.device)
 
             feat = batch_g.x
-            self.model.train()
             loss, loss_dict = self.model(feat, batch_g.edge_index)
             
             self.optimizer.zero_grad()

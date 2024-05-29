@@ -204,11 +204,11 @@ class InfoGraphExecutor(AbstractExecutor):
         self._logger.info('Start evaluating ...')
         for epoch_idx in [10-1,20-1,40-1,60-1,80-1,100-1]:
             self.load_model_with_epoch(epoch_idx)
-            if self.downstream_task == 'original':
+            if self.downstream_task == 'original' or self.downstream_task == 'both':
                 self.model.encoder_model.eval()
                 x = []
                 y = []
-                for data in dataloader:
+                for data in dataloader['original']:
                     data = data.to('cuda')
                     if data.x is None:
                         num_nodes = data.batch.size(0)
@@ -233,12 +233,13 @@ class InfoGraphExecutor(AbstractExecutor):
                 else:
                     result = SVMEvaluator()(x, y, split)
                     print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
-            
-            elif self.downstream_task == 'loss':
-                losses = self._train_epoch(dataloader, epoch_idx, self.loss_func,train = False)
+                self._logger.info('Evaluate result is ' + json.dumps(result))
+                
+            if self.downstream_task == 'loss' or self.downstream_task == 'both':
+                losses = self._train_epoch(dataloader['loss'], epoch_idx, self.loss_func,train = False)
                 result = np.mean(losses) 
-
-            self._logger.info('Evaluate result is ' + json.dumps(result))
+                self._logger.info('Evaluate loss is ' + json.dumps(result))
+            
             filename = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '_' + \
                         self.config['model'] + '_' + self.config['dataset']
             save_path = self.evaluate_res_dir

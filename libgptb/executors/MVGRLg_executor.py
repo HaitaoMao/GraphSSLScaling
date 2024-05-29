@@ -208,7 +208,7 @@ class MVGRLgExecutor(AbstractExecutor):
                 self.model.encoder_model.eval()
                 x = []
                 y = []
-                for data in dataloader:
+                for data in dataloader['original']:
                     data = data.to('cuda')
                     if data.x is None:
                         num_nodes = data.batch.size(0)
@@ -228,12 +228,13 @@ class MVGRLgExecutor(AbstractExecutor):
                 else:
                     result = SVMEvaluator()(x, y, split)
                     print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
-            
-            elif self.downstream_task == 'loss':
-                losses = self._train_epoch(dataloader, epoch_idx, self.loss_func,train = False)
+                self._logger.info('Evaluate result is ' + json.dumps(result))
+                
+            if self.downstream_task == 'loss' or self.downstream_task == 'both':
+                losses = self._train_epoch(dataloader['loss'], epoch_idx, self.loss_func,train = False)
                 result = np.mean(losses) 
-
-            self._logger.info('Evaluate result is ' + json.dumps(result))
+                self._logger.info('Evaluate loss is ' + json.dumps(result))
+            
             filename = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '_' + \
                         self.config['model'] + '_' + self.config['dataset']
             save_path = self.evaluate_res_dir
@@ -258,7 +259,7 @@ class MVGRLgExecutor(AbstractExecutor):
         num_batches = len(train_dataloader)
         self._logger.info("num_batches:{}".format(num_batches))
 
-        for epoch_idx in range(self._epoch_num, self.epochs):
+        for epoch_idx in range(self._epoch_num+1, self.epochs):
             start_time = time.time()
             losses = self._train_epoch(train_dataloader, epoch_idx, self.loss_func)
             t1 = time.time()
