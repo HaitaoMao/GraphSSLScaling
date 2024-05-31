@@ -8,9 +8,7 @@ from logging import getLogger
 from torch.utils.tensorboard import SummaryWriter
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
-from libgptb.evaluators import get_split, LREvaluator
-from functools import partial
-from libgptb.augmentors import EdgeRemovingDGL, FeatureMaskingDGL
+from libgptb.evaluators import get_split, LREvaluator, SVMEvaluator, PyTorchEvaluator, RocAucEvaluator, Logits_GraphMAE
 
 
 class CCAExecutor(AbstractExecutor):
@@ -25,12 +23,38 @@ class CCAExecutor(AbstractExecutor):
         self.der = self.config.get('der', 0.2)
 
         self.cache_dir = './libgptb/cache/{}/model_cache'.format(self.exp_id)
-        self.evaluate_res_dir = './libgptb/cache/{}/evaluate_cache'.format(self.exp_id)
         self.summary_writer_dir = './libgptb/cache/{}/'.format(self.exp_id)
-        ensure_dir(self.cache_dir)
-        ensure_dir(self.evaluate_res_dir)
-        ensure_dir(self.summary_writer_dir)
-
+        self.config=config
+        self._logger = getLogger()
+        
+        self.device = self.config.get('device', torch.device('cpu'))
+        self.model=model.to(self.device)
+        
+        self.dataset_name = config['dataset']
+        self.epochs = config['max_epoch']
+        self.evaluate_res_dir = './libgptb/cache/{}/evaluate_cache'.format(self.exp_id)
+        self.epochs_f =config['max_epoch_f']
+        self.num_hidden = config['nhid']
+        self.num_layers = config['layers']
+        self.encoder_type = config['encoder']
+        self.decoder_type = config['decoder']
+        self.loss_fn = config['loss_fn']
+        self.learner = self.config.get('learner', 'adam')
+        self.learning_rate = config['learning_rate']
+        self.weight_decay = config['weight_decay']
+        self.weight_decay_f = config['weight_decay_f']
+        self.linear_prob = config['linear_prob']
+        self.scheduler = config['scheduler']
+        self.pooler = config['pooling']
+        self.deg4feat = config['deg4feat']
+        self.batch_size = config['batch_size']
+        self.num_class = self.config.get('num_class',2)
+        
+        self.load_best_epoch = self.config.get('load_best_epoch', False)
+        self.patience = self.config.get('patience', 50)
+        self.saved = self.config.get('saved_model', True)
+        self.log_every = self.config.get('log_every', 1)
+        
         self._writer = SummaryWriter(self.summary_writer_dir)
         self._logger = getLogger()
         self._scaler = self.data_feature.get('scaler')
@@ -202,24 +226,60 @@ class CCAExecutor(AbstractExecutor):
             test_dataloader(torch.Dataloader): Dataloader
         """
         self._logger.info('Start evaluating ...')
-        for epoch_idx in [50-1, 100-1, 500-1, 1000-1, 10000-1]:
-            self.load_model_with_epoch(epoch_idx)
-            self.model.encoder_model.eval()
-            graph = data
-            feat = graph.ndata['feat']
-            graph = graph.remove_self_loop().add_self_loop().to(self.device)
-            feat = feat.to(self.device)
-            z = self.model.gconv(graph, feat)
-            split = get_split(num_samples=z.size()[0], train_ratio=0.1, test_ratio=0.8, dataset=self.config['dataset'])
-            labels = graph.ndata['label']
+        #for epoch_idx in [50-1, 100-1, 500-1, 1000-1, 10000-1]:
+        for epoch_idx in [10-1,20-1,40-1,60-1,80-1,100-1]:
+            if epoch_idx+1 > self.epochs:
+                break
+            if self.downstream_task == 'original' or self.downstream_task == 'both':
+                self.model.eval()
+                x_list = []
+                y_list = []
+                with torch.no_grad():
+                    for i, batch_g in enumerate(dataloader['original']):
+                        batch_g = batch_g.to(self.device)
+                        feat = batch_g.x
+                        labels = batch_g.y.cpu()
+                        out = self.model.embed(feat, batch_g.edge_index)
+                        if self.pooler == "mean":
+                            out = global_mean_pool(out, batch_g.batch)
+                        elif self.pooler == "max":
+                            out = global_max_pool(out, batch_g.batch)
+                        elif self.pooler == "sum":
+                            out = global_add_pool(out, batch_g.batch)
+                        else:
+                            raise NotImplementedError
 
-            result = LREvaluator()(z, labels, split)
-            print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
+                        y_list.append(labels)
+                        x_list.append(out)
+                x = torch.cat(x_list, dim=0)
+                y = torch.cat(y_list, dim=0)
+                split = get_split(num_samples=x.shape[0], train_ratio=0.8, test_ratio=0.1,dataset=self.config['dataset'])
+                if self.config['dataset'] == 'ogbg-molhiv': 
+                    result = RocAucEvaluator()(x, y, split)
+                    print(f'(E): Roc-Auc={result["roc_auc"]:.4f}')
+                elif self.dataset_name == 'ogbg-ppa':
+                    self._logger.info('nclasses is {}'.format(self.num_class))
+                    result = PyTorchEvaluator(n_features=x.shape[1],n_classes=self.num_class)(x, y, split)
+                else:
+                    result = SVMEvaluator(linear=True)(x, y, split)
+                    print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
+                self._logger.info('Evaluate result is ' + json.dumps(result))
+                
+            if self.downstream_task == 'loss' or self.downstream_task == 'both':
+                losses = self._train_epoch(dataloader['loss'], epoch_idx, self.loss_func,train = False)
+                result = np.mean(losses) 
+                self._logger.info('Evaluate loss is ' + json.dumps(result))
 
+            if self.downstream_task == 'logits':
+                logits = Logits_GraphMAE(self.config, self.model, self._logger)
+                self._logger.info("-----Start Downstream Fine Tuning-----")
+                logits.train(dataloader['downstream_train'])
+                self._logger.info("-----Fine Tuning Done, Start Eval-----")
+                result = logits.eval(dataloader['test'])
+                self._logger.info('Evaluate acc is ' + json.dumps(result))
 
-            self._logger.info('Evaluate result is ' + json.dumps(result))
-            filename = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '_' + \
-                        self.config['model'] + '_' + self.config['dataset']
+            filename = 'epoch'+str(epoch_idx)+"_"+datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '_' + \
+                            self.config['model'] + '_' + self.config['dataset']
             save_path = self.evaluate_res_dir
             with open(os.path.join(save_path, '{}.json'.format(filename)), 'w') as f:
                 json.dump(result, f)

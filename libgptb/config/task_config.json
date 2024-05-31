@@ -65,8 +65,8 @@
         
     },
     "SSGCL": {
-        "allowed_model": ["MVGRLg","GraphCL","JOAO"],
-        "allowed_dataset": ["MUTAG","reddit_threads","github_stargazers","ogbg-molhiv", "ogbg-ppa", "ogbg-code2"],
+        "allowed_model": ["MVGRLg","GraphCL","JOAO","GraphMAE","InfoGraph"],
+        "allowed_dataset": ["MUTAG","reddit_threads","github_stargazers","ogbg-molhiv", "ogbg-ppa", "ogbg-molpcba", "ogbg-code2"],
         "MVGRLg": {
             "dataset_class": "PyGDataset",
             "executor": "MVGRLgExecutor",
@@ -81,6 +81,16 @@
             "dataset_class": "PyGDataset",
             "executor": "JOAOExecutor",
             "evaluator": "JOAOEvaluator"
+        },
+        "InfoGraph": {
+            "dataset_class": "PyGDataset",
+            "executor": "InfoGraphExecutor",
+            "evaluator": "InfoGraphEvaluator"
+        },
+        "GraphMAE": {
+            "dataset_class": "MAEDataset",
+            "executor": "GraphMAEExecutor",
+            "evaluator": "GraphMAEEvaluator"
         }
     }
 }

@@ -8,7 +8,7 @@ from logging import getLogger
 from torch.utils.tensorboard import SummaryWriter
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
-from libgptb.evaluators import get_split, LREvaluator
+from libgptb.evaluators import get_split, SVMEvaluator, RocAucEvaluator, PyTorchEvaluator, Logits_InfoGraph
 from functools import partial
 from libgptb.augmentors import EdgeRemovingDGL, FeatureMaskingDGL
 
@@ -82,6 +82,10 @@ class SFAExecutor(AbstractExecutor):
         if self._epoch_num > 0:
             self.load_model_with_epoch(self._epoch_num)
         self.loss_func = None
+
+        self.num_samples = self.data_feature.get('num_samples')
+        self.config['num_class'] = self.data_feature.get('num_class')
+        self.num_class = self.config.get('num_class',2)
 
     def save_model(self, cache_name):
         """
@@ -206,21 +210,50 @@ class SFAExecutor(AbstractExecutor):
         self._logger.info('Start evaluating ...')
         for epoch_idx in [50-1, 100-1, 500-1, 1000-1, 10000-1]:
             self.load_model_with_epoch(epoch_idx)
-            self.model.encoder_model.eval()
-            graph = data
-            feat = graph.ndata['feat']
-            graph = graph.remove_self_loop().add_self_loop().to(self.device)
-            feat = feat.to(self.device)
+            if self.downstream_task == 'original' or self.downstream_task == 'both':
+                self.model.encoder_model.eval()
+                x = []
+                y = []
+                for data in dataloader['full']:
+                    data = data.to('cuda')
+                    if data.x is None:
+                        num_nodes = data.batch.size(0)
+                        data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
+                    with torch.no_grad():
+                        z, g = self.model.encoder_model(data.x, data.edge_index, data.batch)
+                        x.append(g)
+                        y.append(data.y)
+                    torch.cuda.empty_cache()
+                x = torch.cat(x, dim=0)
+                y = torch.cat(y, dim=0)
 
-            z = self.model.gconv(graph, feat)
-            split = get_split(num_samples=z.size()[0], train_ratio=0.1, test_ratio=0.8, dataset=self.config['dataset'])
-            labels = graph.ndata['label']
+                split = get_split(num_samples=self.num_samples, train_ratio=0.8, test_ratio=0.1,downstream_ratio = self.downstream_ratio, dataset=self.config['dataset'])
+                if self.config['dataset'] == 'ogbg-molhiv': 
+                    result = RocAucEvaluator()(x, y, split)
+                    print(f'(E): Roc-Auc={result["roc_auc"]:.4f}')
+                elif self.config['dataset'] == 'ogbg-ppa':
+                    #unique_classes = torch.unique(y)
+                    #nclasses = unique_classes.size(0)
+                    self._logger.info('nclasses is {}'.format(self.num_class))
+                    result = PyTorchEvaluator(n_features=x.shape[1],n_classes=self.num_class)(x, y, split)
+                else:
+                    result = SVMEvaluator()(x, y, split)
+                    print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
+                self._logger.info('Evaluate result is ' + json.dumps(result))
+                
+            if self.downstream_task == 'loss' or self.downstream_task == 'both':
+                losses = self._train_epoch(dataloader['test'], epoch_idx, self.loss_func,train = False)
+                result = np.mean(losses) 
+                self._logger.info('Evaluate loss is ' + json.dumps(result))
+            
+            if self.downstream_task == 'logits':
+                logits = Logits_InfoGraph(self.config, self.model, self._logger)
+                self._logger.info("-----Start Downstream Fine Tuning-----")
+                logits.train(dataloader['downstream_train'])
+                self._logger.info("-----Fine Tuning Done, Start Eval-----")
+                result = logits.eval(dataloader['test'])
+                self._logger.info('Evaluate acc is ' + json.dumps(result))
 
-            result = LREvaluator()(z, labels, split)
-            print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
-
-
-            self._logger.info('Evaluate result is ' + json.dumps(result))
             filename = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '_' + \
                         self.config['model'] + '_' + self.config['dataset']
             save_path = self.evaluate_res_dir

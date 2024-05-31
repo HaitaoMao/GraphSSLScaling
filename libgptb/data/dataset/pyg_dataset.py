@@ -20,14 +20,15 @@ class PyGDataset(AbstractDataset):
         self.valid_ratio = self.config.get("valid_ratio",0.1)
         self.test_ratio = self.config.get("test_ratio",0.1)
         self.downstream_ratio = self.config.get("downstream_ratio",0.1)
-        self.downstream_task = self.config.get('downstream_task','orignal')
+        self.downstream_task = self.config.get('downstream_task','original')
         self.task = self.config.get("task","GCL")
         self._load_data()
-
+        self.get_num_classes()
+        self.config['num_class'] = self.num_class
     def _load_data(self):
         device = torch.device('cuda')
-        path = osp.join("/data/chunlinFeng/KDD24-BGPM", 'raw_data')
-
+        path = osp.join(os.getcwd(), 'raw_data')
+        
         if self.datasetName in ["Cora", "CiteSeer", "PubMed"]:
             pyg = getattr(importlib.import_module('torch_geometric.datasets'), 'Planetoid')
         if self.datasetName in ["Computers", "Photo"]:
@@ -46,7 +47,19 @@ class PyGDataset(AbstractDataset):
         
         self.data = self.dataset[0].to(device)
         
-    
+    def get_num_classes(self):
+        if hasattr(self.dataset, 'num_classes'):
+            self.num_class = self.dataset.num_classes
+        elif hasattr(self.dataset, 'num_tasks'):
+            self.num_class = self.dataset.num_tasks
+        else:
+            all_labels = []
+            for data in self.dataset:
+                all_labels.append(data.y)
+            all_labels = torch.cat(all_labels)
+            num_classes = torch.unique(all_labels).size(0)
+            self.num_class = num_classe
+
     def get_data(self):
         if self.task == "SSGCL":
             return self.process()
@@ -82,18 +95,25 @@ class PyGDataset(AbstractDataset):
         valid_set = [transform_data(self.dataset[i])  for i in indices[train_size: train_size + valid_size]]
         test_set = [transform_data(self.dataset[i])  for i in indices[train_size + valid_size:]]
         full_set =  [transform_data(self.dataset[i])  for i in indices]
-        if self.downstream_task == 'original':
-            downstream_train = [transform_data(self.dataset[i])  for i in indices[:downstream_size]]
-            downstream_set = downstream_train + valid_set + test_set
-        else:
-            downstream_set = test_set # may consider agregate valid+test
+        downstream_set = [transform_data(self.dataset[i]) for i in indices[:downstream_size]]
+        
+        train_loader = DataLoader(train_set, batch_size=self.batch_size, pin_memory=True)
+        valid_loader = DataLoader(valid_set, batch_size=self.batch_size, pin_memory=True)
+        test_loader  = DataLoader(test_set, batch_size=self.batch_size, pin_memory=True)
+        full_loader  = DataLoader(full_set, batch_size=self.batch_size, pin_memory=True)
+        downstream_train = DataLoader(downstream_set, batch_size=self.batch_size, pin_memory=True)
+        down_loader  = {}
+        down_loader['full'] = full_loader
+        down_loader['test'] = test_loader
+        down_loader['downstream_train'] = downstream_train
+        print(f"------{len(downstream_train)}------")
         return {
-        'train': DataLoader(train_set, batch_size=self.batch_size,pin_memory=True),
-        'valid': DataLoader(valid_set, batch_size=self.batch_size,pin_memory=True),
-        'test': DataLoader(test_set, batch_size=self.batch_size,pin_memory=True),
-        'full': DataLoader(full_set, batch_size=self.batch_size,pin_memory=True),
-        'downstream':DataLoader(downstream_set, batch_size=self.batch_size,pin_memory=True)
-        }
+        'train': train_loader,
+        'valid': valid_loader,
+        'test' : test_loader,
+        'full' : full_loader,
+        'downstream':down_loader
+         }
 
     def get_data_feature(self):
         """
@@ -105,6 +125,8 @@ class PyGDataset(AbstractDataset):
         """
         return {
             "input_dim": max(self.dataset.num_features, 1),
-            "num_samples": len(self.dataset)
+            "num_samples": len(self.dataset),
+            "num_class":self.num_class,
+            "label_dim":self.dataset[0].y.shape[1]
         }
     

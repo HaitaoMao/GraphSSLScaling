@@ -13,9 +13,10 @@ from torch.utils.tensorboard import SummaryWriter
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
 from functools import partial
-from libgptb.evaluators import get_split,SVMEvaluator,RocAucEvaluator,PyTorchEvaluator
+from libgptb.evaluators import get_split,SVMEvaluator,RocAucEvaluator,PyTorchEvaluator,Logits_GraphCL,APEvaluator
 from libgptb.models import DualBranchContrast
 from sklearn import preprocessing
+from ogb.graphproppred import PygGraphPropPredDataset, Evaluator
 
 
 class GraphCLExecutor(AbstractExecutor):
@@ -74,7 +75,10 @@ class GraphCLExecutor(AbstractExecutor):
         self.local=self.config.get("local")=="True"
         self.prior=self.config.get("prior")=="True"
         self.DS=self.config.get("DS","MUTAG")
-        self.num_layers=model.num_layers
+        self.hidden_dim = self.config.get('hidden_dim')
+        self.num_layers = self.config.get('num_layers')
+        self.num_classes = self.config.get('num_class')
+        self.label_dim = data_feature.get('label_dim')
         self.downstream_task=config.get("downstream_task","original")
         self.train_ratio = self.config.get("train_ratio",0.8)
         self.valid_ratio = self.config.get("valid_ratio",0.1)
@@ -213,7 +217,8 @@ class GraphCLExecutor(AbstractExecutor):
                     self.model.encoder_model.eval()
                     x = []
                     y = []
-                    for data in test_dataloader:
+
+                    for data in test_dataloader["full"]:
                         data = data.to(self.device)
                         if data.x is None:
                             num_nodes = data.batch.size(0)
@@ -226,21 +231,36 @@ class GraphCLExecutor(AbstractExecutor):
                     y = torch.cat(y, dim=0)
 
                     split = get_split(num_samples=x.size()[0], train_ratio=0.8, test_ratio=0.1,dataset=self.dataset)
+
                     if self.config['dataset'] == 'ogbg-molhiv': 
                         result = RocAucEvaluator()(x, y, split)
                         self._logger.info(f'(E): Roc-Auc={result["roc_auc"]:.4f}')
+                        
                     elif self.config['dataset'] == 'ogbg-ppa':
                         unique_classes = torch.unique(y)
                         nclasses = unique_classes.size(0)
                         result = PyTorchEvaluator(n_features=x.shape[1],n_classes=nclasses)(x, y, split)
                         self._logger.info(f'(E): Acc={result["accuracy"]:.4f}')
+
+                    elif self.config['dataset'] == 'ogbg-molpcba':
+                        result = APEvaluator(self.hidden_dim*self.num_layers, self.label_dim)(x, y, split)
+                        self._logger.info(f'(E): ap={result["ap"]:.4f}')
+
                     else:
                         result = SVMEvaluator(linear=True)(x, y, split)
                         self._logger.info(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
+
                 elif self.downstream_task == 'loss':
-                    losses = self._train_epoch(test_dataloader,epoch_idx, self.loss_func,train = False)
+                    losses = self._train_epoch(test_dataloader["test"],epoch_idx, self.loss_func,train = False)
                     result = np.mean(losses) 
-                    
+                elif self.downstream_task == 'logits':
+                    logits = Logits_GraphCL(self.config, self.model, self._logger)
+                    self._logger.info("-----Start Downstream Fine Tuning-----")
+                    logits.train(test_dataloader['downstream_train'])
+                    self._logger.info("-----Fine Tuning Done, Start Eval-----")
+                    result = logits.eval(test_dataloader['test'])
+                    self._logger.info('Evaluate acc is ' + json.dumps(result))
+
                 self._logger.info('Evaluate result is ' + json.dumps(result))
                 filename = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '_' + \
                             self.config['model'] + '_' + self.config['dataset']
