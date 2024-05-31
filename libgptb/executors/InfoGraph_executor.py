@@ -8,7 +8,7 @@ from logging import getLogger
 from torch.utils.tensorboard import SummaryWriter
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
-from libgptb.evaluators import get_split, SVMEvaluator, RocAucEvaluator, PyTorchEvaluator, Logits
+from libgptb.evaluators import get_split, SVMEvaluator, RocAucEvaluator, PyTorchEvaluator, Logits_InfoGraph
 from functools import partial
 
 
@@ -81,6 +81,7 @@ class InfoGraphExecutor(AbstractExecutor):
 
         self.num_samples = self.data_feature.get('num_samples')
         self.config['num_class'] = self.data_feature.get('num_class')
+        self.num_class = self.config.get('num_class',2)
 
     def save_model(self, cache_name):
         """
@@ -227,10 +228,10 @@ class InfoGraphExecutor(AbstractExecutor):
                     result = RocAucEvaluator()(x, y, split)
                     print(f'(E): Roc-Auc={result["roc_auc"]:.4f}')
                 elif self.config['dataset'] == 'ogbg-ppa':
-                    unique_classes = torch.unique(y)
-                    nclasses = unique_classes.size(0)
-                    self._logger.info('nclasses is {}'.format(nclasses))
-                    result = PyTorchEvaluator(n_features=x.shape[1],n_classes=nclasses)(x, y, split)
+                    #unique_classes = torch.unique(y)
+                    #nclasses = unique_classes.size(0)
+                    self._logger.info('nclasses is {}'.format(self.num_class))
+                    result = PyTorchEvaluator(n_features=x.shape[1],n_classes=self.num_class)(x, y, split)
                 else:
                     result = SVMEvaluator()(x, y, split)
                     print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
@@ -242,7 +243,7 @@ class InfoGraphExecutor(AbstractExecutor):
                 self._logger.info('Evaluate loss is ' + json.dumps(result))
             
             if self.downstream_task == 'logits':
-                logits = Logits(self.config, self.model, self._logger)
+                logits = Logits_InfoGraph(self.config, self.model, self._logger)
                 self._logger.info("-----Start Downstream Fine Tuning-----")
                 logits.train(dataloader['downstream_train'])
                 self._logger.info("-----Fine Tuning Done, Start Eval-----")

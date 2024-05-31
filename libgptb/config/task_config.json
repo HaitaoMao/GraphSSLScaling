@@ -35,7 +35,7 @@
     },
     "SSGCL": {
         "allowed_model": ["MVGRLg","GraphMAE","InfoGraph"],
-        "allowed_dataset": ["MUTAG", "reddit_threads","github_stargazers","ogbg-molhiv", "ogbg-ppa"],
+        "allowed_dataset": ["MUTAG", "reddit_threads","github_stargazers","ogbg-molhiv", "ogbg-ppa", "ogbg-molpcba"],
         "MVGRLg": {
             "dataset_class": "PyGDataset",
             "executor": "MVGRLgExecutor",

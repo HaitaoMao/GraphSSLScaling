@@ -31,7 +31,7 @@ class MAEDataset(AbstractDataset):
         config['num_feature']={
             "input_dim": max(self.num_features, 1)
         }
-        config['num_classes']=self.num_classes
+        config['num_class']=self.num_classes
         
         
     def _load_data(self):
@@ -136,16 +136,18 @@ class MAEDataset(AbstractDataset):
         valid_set = [self.dataset[i] for i in indices[train_size: train_size + valid_size]]
         test_set = [self.dataset[i] for i in indices[train_size + valid_size:]]
         full_set =  [self.dataset[i]  for i in indices]
+        downstream_set = [self.dataset[i] for i in indices[:downstream_size]]
 
         train_loader = DataLoader(train_set, batch_size=self.batch_size, pin_memory=True)
         valid_loader = DataLoader(valid_set, batch_size=self.batch_size, pin_memory=True)
         test_loader  = DataLoader(test_set, batch_size=self.batch_size, pin_memory=True)
         full_loader  = DataLoader(full_set, batch_size=self.batch_size, pin_memory=True)
+        downstream_train = DataLoader(downstream_set, batch_size=self.batch_size, pin_memory=True)
         down_loader  = {}
-        if self.downstream_task == 'original' or self.downstream_task == 'both' :
-            down_loader['original'] = full_loader
-        if self.downstream_task == 'loss' or self.downstream_task == 'both' :
-            down_loader['loss'] = test_loader
+        down_loader  = {}
+        down_loader['full'] = full_loader
+        down_loader['test'] = test_loader
+        down_loader['downstream_train'] = downstream_train
         return {
         'train': train_loader,
         'valid': valid_loader,

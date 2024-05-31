@@ -16,7 +16,7 @@ from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from torch.utils.tensorboard import SummaryWriter
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
-from libgptb.evaluators import get_split, LREvaluator, SVMEvaluator, PyTorchEvaluator
+from libgptb.evaluators import get_split, LREvaluator, SVMEvaluator, PyTorchEvaluator, RocAucEvaluator, Logits_GraphMAE
 
 
 
@@ -30,7 +30,6 @@ class GraphMAEExecutor(AbstractExecutor):
         self.config=config
         self._logger = getLogger()
         
-        self.data_feature=data_feature
         self.device = self.config.get('device', torch.device('cpu'))
         self.model=model.to(self.device)
         
@@ -52,6 +51,7 @@ class GraphMAEExecutor(AbstractExecutor):
         self.pooler = config['pooling']
         self.deg4feat = config['deg4feat']
         self.batch_size = config['batch_size']
+        self.num_class = self.config.get('num_class',2)
         
         self.load_best_epoch = self.config.get('load_best_epoch', False)
         self.patience = self.config.get('patience', 50)
@@ -209,7 +209,7 @@ class GraphMAEExecutor(AbstractExecutor):
         
         self._logger.info('Start evaluating ...')
         #for epoch_idx in [50-1, 100-1, 500-1, 1000-1, 10000-1]:
-        for epoch_idx in [0,10-1,20-1,40-1,60-1,80-1,100-1]:
+        for epoch_idx in [10-1,20-1,40-1,60-1,80-1,100-1]:
             if epoch_idx+1 > self.epochs:
                 break
             if self.downstream_task == 'original' or self.downstream_task == 'both':
@@ -236,11 +236,12 @@ class GraphMAEExecutor(AbstractExecutor):
                 x = torch.cat(x_list, dim=0)
                 y = torch.cat(y_list, dim=0)
                 split = get_split(num_samples=x.shape[0], train_ratio=0.8, test_ratio=0.1,dataset=self.config['dataset'])
-                if self.dataset_name == 'ogbg-ppa':
-                    unique_classes = torch.unique(y)
-                    nclasses = unique_classes.size(0)
-                    self._logger.info('nclasses is {}'.format(nclasses))
-                    result = PyTorchEvaluator(n_features=x.shape[1],n_classes=nclasses)(x, y, split)
+                if self.config['dataset'] == 'ogbg-molhiv': 
+                    result = RocAucEvaluator()(x, y, split)
+                    print(f'(E): Roc-Auc={result["roc_auc"]:.4f}')
+                elif self.dataset_name == 'ogbg-ppa':
+                    self._logger.info('nclasses is {}'.format(self.num_class))
+                    result = PyTorchEvaluator(n_features=x.shape[1],n_classes=self.num_class)(x, y, split)
                 else:
                     result = SVMEvaluator(linear=True)(x, y, split)
                     print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
@@ -250,7 +251,15 @@ class GraphMAEExecutor(AbstractExecutor):
                 losses = self._train_epoch(dataloader['loss'], epoch_idx, self.loss_func,train = False)
                 result = np.mean(losses) 
                 self._logger.info('Evaluate loss is ' + json.dumps(result))
-        
+
+            if self.downstream_task == 'logits':
+                logits = Logits_GraphMAE(self.config, self.model, self._logger)
+                self._logger.info("-----Start Downstream Fine Tuning-----")
+                logits.train(dataloader['downstream_train'])
+                self._logger.info("-----Fine Tuning Done, Start Eval-----")
+                result = logits.eval(dataloader['test'])
+                self._logger.info('Evaluate acc is ' + json.dumps(result))
+
             filename = 'epoch'+str(epoch_idx)+"_"+datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '_' + \
                             self.config['model'] + '_' + self.config['dataset']
             save_path = self.evaluate_res_dir

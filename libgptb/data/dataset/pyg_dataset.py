@@ -24,6 +24,7 @@ class PyGDataset(AbstractDataset):
         self.task = self.config.get("task","GCL")
         self._load_data()
         self.get_num_classes()
+        self.config['num_class'] = self.num_class
 
     def _load_data(self):
         device = torch.device('cuda')
