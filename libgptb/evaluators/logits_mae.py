@@ -29,7 +29,8 @@ class Logits_GraphMAE(BaseLogitsEvaluator):
         return out
 
     def _train_epoch(self, train_loader):
-        self.model.train()
+        if self.downstream_model == "model":
+            self.model.train()
         self.answering.train()
         total_loss = 0.0 
         for data in train_loader:  

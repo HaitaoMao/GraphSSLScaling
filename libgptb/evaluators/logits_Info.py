@@ -22,8 +22,25 @@ class Logits_InfoGraph(BaseLogitsEvaluator):
         z, g = self.model.encoder_model(data.x, data.edge_index, data.batch)
         return g 
 
+    def _valid_epoch(self, valid_loader):
+        self.model.encoder_model.encoder.eval()
+        self.answering.eval()
+        total_loss = 0.0 
+        correct = 0
+        for data in valid_loader:  
+            self.optimizer.zero_grad() 
+            data = data.to(self.device)
+            out = self._get_embed(data)
+            out = self.answering(out)
+            loss = self.criterion(out, data.y)
+            pred = out.argmax(dim=1)  
+            correct += int((pred == data.y).sum())    
+            total_loss += loss.item()  
+        return correct / len(valid_loader.dataset), total_loss / len(valid_loader) 
+
     def _train_epoch(self, train_loader):
-        self.model.encoder_model.encoder.train()
+        if self.downstream_model == "model":
+            self.model.encoder_model.encoder.train()
         self.answering.train()
         total_loss = 0.0 
         for data in train_loader:  

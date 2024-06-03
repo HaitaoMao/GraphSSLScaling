@@ -106,8 +106,8 @@ class PyGDataset(AbstractDataset):
         down_loader  = {}
         down_loader['full'] = full_loader
         down_loader['test'] = test_loader
+        down_loader['valid'] = valid_loader
         down_loader['downstream_train'] = downstream_train
-        print(f"------{len(downstream_train)}------")
         return {
         'train': train_loader,
         'valid': valid_loader,

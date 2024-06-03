@@ -255,7 +255,7 @@ class GraphMAEExecutor(AbstractExecutor):
             if self.downstream_task == 'logits':
                 logits = Logits_GraphMAE(self.config, self.model, self._logger)
                 self._logger.info("-----Start Downstream Fine Tuning-----")
-                logits.train(dataloader['downstream_train'])
+                logits.train(dataloader['downstream_train'],dataloader['valid'])
                 self._logger.info("-----Fine Tuning Done, Start Eval-----")
                 result = logits.eval(dataloader['test'])
                 self._logger.info('Evaluate acc is ' + json.dumps(result))
