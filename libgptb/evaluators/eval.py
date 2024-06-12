@@ -1,22 +1,35 @@
 import torch
 import numpy as np
-import os
+
 from abc import ABC, abstractmethod
 from sklearn.metrics import f1_score
 from sklearn.model_selection import PredefinedSplit, GridSearchCV
-
-def get_split(num_samples: int, train_ratio: float = 0.8, test_ratio: float = 0.1, downstream_ratio = 0.1, dataset = 'Cora'):
+'''
+def get_split(num_samples: int, train_ratio: float = 0.8, test_ratio: float = 0.1, downstream_split = 0.1, dataset = 'Cora'):
     assert train_ratio + test_ratio < 1
     train_size = int(num_samples * train_ratio)
     test_size = int(num_samples * test_ratio)
-    downstream_size = int(downstream_ratio*train_size)
+    partial_train = int(downstream_split*train_size)
     indices = torch.load("./split/{}.pt".format(dataset))
-    print(f"{dataset} downstram_train:{downstream_size} test_size:{num_samples-train_size-test_size}")
+    print(f"downstram_split:{downstream_split} train:{partial_train} test_size:{test_size}")
+    return {
+        'train': indices[:partial_train],
+        'valid':[],
+        'test': indices[train_size:]
+    }
+'''
+def get_split(num_samples: int, train_ratio: float = 0.8, test_ratio: float = 0.1, downstream_split = 0.1, dataset = 'Cora'):
+    assert train_ratio + test_ratio < 1
+    train_size = int(num_samples * train_ratio)
+    test_size = int(num_samples * test_ratio)
+    downstream_size = int(downstream_split*train_size)
+    indices = torch.load("./split/{}.pt".format(dataset))
+    print(f"downstram_train:{downstream_size} test_size:{num_samples-train_size-test_size}")
     return {
         'train': indices[:downstream_size],
         'valid':indices[train_size:train_size+test_size],
         'test': indices[train_size+test_size:]
-    } 
+    }
 
 def from_predefined_split(data):
     assert all([mask is not None for mask in [data.train_mask, data.test_mask, data.val_mask]])
