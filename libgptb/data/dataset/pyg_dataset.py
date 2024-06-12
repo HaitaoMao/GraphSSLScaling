@@ -22,6 +22,14 @@ class PyGDataset(AbstractDataset):
         self.downstream_ratio = self.config.get("downstream_ratio",0.1)
         self.downstream_task = self.config.get('downstream_task','original')
         self.task = self.config.get("task","GCL")
+        self.batch_size = self.config.get('batch_size', 64)
+        self.ratio = self.config.get('ratio', 0)
+        self.train_ratio = self.config.get("train_ratio",0.8)
+        self.valid_ratio = self.config.get("valid_ratio",0.1)
+        self.test_ratio = self.config.get("test_ratio",0.1)
+        self.downstream_ratio = self.config.get("downstream_ratio",0.1)
+        self.downstream_task = self.config.get('downstream_task','original')
+        self.task = self.config.get("task","GCL")
         self._load_data()
         self.get_num_classes()
         self.config['num_class'] = self.num_class
@@ -29,6 +37,7 @@ class PyGDataset(AbstractDataset):
     def _load_data(self):
         device = torch.device('cuda')
         path = osp.join(os.getcwd(), 'raw_data')
+        
         
         if self.datasetName in ["Cora", "CiteSeer", "PubMed"]:
             pyg = getattr(importlib.import_module('torch_geometric.datasets'), 'Planetoid')
@@ -46,8 +55,31 @@ class PyGDataset(AbstractDataset):
         else:
             self.dataset = pyg(root = path, name=self.datasetName, transform=T.NormalizeFeatures())
         
+        if self.datasetName in ["MUTAG", "MCF-7", "MOLT-4","P388","ZINC_full","reddit_threads","github_stargazers"]:   
+            pyg = getattr(importlib.import_module('torch_geometric.datasets'), 'TUDataset')
+        if self.datasetName in ["ogbg-molhiv", "ogbg-molpcba", "ogbg-ppa", "ogbg-code2"]:
+            pyg = getattr(importlib.import_module('ogb.graphproppred'), 'PygGraphPropPredDataset')
+        
+        if self.task == "SSGCL":
+            self.dataset = pyg(root = path, name=self.datasetName)
+        else:
+            self.dataset = pyg(root = path, name=self.datasetName, transform=T.NormalizeFeatures())
+        
         self.data = self.dataset[0].to(device)
         
+    def get_num_classes(self):
+        if hasattr(self.dataset, 'num_classes'):
+            self.num_class = self.dataset.num_classes
+        elif hasattr(self.dataset, 'num_tasks'):
+            self.num_class = self.dataset.num_tasks
+        else:
+            all_labels = []
+            for data in self.dataset:
+                all_labels.append(data.y)
+            all_labels = torch.cat(all_labels)
+            num_classes = torch.unique(all_labels).size(0)
+            self.num_class = num_classe
+
     def get_num_classes(self):
         if hasattr(self.dataset, 'num_classes'):
             self.num_class = self.dataset.num_classes
@@ -127,6 +159,7 @@ class PyGDataset(AbstractDataset):
         return {
             "input_dim": max(self.dataset.num_features, 1),
             "num_samples": len(self.dataset),
-            "num_class":self.num_class
+            "num_class":self.num_class,
+            "label_dim":self.dataset[0].y.shape[1]
         }
     

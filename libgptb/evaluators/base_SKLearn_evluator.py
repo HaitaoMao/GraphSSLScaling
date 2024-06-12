@@ -4,20 +4,29 @@ import numpy as np
 from abc import ABC, abstractmethod
 from sklearn.metrics import f1_score, roc_auc_score, accuracy_score
 from sklearn.model_selection import PredefinedSplit, GridSearchCV, StratifiedKFold
+from sklearn.metrics import f1_score, roc_auc_score, accuracy_score
+from sklearn.model_selection import PredefinedSplit, GridSearchCV, StratifiedKFold
 from libgptb.evaluators.base_evaluator import BaseEvaluator
 from libgptb.evaluators.eval import split_to_numpy,get_predefined_split
 
 class BaseSKLearnEvaluator(BaseEvaluator):
     def __init__(self, evaluator, params, scoring = "accuracy"):
+    def __init__(self, evaluator, params, scoring = "accuracy"):
         self.evaluator = evaluator
         self.params = params
+        self.scoring = scoring
         self.scoring = scoring
 
     def evaluate(self, x, y, split):
         x_train, x_test, x_val, y_train, y_test, y_val = split_to_numpy(x, y, split)
         ps, [x_train, y_train] = get_predefined_split(x_train, x_val, y_train, y_val)
         classifier = GridSearchCV(self.evaluator, self.params, cv=ps, scoring= self.scoring, verbose=0)
+        classifier = GridSearchCV(self.evaluator, self.params, cv=ps, scoring= self.scoring, verbose=0)
         classifier.fit(x_train, y_train)
+        y_pred = classifier.predict(x_test)
+        if self.scoring == 'accuracy':
+            test_macro = f1_score(y_test, classifier.predict(x_test), average='macro')
+            test_micro = f1_score(y_test, classifier.predict(x_test), average='micro')
         y_pred = classifier.predict(x_test)
         if self.scoring == 'accuracy':
             test_macro = f1_score(y_test, classifier.predict(x_test), average='macro')

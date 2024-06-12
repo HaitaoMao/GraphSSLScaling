@@ -1,4 +1,4 @@
-from libgptb.augmentors.augmentor import Graph,Augmentor,Compose,RandomChoice
+from libgptb.augmentors.augmentor import Graph,Augmentor,Compose,RandomChoice,RandomChoiceWithProb
 from libgptb.augmentors.identity import Identity
 from libgptb.augmentors.rw_sampling import RWSampling
 from libgptb.augmentors.ppr_diffusion import PPRDiffusion

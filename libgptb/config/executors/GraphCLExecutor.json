@@ -1,0 +1,22 @@
+{
+    "epochs": 100,
+    "log_interval": 10,
+    "batch_size": 128,
+    "learning_rate": 0.01,
+    "aug": "dnodes",
+    "local": "True",
+    "prior": "False",
+    "train_loss": "none",
+    "epoch": 0,
+    "learner": "adam",
+    "lr_decay": false,
+    "log_level": "INFO",
+    "log_every": 1,
+    "saved_model": true,
+    "load_best_epoch": false,
+    "hyper_tune": false,
+    "train_ratio":0.8,
+    "valid_ratio":0.1,
+    "test_ratio":0.1,
+    "seed":0
+}

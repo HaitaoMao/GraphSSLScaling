@@ -56,3 +56,20 @@ class RandomChoice(Augmentor):
             aug = self.augmentors[i]
             g = aug.augment(g)
         return g
+
+class RandomChoiceWithProb(Augmentor):
+    def __init__(self, augmentors: List[Augmentor], num_choices: int, probabilities: List[float]):
+        super(RandomChoiceWithProb, self).__init__()
+        assert num_choices <= len(augmentors)
+        assert len(probabilities) == len(augmentors)
+        self.augmentors = augmentors
+        self.num_choices = num_choices
+        self.probabilities = probabilities
+
+    def augment(self, g: Graph) -> Graph:
+        # Sample indices according to the specified probabilities
+        idx = torch.multinomial(torch.tensor(self.probabilities), self.num_choices, replacement=False)
+        for i in idx:
+            aug = self.augmentors[i]
+            g = aug.augment(g)
+        return g

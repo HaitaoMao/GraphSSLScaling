@@ -8,9 +8,12 @@ from libgptb.model.GRACE import GRACE
 from libgptb.model.MVGRL import MVGRL
 from libgptb.model.COSTA import COSTA
 from libgptb.model.HomoGCL import HomoGCL
+from libgptb.model.GIN import GIN
+from libgptb.model.GraphCL import GraphCL
 from libgptb.model.MVGRLg import MVGRLg
 from libgptb.model.InfoGraph import InfoGraph
 from libgptb.model.GraphMAE import GraphMAE
+from libgptb.model.JOAO import JOAO
 
 
 __all__ = [
@@ -24,7 +27,10 @@ __all__ = [
     MVGRL,
     COSTA,
     HomoGCL,
+    GIN,
+    GraphCL,
     MVGRLg,
     InfoGraph,
     GraphMAE
+    JOAO
 ]
