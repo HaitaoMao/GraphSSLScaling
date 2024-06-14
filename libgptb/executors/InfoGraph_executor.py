@@ -341,23 +341,49 @@ class InfoGraphExecutor(AbstractExecutor):
         """
         if train:
             self.model.encoder_model.train()
+            epoch_loss = 0
+            for data in train_dataloader:
+                data = data.to('cuda')
+                self.optimizer.zero_grad()
+                if data.x is None:
+                    num_nodes = data.batch.size(0)
+                    data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
+
+                z, g = self.model.encoder_model(data.x, data.edge_index, data.batch)
+                z, g = self.model.encoder_model.project(z, g)
+                loss = self.model.contrast_model(h=z, g=g, batch=data.batch)
+                self._logger.debug(loss.item())
+                loss.backward()
+                self.optimizer.step()
+
+                epoch_loss += loss.item()
         else:
             self.model.encoder_model.eval()
-        epoch_loss = 0
-        for data in train_dataloader:
-            data = data.to('cuda')
-            self.optimizer.zero_grad()
-            if data.x is None:
-                num_nodes = data.batch.size(0)
-                data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
+            epoch_loss = 0
+            for data in train_dataloader:
+                data = data.to('cuda')
+                self.optimizer.zero_grad()
+                if data.x is None:
+                    num_nodes = data.batch.size(0)
+                    data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
 
-            z, g = self.model.encoder_model(data.x, data.edge_index, data.batch)
-            z, g = self.model.encoder_model.project(z, g)
-            loss = self.model.contrast_model(h=z, g=g, batch=data.batch)
-            # loss = loss_func(batch)
-            self._logger.debug(loss.item())
-            loss.backward()
-            self.optimizer.step()
+                z, g = self.model.encoder_model(data.x, data.edge_index, data.batch)
+                z, g = self.model.encoder_model.project(z, g)
+                loss = self.model.contrast_model(h=z, g=g, batch=data.batch)
+                self._logger.debug(loss.item())
+                # 记录更新前的参数
+                original_parameters = {name: param.clone() for name, param in self.model.named_parameters()}
 
-            epoch_loss += loss.item()
+                # 参数更新
+                # loss.backward()
+                #print(loss.item())
+                # self.optimizer.step() # we can not use optimizer to further optimize the model here
+
+                # 比较参数更新前后的差异
+                # for name, param in self.model.named_parameters():
+                #     original_param = original_parameters[name]
+                #     if not torch.equal(original_param, param):
+                #         print(f"Parameter {name} has changed.")
+
+                epoch_loss += loss.item()
         return epoch_loss

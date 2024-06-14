@@ -13,15 +13,8 @@ import importlib
 class PyGDataset(AbstractDataset):
     def __init__(self, config):
         self.config = config
+        self.seed = self.config.get('seed',0)
         self.datasetName = self.config.get('dataset', '')
-        self.batch_size = self.config.get('batch_size', 64)
-        self.ratio = self.config.get('ratio', 0)
-        self.train_ratio = self.config.get("train_ratio",0.8)
-        self.valid_ratio = self.config.get("valid_ratio",0.1)
-        self.test_ratio = self.config.get("test_ratio",0.1)
-        self.downstream_ratio = self.config.get("downstream_ratio",0.1)
-        self.downstream_task = self.config.get('downstream_task','original')
-        self.task = self.config.get("task","GCL")
         self.batch_size = self.config.get('batch_size', 64)
         self.ratio = self.config.get('ratio', 0)
         self.train_ratio = self.config.get("train_ratio",0.8)
@@ -38,7 +31,6 @@ class PyGDataset(AbstractDataset):
         device = torch.device('cuda')
         path = osp.join(os.getcwd(), 'raw_data')
         
-        
         if self.datasetName in ["Cora", "CiteSeer", "PubMed"]:
             pyg = getattr(importlib.import_module('torch_geometric.datasets'), 'Planetoid')
         if self.datasetName in ["Computers", "Photo"]:
@@ -54,18 +46,7 @@ class PyGDataset(AbstractDataset):
             self.dataset = pyg(root = path, name=self.datasetName)
         else:
             self.dataset = pyg(root = path, name=self.datasetName, transform=T.NormalizeFeatures())
-        
-        if self.datasetName in ["MUTAG", "MCF-7", "MOLT-4","P388","ZINC_full","reddit_threads","github_stargazers"]:   
-            pyg = getattr(importlib.import_module('torch_geometric.datasets'), 'TUDataset')
-        if self.datasetName in ["ogbg-molhiv", "ogbg-molpcba", "ogbg-ppa", "ogbg-code2"]:
-            pyg = getattr(importlib.import_module('ogb.graphproppred'), 'PygGraphPropPredDataset')
-        
-        if self.task == "SSGCL":
-            self.dataset = pyg(root = path, name=self.datasetName)
-        else:
-            self.dataset = pyg(root = path, name=self.datasetName, transform=T.NormalizeFeatures())
-        
-        self.data = self.dataset[0].to(device)
+            self.data = self.dataset[0].to(device)
         
     def get_num_classes(self):
         if hasattr(self.dataset, 'num_classes'):
@@ -78,20 +59,7 @@ class PyGDataset(AbstractDataset):
                 all_labels.append(data.y)
             all_labels = torch.cat(all_labels)
             num_classes = torch.unique(all_labels).size(0)
-            self.num_class = num_classe
-
-    def get_num_classes(self):
-        if hasattr(self.dataset, 'num_classes'):
-            self.num_class = self.dataset.num_classes
-        elif hasattr(self.dataset, 'num_tasks'):
-            self.num_class = self.dataset.num_tasks
-        else:
-            all_labels = []
-            for data in self.dataset:
-                all_labels.append(data.y)
-            all_labels = torch.cat(all_labels)
-            num_classes = torch.unique(all_labels).size(0)
-            self.num_class = num_classe
+            self.num_class = num_classes
 
     def get_data(self):
         if self.task == "SSGCL":
@@ -105,8 +73,9 @@ class PyGDataset(AbstractDataset):
         if os.path.exists("./split/{}.pt".format(self.datasetName)):
             indices = torch.load("./split/{}.pt".format(self.datasetName))
         else:
-            torch.manual_seed(0)
+            torch.manual_seed(self.seed)
             indices = torch.randperm(len(self.dataset))
+            print("indices generated")
             torch.save(indices,"./split/{}.pt".format(self.datasetName))
             
 
@@ -130,9 +99,9 @@ class PyGDataset(AbstractDataset):
         full_set =  [transform_data(self.dataset[i])  for i in indices]
         downstream_set = [transform_data(self.dataset[i]) for i in indices[:downstream_size]]
         
-        train_loader = DataLoader(train_set, batch_size=self.batch_size, pin_memory=True)
-        valid_loader = DataLoader(valid_set, batch_size=self.batch_size, pin_memory=True)
-        test_loader  = DataLoader(test_set, batch_size=self.batch_size, pin_memory=True)
+        train_loader = DataLoader(train_set, batch_size=self.batch_size, pin_memory=True, drop_last=True)
+        valid_loader = DataLoader(valid_set, batch_size=self.batch_size, pin_memory=True,drop_last=True)
+        test_loader  = DataLoader(test_set, batch_size=self.batch_size, pin_memory=True,drop_last=True)
         full_loader  = DataLoader(full_set, batch_size=self.batch_size, pin_memory=True)
         downstream_train = DataLoader(downstream_set, batch_size=self.batch_size, pin_memory=True)
         down_loader  = {}
@@ -140,6 +109,8 @@ class PyGDataset(AbstractDataset):
         down_loader['test'] = test_loader
         down_loader['valid'] = valid_loader
         down_loader['downstream_train'] = downstream_train
+        print(f"test:{len(test_loader.dataset)}")
+        print(f"len(test):{len(test_loader)}")
         return {
         'train': train_loader,
         'valid': valid_loader,
@@ -156,10 +127,19 @@ class PyGDataset(AbstractDataset):
         Returns:
             dict: 包含数据集的相关特征的字典
         """
-        return {
-            "input_dim": max(self.dataset.num_features, 1),
-            "num_samples": len(self.dataset),
-            "num_class":self.num_class,
-            "label_dim":self.dataset[0].y.shape[1]
-        }
+        print(self.dataset[0].y.shape)
+        if len(self.dataset[0].y.shape) >= 2:
+            return {
+                "input_dim": max(self.dataset.num_features, 1),
+                "num_samples": len(self.dataset),
+                "num_class":self.num_class,
+                "label_dim":self.dataset[0].y.shape[1]
+            }
+        else:
+            return {
+                "input_dim": max(self.dataset.num_features, 1),
+                "num_samples": len(self.dataset),
+                "num_class":self.num_class,
+                "label_dim":1
+            }
     

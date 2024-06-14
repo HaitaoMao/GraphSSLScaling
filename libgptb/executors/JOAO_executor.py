@@ -316,17 +316,15 @@ class JOAOExecutor(AbstractExecutor):
 
 
     def _train_epoch(self, train_dataloader,epoch_idx,loss_func,train=True):
-        loss_all = 0
         if train:
-            self.model.train()
-        else:
-            self.model.eval()
-        for data in train_dataloader:
             self.model.encoder_model.train()
+        else:
+            self.model.encoder_model.eval()
         epoch_loss = 0
         for data in train_dataloader:
             data = data.to(self.device)
-            self.optimizer.zero_grad()
+            if train:
+                self.optimizer.zero_grad()
 
             if data.x is None:
                 num_nodes = data.batch.size(0)
@@ -335,8 +333,9 @@ class JOAOExecutor(AbstractExecutor):
             _, _, _, _, g1, g2 = self.model.encoder_model(data.x, data.edge_index, data.batch)
             g1, g2 = [self.model.encoder_model.encoder.project(g) for g in [g1, g2]]
             loss = self.model.contrast_model(g1=g1, g2=g2, batch=data.batch)
-            loss.backward()
-            self.optimizer.step()
+            if train:
+                loss.backward()
+                self.optimizer.step()
             epoch_loss += loss.item()
 
         #minimax 
@@ -385,5 +384,6 @@ class JOAOExecutor(AbstractExecutor):
         self.model.aug_P = np.maximum(b-mu, 0)
         self.model.aug_P /= np.sum(self.model.aug_P)
         self.model._update_aug2()
+        
         return epoch_loss
         
