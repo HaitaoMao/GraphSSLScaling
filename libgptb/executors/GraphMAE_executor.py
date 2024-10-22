@@ -357,10 +357,16 @@ class GraphMAEExecutor(AbstractExecutor):
 
             feat = batch_g.x
             loss, loss_dict = self.model(feat, batch_g.edge_index)
-            
+            #print(f"loss:{loss} ")
             self.optimizer.zero_grad()
             loss_all+=loss.item()
-            loss.backward()
-            self.optimizer.step()
+            # original_parameters = {name: param.clone() for name, param in self.model.named_parameters()}
+            if train:
+                loss.backward()
+                self.optimizer.step()
+            # for name, param in self.model.named_parameters():
+            #         original_param = original_parameters[name]
+            #         if not torch.equal(original_param, param):
+            #             print(f"Parameter {name} has changed.")
           
         return loss_all /len(train_dataloader)
