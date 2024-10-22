@@ -8,11 +8,11 @@ from logging import getLogger
 from torch.utils.tensorboard import SummaryWriter
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
-from libgptb.evaluators import get_split, SVMEvaluator, RocAucEvaluator
+from libgptb.evaluators import get_split, SVMEvaluator, RocAucEvaluator, PyTorchEvaluator, Logits_InfoGraph
 from functools import partial
 
 
-class MVGRLgExecutor(AbstractExecutor):
+class InfoGraphExecutor(AbstractExecutor):
     def __init__(self, config, model, data_feature):
         self.evaluator = get_evaluator(config)
         self.config = config
@@ -80,6 +80,8 @@ class MVGRLgExecutor(AbstractExecutor):
         self.loss_func = None
 
         self.num_samples = self.data_feature.get('num_samples')
+        self.config['num_class'] = self.data_feature.get('num_class')
+        self.num_class = self.config.get('num_class',2)
 
     def save_model(self, cache_name):
         """
@@ -204,18 +206,18 @@ class MVGRLgExecutor(AbstractExecutor):
         self._logger.info('Start evaluating ...')
         for epoch_idx in [10-1,20-1,40-1,60-1,80-1,100-1]:
             self.load_model_with_epoch(epoch_idx)
-            if self.downstream_task == 'original':
+            if self.downstream_task == 'original' or self.downstream_task == 'both':
                 self.model.encoder_model.eval()
                 x = []
                 y = []
-                for data in dataloader['original']:
+                for data in dataloader['full']:
                     data = data.to('cuda')
                     if data.x is None:
                         num_nodes = data.batch.size(0)
                         data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
                     with torch.no_grad():
-                        _, _, g1, g2 = self.model.encoder_model(data.x, data.edge_index, data.batch)
-                        x.append(g1 + g2)
+                        z, g = self.model.encoder_model(data.x, data.edge_index, data.batch)
+                        x.append(g)
                         y.append(data.y)
                     torch.cuda.empty_cache()
                 x = torch.cat(x, dim=0)
@@ -225,16 +227,29 @@ class MVGRLgExecutor(AbstractExecutor):
                 if self.config['dataset'] == 'ogbg-molhiv': 
                     result = RocAucEvaluator()(x, y, split)
                     print(f'(E): Roc-Auc={result["roc_auc"]:.4f}')
+                elif self.config['dataset'] == 'ogbg-ppa':
+                    #unique_classes = torch.unique(y)
+                    #nclasses = unique_classes.size(0)
+                    self._logger.info('nclasses is {}'.format(self.num_class))
+                    result = PyTorchEvaluator(n_features=x.shape[1],n_classes=self.num_class)(x, y, split)
                 else:
                     result = SVMEvaluator()(x, y, split)
                     print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
                 self._logger.info('Evaluate result is ' + json.dumps(result))
                 
             if self.downstream_task == 'loss' or self.downstream_task == 'both':
-                losses = self._train_epoch(dataloader['loss'], epoch_idx, self.loss_func,train = False)
+                losses = self._train_epoch(dataloader['test'], epoch_idx, self.loss_func,train = False)
                 result = np.mean(losses) 
                 self._logger.info('Evaluate loss is ' + json.dumps(result))
             
+            if self.downstream_task == 'logits':
+                logits = Logits_InfoGraph(self.config, self.model, self._logger)
+                self._logger.info("-----Start Downstream Fine Tuning-----")
+                logits.train(dataloader['downstream_train'],dataloader['valid'])
+                self._logger.info("-----Fine Tuning Done, Start Eval-----")
+                result = logits.eval(dataloader['test'])
+                self._logger.info('Evaluate acc is ' + json.dumps(result))
+
             filename = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '_' + \
                         self.config['model'] + '_' + self.config['dataset']
             save_path = self.evaluate_res_dir
@@ -259,7 +274,7 @@ class MVGRLgExecutor(AbstractExecutor):
         num_batches = len(train_dataloader)
         self._logger.info("num_batches:{}".format(num_batches))
 
-        for epoch_idx in range(self._epoch_num+1, self.epochs):
+        for epoch_idx in range(self._epoch_num, self.epochs):
             start_time = time.time()
             losses = self._train_epoch(train_dataloader, epoch_idx, self.loss_func)
             t1 = time.time()
@@ -286,7 +301,7 @@ class MVGRLgExecutor(AbstractExecutor):
                 self._logger.info(message)
 
             #if epoch_idx+1 in [50, 100, 500, 1000, 10000]:
-            if epoch_idx+1 in [3,10,20,40,60,80,100]:
+            if epoch_idx+1 in [10,20,40,60,80,100]:
                 model_file_name = self.save_model_with_epoch(epoch_idx)
                 self._logger.info('saving to {}'.format(model_file_name))
 
@@ -326,22 +341,49 @@ class MVGRLgExecutor(AbstractExecutor):
         """
         if train:
             self.model.encoder_model.train()
+            epoch_loss = 0
+            for data in train_dataloader:
+                data = data.to('cuda')
+                self.optimizer.zero_grad()
+                if data.x is None:
+                    num_nodes = data.batch.size(0)
+                    data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
+
+                z, g = self.model.encoder_model(data.x, data.edge_index, data.batch)
+                z, g = self.model.encoder_model.project(z, g)
+                loss = self.model.contrast_model(h=z, g=g, batch=data.batch)
+                self._logger.debug(loss.item())
+                loss.backward()
+                self.optimizer.step()
+
+                epoch_loss += loss.item()
         else:
             self.model.encoder_model.eval()
-        epoch_loss = 0
-        for data in train_dataloader:
-            data = data.to('cuda')
-            self.optimizer.zero_grad()
-            if data.x is None:
-                num_nodes = data.batch.size(0)
-                data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
+            epoch_loss = 0
+            for data in train_dataloader:
+                data = data.to('cuda')
+                self.optimizer.zero_grad()
+                if data.x is None:
+                    num_nodes = data.batch.size(0)
+                    data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
 
-            h1, h2, g1, g2 = self.model.encoder_model(data.x, data.edge_index, data.batch)
-            loss = self.model.contrast_model(h1=h1, h2=h2, g1=g1, g2=g2, batch=data.batch)
-            # loss = loss_func(batch)
-            self._logger.debug(loss.item())
-            loss.backward()
-            self.optimizer.step()
+                z, g = self.model.encoder_model(data.x, data.edge_index, data.batch)
+                z, g = self.model.encoder_model.project(z, g)
+                loss = self.model.contrast_model(h=z, g=g, batch=data.batch)
+                self._logger.debug(loss.item())
+                # 记录更新前的参数
+                original_parameters = {name: param.clone() for name, param in self.model.named_parameters()}
 
-            epoch_loss += loss.item()
+                # 参数更新
+                # loss.backward()
+                #print(loss.item())
+                # self.optimizer.step() # we can not use optimizer to further optimize the model here
+
+                # 比较参数更新前后的差异
+                # for name, param in self.model.named_parameters():
+                #     original_param = original_parameters[name]
+                #     if not torch.equal(original_param, param):
+                #         print(f"Parameter {name} has changed.")
+
+                epoch_loss += loss.item()
         return epoch_loss

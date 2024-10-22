@@ -21,7 +21,7 @@ class ConfigParser(object):
         """
         self.config = {}
         self._parse_external_config(task, model, dataset, saved_model, train, other_args, hyper_config_dict)
-        self._parse_config_file(config_file)
+        self._parse_config_file(config_file,task)
         # TODO: Check if default config is necessary for GCL
         self._load_default_config() 
         self._init_device()
@@ -49,8 +49,8 @@ class ConfigParser(object):
             for key in hyper_config_dict:
                 self.config[key] = hyper_config_dict[key]
 
-    def _parse_config_file(self, config_file):
-        if config_file is not None:
+    def _parse_config_file(self, config_file, task):
+        if config_file is not None and task == "SSL":
             self.config['config_file'] = config_file.split('/')[-1]
             # TODO: 对 config file 的格式进行检查
             if os.path.exists('./{}.json'.format(config_file)):

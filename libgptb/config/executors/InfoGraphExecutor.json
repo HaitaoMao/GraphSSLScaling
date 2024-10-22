@@ -5,7 +5,7 @@
     "train_loss": "none",
     "epoch": 0,
     "learner": "adam",
-    "learning_rate": 0.001,
+    "learning_rate": 0.01,
     "lr_decay": false,
     "log_level": "INFO",
     "log_every": 1,
