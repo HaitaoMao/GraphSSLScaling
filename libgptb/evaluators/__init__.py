@@ -12,6 +12,7 @@ from libgptb.evaluators.logits_mae import Logits_GraphMAE
 from libgptb.evaluators.logits_Info import Logits_InfoGraph
 from libgptb.evaluators.logits_GraphCL import Logits_GraphCL
 from libgptb.evaluators.ap import APEvaluator
+
 __all__ = [
     'BaseEvaluator',
     'BaseSKLearnEvaluator',
@@ -27,8 +28,7 @@ __all__ = [
     'Logits_InfoGraph',
     'Logits_GraphCL',
     'APEvaluator'
-
-
+    'PyTorchEvaluator'
 ]
 
 classes = __all__
