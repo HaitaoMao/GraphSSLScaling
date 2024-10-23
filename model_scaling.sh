@@ -10,3 +10,5 @@ TASK_CMD="python3 ./run_model.py --task SSGCL --model ${MODEL} --dataset ${DATAS
 
 echo "Running command: ${TASK_CMD}"
 eval ${TASK_CMD}
+# Example usage of the script
+# ./model_scaling.sh InfoGraph ogbg-molhiv 1 64_2

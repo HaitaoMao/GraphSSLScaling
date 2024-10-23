@@ -12,11 +12,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # 增加指定的参数
     parser.add_argument('--task', type=str,
-                        default='SSGCL', help='the name of task')
+                        default='GCL', help='the name of task')
     parser.add_argument('--model', type=str,
-                        default='InfoGraph', help='the name of model')
+                        default='DGI', help='the name of model')
     parser.add_argument('--dataset', type=str,
-                        default='ogbg-molhiv', help='the name of dataset')
+                        default='Planetoid', help='the name of dataset')
     parser.add_argument('--config_file', type=str,
                         default=None, help='the file name of config file')
     parser.add_argument('--saved_model', type=str2bool,
@@ -28,13 +28,14 @@ if __name__ == '__main__':
     parser.add_argument('--ratio', type=float, default=1, help='pretrain split ratio')
     parser.add_argument('--downstream_ratio', type=float, default=0.1, help='downstream train ratio')
     parser.add_argument('--downstream_task', type=str, default='original', help='downstream evaluation metric; default orginal')
-    # Add general arguments
+    parser.add_argument('--epoch', type=int, default= 0, help='epoch to catch up from')
+    # add other args
     add_general_args(parser)
-    # Parse arguments
+    # parse args
     args = parser.parse_args()
     dict_args = vars(args)
     other_args = {key: val for key, val in dict_args.items() if key not in [
-       'task', 'model', 'dataset', 'config_file', 'saved_model', 'train', 'exp_id', 'seed', 'ratio', 'downstream_ratio', 'downstream_task'] and
+       'task', 'model', 'dataset', 'config_file', 'saved_model', 'train'] and
        val is not None}
     run_model(task=args.task, model_name=args.model, dataset_name=args.dataset,
               config_file=args.config_file, saved_model=args.saved_model,

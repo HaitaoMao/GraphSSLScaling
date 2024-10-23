@@ -32,6 +32,7 @@ def run_model(task=None, model_name=None, dataset_name=None, config_file=None,
         exp_id = int(random.SystemRandom().random() * 100000)
         config['exp_id'] = exp_id
     # logger
+    print(config['ratio'])
     logger = get_logger(config)
     logger.info('Begin pipeline, config_file={}, model_name={}, dataset_name={}, exp_id={}'.
                 format(str(config_file), str(model_name), str(dataset_name), str(exp_id)))

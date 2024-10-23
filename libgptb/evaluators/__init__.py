@@ -12,6 +12,8 @@ from libgptb.evaluators.logits_mae import Logits_GraphMAE
 from libgptb.evaluators.logits_Info import Logits_InfoGraph
 from libgptb.evaluators.logits_GraphCL import Logits_GraphCL
 from libgptb.evaluators.ap import APEvaluator
+from libgptb.evaluators.ogblsc_evaluator import OGBLSCEvaluator
+from libgptb.evaluators.mlp_regressor import MLPRegressionModel
 
 __all__ = [
     'BaseEvaluator',

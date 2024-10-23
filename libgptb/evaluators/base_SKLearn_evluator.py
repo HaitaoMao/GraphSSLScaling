@@ -11,7 +11,6 @@ from libgptb.evaluators.eval import split_to_numpy,get_predefined_split
 
 class BaseSKLearnEvaluator(BaseEvaluator):
     def __init__(self, evaluator, params, scoring = "accuracy"):
-    def __init__(self, evaluator, params, scoring = "accuracy"):
         self.evaluator = evaluator
         self.params = params
         self.scoring = scoring

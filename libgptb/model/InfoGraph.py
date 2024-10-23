@@ -85,4 +85,4 @@ class InfoGraph(AbstractGCLModel):
         fc2 = FC(hidden_dim=self.nhid * self.layers)
 
         self.encoder_model = Encoder(encoder=gconv, local_fc=fc1, global_fc=fc2).to(self.device)
-        self.contrast_model = SingleBranchContrast(loss=L.JSD(), mode='G2L').to(self.device)
+        self.contrast_model = SingleBranchContrast(loss=L.DebiasedJSD(), mode='G2L').to(self.device)
