@@ -7,3 +7,5 @@ __pycache__/
 /libgptb/log
 /raw_data
 .DS_Store
+*.sif
+nohup.out

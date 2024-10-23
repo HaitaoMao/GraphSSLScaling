@@ -4,6 +4,24 @@
 1. Install the dependencies via Dockerfile or 'pip install -r requirements.txt'
 2. Execute data_scaling.sh or model_scaling.sh to use the pipeline for experiments.
 
+## Install via Dockerfile
+```Bash
+git clone https://github.com/HaitaoMao/GraphSSLScaling.git ./GraphSSLScaling
+cd GraphSSLScaling
+docker build --no-cache --tag ssl:latest .
+docker run -it --gpus all --ipc host --name ssl -v /home:/home ssl:latest bash
+# upon completion, you should be at /GraphSSLScaling inside the container
+```
+
+## Install via Singularity
+```Bash
+git clone https://github.com/HaitaoMao/GraphSSLScaling.git ./GraphSSLScaling
+cd GraphSSLScaling
+singularity build ssl.sif Singularity.def
+singularity shell --nv -B /home:/home ssl.sif
+# upon completion, you should be at /GraphSSLScaling inside the container
+```
+
 ## Instructions
 
 ### Why we build this pipeline?
