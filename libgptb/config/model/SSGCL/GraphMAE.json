@@ -1,6 +1,6 @@
 {
-    "nhid":512,
-    "layers":3,
+    "nhid":32,
+    "layers":2,
     "mask_rate": 0.5 ,
     "encoder": "gin" ,
     "decoder": "gin",

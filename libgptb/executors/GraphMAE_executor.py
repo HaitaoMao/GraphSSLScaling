@@ -16,8 +16,8 @@ from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from torch.utils.tensorboard import SummaryWriter
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
-from libgptb.evaluators import get_split, LREvaluator, SVMEvaluator, PyTorchEvaluator, RocAucEvaluator, Logits_GraphMAE
-
+from libgptb.evaluators import get_split, LREvaluator, SVMEvaluator, PyTorchEvaluator, RocAucEvaluator, Logits_GraphMAE, APEvaluator,OGBLSCEvaluator,MLPRegressionModel
+from sklearn.metrics import mean_squared_error, mean_absolute_error, mean_absolute_percentage_error
 
 
 class GraphMAEExecutor(AbstractExecutor):
@@ -52,6 +52,9 @@ class GraphMAEExecutor(AbstractExecutor):
         self.deg4feat = config['deg4feat']
         self.batch_size = config['batch_size']
         self.num_class = self.config.get('num_class',2)
+        self.hidden_dim = self.config.get('nhid')
+        self.num_layers = self.config.get('layers')
+        self.label_dim = data_feature.get('label_dim')
         
         self.load_best_epoch = self.config.get('load_best_epoch', False)
         self.patience = self.config.get('patience', 50)
@@ -197,7 +200,139 @@ class GraphMAEExecutor(AbstractExecutor):
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         #self.pooler.load_state_dict(check)
         self._logger.info("Loaded model at {}".format(epoch))
+        
+    def compute_metrics(self, predictions, targets):
+        predictions = predictions.cpu().numpy()
+        targets = targets.cpu().numpy()
+        mse = mean_squared_error(targets, predictions)
+        rmse = mse ** 0.5
+        mae = mean_absolute_error(targets, predictions)
+        mape = mean_absolute_percentage_error(targets, predictions)
+        return rmse, mae, mape
+
+    def downstream_regressor(self,dataloader):
+        # 初始化模型和回归器
+        input_dim = self.hidden_dim   # 这个需要在第一次获得embedding后确定
+        nhid = 128  # 你可以根据需要调整这个值
+        output_dim = 1    # 回归任务的输出维度为1
+
+        regressor = None
+        optimizer = None
+        criterion = torch.nn.MSELoss()
+
+        # 按照指定比例划分数据集
+        downstream_ratio = self.downstream_ratio  # 下游任务训练集比例
+        test_ratio = 0.1  # 测试集比例
+
+        # 获取数据集的大小
+        num_samples = len(dataloader['full'])
+        print(f'num_samples is {num_samples}')
+        num_train = int(num_samples * downstream_ratio)
+        print(f'num_train is {num_train}')
+        num_test = int(num_samples * (1-test_ratio))
+        print(f'num_test is {num_test}')
+
+        num_epochs = 20
+        best_test_rmse = float('inf')
+        best_test_mae = float('inf')
+        best_test_mape = float('inf')
+        
+        regressor = MLPRegressionModel(input_dim, nhid, output_dim).to(self.device)
+        optimizer = torch.optim.Adam(regressor.parameters(), lr=0.001)
+
+        for epoch in range(num_epochs):
+            train_loss = 0
+            test_loss = 0
+            correct = 0
+            
+            for i, batch_g in enumerate(dataloader['full']):
+                data = batch_g.to(self.device)
+                feat = data.x
+                labels = data.y
+                out = self.model.embed(feat, batch_g.edge_index)
+                if self.pooler == "mean":
+                    out = global_mean_pool(out, batch_g.batch)
+                elif self.pooler == "max":
+                    out = global_max_pool(out, batch_g.batch)
+                elif self.pooler == "sum":
+                    out = global_add_pool(out, batch_g.batch)
+                else:
+                    raise NotImplementedError
+                
+                if i < num_train:
+                    regressor.train()
+                    optimizer.zero_grad()
+                    output = regressor(out)
+                    loss = criterion(output, labels.to(self.device).unsqueeze(1))  # 调整维度
+                    loss.backward()
+                    optimizer.step()
+                    train_loss += loss.item()
+                    # print(train_loss)
+                else:
+                    print(f'i is {i}')
+                    break
+        
+        self._logger.info(f'Downstream Epoch: {epoch+1}, Training Loss: {train_loss:.4f}')
+        with torch.no_grad():
+            regressor.eval()
+            all_predictions = []
+            all_labels = []
+            for j, test_batch in enumerate(dataloader['full']):
+                # print(f'j is {j}')
+                if j >= num_test:
+                    self._logger.debug(f'Processing batch: {j}')
+                    test_batch = test_batch.to(self.device)
+                    feat = test_batch.x
+                    labels = test_batch.y
+                    self._logger.debug('Batch moved to device')
+                    out = self.model.embed(feat, test_batch.edge_index)
+                    if self.pooler == "mean":
+                        test_out = global_mean_pool(out, test_batch.batch)
+                    elif self.pooler == "max":
+                        test_out = global_max_pool(out, test_batch.batch)
+                    elif self.pooler == "sum":
+                        test_out = global_add_pool(out, test_batch.batch)
+                    else:
+                        raise NotImplementedError
+                    self._logger.debug(f'Encoder model output: {test_out}')
+                    test_output = regressor(test_out)
+                    self._logger.debug(f'Regressor output: {test_output}')
+                    all_predictions.append(test_output.cpu())
+                    self._logger.debug(f'Predictions appended: {test_output.cpu()}')
+                    all_labels.append(test_batch.y.cpu().float().unsqueeze(1))
+                    self._logger.debug(f'Labels appended: {test_batch.y.cpu().float().unsqueeze(1)}')
+                    
+                
+            all_predictions = torch.cat(all_predictions, dim=0)
+            all_labels = torch.cat(all_labels, dim=0)
+            rmse, mae, mape = self.compute_metrics(all_predictions, all_labels)
+
+            if mae < best_test_mae:
+                best_test_rmse = rmse
+                best_test_mae = mae
+                best_test_mape = mape
+                
+        print(f'Epoch: {epoch+1}, Training Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Test MAE: {mae:.4f}')
+            
+        result = {
+        'best_test_rmse': float(best_test_rmse),
+        'best_test_mae': float(best_test_mae),
+        'best_test_mape': float(best_test_mape)
+        }
+        
+        filename = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '_' + \
+                    self.config['model'] + '_' + self.config['dataset']
+        save_path = self.evaluate_res_dir
+        if not os.path.exists(save_path):
+                os.makedirs(save_path, exist_ok=True)
+        with open(os.path.join(save_path, '{}.json'.format(filename)), 'w') as f:
+            json.dump(result, f)
+            self._logger.info('Evaluate result is saved at ' + os.path.join(save_path, '{}.json'.format(filename)))
+        return result
     
+    # 定义回归模型
+
+
 
     def evaluate(self, dataloader):
         """
@@ -206,49 +341,64 @@ class GraphMAEExecutor(AbstractExecutor):
         Args:
             test_dataloader(torch.Dataloader): Dataloader
         """
-        
         self._logger.info('Start evaluating ...')
-        #for epoch_idx in [50-1, 100-1, 500-1, 1000-1, 10000-1]:
-        for epoch_idx in [10-1,20-1,40-1,60-1,80-1,100-1]:
-            if epoch_idx+1 > self.epochs:
-                break
-            if self.downstream_task == 'original' or self.downstream_task == 'both':
-                self.model.eval()
-                x_list = []
-                y_list = []
-                with torch.no_grad():
-                    for i, batch_g in enumerate(dataloader['original']):
-                        batch_g = batch_g.to(self.device)
-                        feat = batch_g.x
-                        labels = batch_g.y.cpu()
-                        out = self.model.embed(feat, batch_g.edge_index)
-                        if self.pooler == "mean":
-                            out = global_mean_pool(out, batch_g.batch)
-                        elif self.pooler == "max":
-                            out = global_max_pool(out, batch_g.batch)
-                        elif self.pooler == "sum":
-                            out = global_add_pool(out, batch_g.batch)
-                        else:
-                            raise NotImplementedError
-
-                        y_list.append(labels)
-                        x_list.append(out)
-                x = torch.cat(x_list, dim=0)
-                y = torch.cat(y_list, dim=0)
-                split = get_split(num_samples=x.shape[0], train_ratio=0.8, test_ratio=0.1,dataset=self.config['dataset'])
-                if self.config['dataset'] == 'ogbg-molhiv': 
-                    result = RocAucEvaluator()(x, y, split)
-                    print(f'(E): Roc-Auc={result["roc_auc"]:.4f}')
-                elif self.dataset_name == 'ogbg-ppa':
-                    self._logger.info('nclasses is {}'.format(self.num_class))
-                    result = PyTorchEvaluator(n_features=x.shape[1],n_classes=self.num_class)(x, y, split)
+        if self.config['dataset'] in ['PCQM4Mv2']:
+            epoch_idx_list = [100-1]
+        else:
+            epoch_idx_list = [10-1,20-1,40-1,60-1,80-1,100-1]
+            
+            
+        for epoch_idx in epoch_idx_list:
+            self.load_model_with_epoch(epoch_idx)
+            if self.downstream_task in ['original','both']:
+                if self.config['dataset'] in ['PCQM4Mv2','ZINC_full']:
+                    self.model.eval()
+                    result=self.downstream_regressor(dataloader)
+                    self._logger.info(f'(E): Best test RMSE={result["best_test_rmse"]:.4f}, MAE={result["best_test_mae"]:.4f}, MAPE={result["best_test_mape"]:.4f}')
+                    
                 else:
-                    result = SVMEvaluator(linear=True)(x, y, split)
-                    print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
-                self._logger.info('Evaluate result is ' + json.dumps(result))
+                    self.model.eval()
+                    x_list = []
+                    y_list = []
+                    with torch.no_grad():
+                        for i, batch_g in enumerate(dataloader['full']):
+                            batch_g = batch_g.to(self.device)
+                            feat = batch_g.x
+                            labels = batch_g.y.cpu()
+                            out = self.model.embed(feat, batch_g.edge_index)
+                            if self.pooler == "mean":
+                                out = global_mean_pool(out, batch_g.batch)
+                            elif self.pooler == "max":
+                                out = global_max_pool(out, batch_g.batch)
+                            elif self.pooler == "sum":
+                                out = global_add_pool(out, batch_g.batch)
+                            else:
+                                raise NotImplementedError
+
+                            y_list.append(labels)
+                            x_list.append(out)
+                    x = torch.cat(x_list, dim=0)
+                    y = torch.cat(y_list, dim=0)
+                    split = get_split(num_samples=x.shape[0], train_ratio=0.8, test_ratio=0.1,dataset=self.config['dataset'])
+                    if self.config['dataset'] == 'ogbg-molhiv': 
+                        result = RocAucEvaluator()(x, y, split)
+                        print(f'(E): Roc-Auc={result["roc_auc"]:.4f}')
+                    elif self.dataset_name == 'ogbg-ppa':
+                        self._logger.info('nclasses is {}'.format(self.num_class))
+                        result = PyTorchEvaluator(n_features=x.shape[1],n_classes=self.num_class)(x, y, split)
+                    elif self.config['dataset'] == 'ogbg-molpcba':
+                        result = APEvaluator(self.hidden_dim, self.label_dim)(x, y, split)
+                        self._logger.info(f'(E): ap={result["ap"]:.4f}')
+                    # elif self.config['dataset'] == 'PCQM4Mv2':
+                    #     result = OGBLSCEvaluator()(x, y, split)
+                    #     self._logger.info(f'(E): Best test RMSE={result["best_test_rmse"]:.4f}, MAE={result["best_test_mae"]:.4f}, MAPE={result["best_test_mape"]:.4f}')
+                    else:
+                        result = SVMEvaluator(linear=True)(x, y, split)
+                        print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
+                    self._logger.info('Evaluate result is ' + json.dumps(result))
                 
             if self.downstream_task == 'loss' or self.downstream_task == 'both':
-                losses = self._train_epoch(dataloader['loss'], epoch_idx, self.loss_func,train = False)
+                losses = self._train_epoch(dataloader['test'], epoch_idx, self.loss_func,train = False)
                 result = np.mean(losses) 
                 self._logger.info('Evaluate loss is ' + json.dumps(result))
 
@@ -264,7 +414,7 @@ class GraphMAEExecutor(AbstractExecutor):
                             self.config['model'] + '_' + self.config['dataset']
             save_path = self.evaluate_res_dir
             file_path = os.path.join(save_path, '{}.json'.format(filename))
-            if not os.path.exists(file_path):
+            if not os.path.exists(save_path):
                 os.makedirs(save_path, exist_ok=True)
             with open(os.path.join(save_path, '{}.json'.format(filename)), 'w') as f:
                 json.dump(result, f)
@@ -290,7 +440,7 @@ class GraphMAEExecutor(AbstractExecutor):
         num_batches = len(train_dataloader)
         self._logger.info("num_batches:{}".format(num_batches))
         
-        for epoch_idx in range(self.epochs):
+        for epoch_idx in range(self._epoch_num, self.epochs):
             start_time = time.time()
             losses = self._train_epoch(train_dataloader,self.loss_func ,epoch_idx)
             t1 = time.time()
@@ -317,7 +467,7 @@ class GraphMAEExecutor(AbstractExecutor):
                 self._logger.info(message)
 
             #if epoch_idx+1 in [50, 100, 500, 1000, 10000]:
-            if epoch_idx+1 in [1,10,20,40,60,80,100]:
+            if epoch_idx+1 in range(5,101,5): #[10,20,30,40,50,60,70,80,90,100]:
                 model_file_name = self.save_model_with_epoch(epoch_idx)
                 self._logger.info('saving to {}'.format(model_file_name))
 

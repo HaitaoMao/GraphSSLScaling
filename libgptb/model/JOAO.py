@@ -71,9 +71,9 @@ class JOAO(AbstractGCLModel):
             
         self.device = config.get("device",torch.device('cpu'))
         self.input_dim = data_feature.get('input_dim', 1)
-        self.num_layers = config.get('num_layers', 2)
+        self.num_layers = config.get('layers', 2)
         self.prior = config.get('prior',0)
-        self.hidden_dim=config.get("hidden_dim",32)
+        self.hidden_dim=config.get("nhid",32)
         self.num_features=data_feature.get("num_features",1)
         super().__init__(config, data_feature)
         self.aug_P= np.ones(5) / 5

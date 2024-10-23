@@ -8,10 +8,10 @@ from logging import getLogger
 from torch.utils.tensorboard import SummaryWriter
 from libgptb.executors.abstract_executor import AbstractExecutor
 from libgptb.utils import get_evaluator, ensure_dir
-from libgptb.evaluators import get_split, SVMEvaluator, RocAucEvaluator, PyTorchEvaluator, Logits_InfoGraph
+from libgptb.evaluators import get_split, SVMEvaluator, RocAucEvaluator, PyTorchEvaluator, Logits_InfoGraph, APEvaluator, LREvaluator,OGBLSCEvaluator,MLPRegressionModel
 from functools import partial
-
-
+from sklearn.metrics import mean_squared_error, mean_absolute_error, mean_absolute_percentage_error
+    
 class InfoGraphExecutor(AbstractExecutor):
     def __init__(self, config, model, data_feature):
         self.evaluator = get_evaluator(config)
@@ -37,6 +37,9 @@ class InfoGraphExecutor(AbstractExecutor):
                               str(param.device) + '\t' + str(param.requires_grad))
         total_num = sum([param.nelement() for param in self.model.parameters()])
         self._logger.info('Total parameter numbers: {}'.format(total_num))
+        
+        total_encoder_num = sum([param.nelement() for param in self.model.encoder_model.encoder.parameters()])
+        self._logger.info('Total encoder parameter numbers: {}'.format(total_encoder_num))
 
         self.epochs = self.config.get('max_epoch', 100)
         self.train_loss = self.config.get('train_loss', 'none')
@@ -70,6 +73,10 @@ class InfoGraphExecutor(AbstractExecutor):
         self.downstream_ratio = self.config.get('downstream_ratio', 0.1)
         self.downstream_task = self.config.get('downstream_task','original')
         self.output_dim = self.config.get('output_dim', 1)
+        self.hidden_dim = self.config.get('nhid')
+        self.num_layers = self.config.get('layers')
+        self.num_classes = self.config.get('num_class')
+        self.label_dim = data_feature.get('label_dim')
         # TODO
         self.optimizer = self._build_optimizer()
         # TODO
@@ -196,6 +203,119 @@ class InfoGraphExecutor(AbstractExecutor):
             lr_scheduler = None
         return lr_scheduler
     
+    def compute_metrics(self, predictions, targets):
+        predictions = predictions.cpu().numpy()
+        targets = targets.cpu().numpy()
+        mse = mean_squared_error(targets, predictions)
+        rmse = mse ** 0.5
+        mae = mean_absolute_error(targets, predictions)
+        mape = mean_absolute_percentage_error(targets, predictions)
+        return rmse, mae, mape
+
+    def downstream_regressor(self,dataloader):
+        # 初始化模型和回归器
+        input_dim = self.hidden_dim*self.num_layers  # 这个需要在第一次获得embedding后确定
+        nhid = 128  # 你可以根据需要调整这个值
+        output_dim = 1    # 回归任务的输出维度为1
+
+        regressor = None
+        optimizer = None
+        criterion = torch.nn.MSELoss()
+
+        # 按照指定比例划分数据集
+        downstream_ratio = self.downstream_ratio  # 下游任务训练集比例
+        test_ratio = 0.2  # 测试集比例
+
+        # 获取数据集的大小
+        num_samples = len(dataloader['full'])
+        print(f'num_samples is {num_samples}')
+        num_train = int(num_samples * downstream_ratio)
+        print(f'num_train is {num_train}')
+        num_test = int(num_samples * (1-test_ratio))
+        print(f'num_test is {num_test}')
+
+        num_epochs = 200
+        best_test_rmse = float('inf')
+        best_test_mae = float('inf')
+        best_test_mape = float('inf')
+        
+        regressor = MLPRegressionModel(input_dim, nhid, output_dim).to(self.device)
+        optimizer = torch.optim.Adam(regressor.parameters(), lr=0.001)
+
+        for epoch in range(num_epochs):
+            train_loss = 0
+            test_loss = 0
+            correct = 0
+            
+            for i, batch_g in enumerate(dataloader['full']):
+                data = batch_g.to(self.device)
+                feat = data.x
+                labels = data.y #.cpu().float()  # 将标签转换为浮点数
+                z, out = self.model.encoder_model(data.x, data.edge_index, data.batch)
+                
+                if i < num_train:
+                    regressor.train()
+                    optimizer.zero_grad()
+                    output = regressor(out)
+                    loss = criterion(output, labels.to(self.device).unsqueeze(1))  # 调整维度
+                    loss.backward()
+                    optimizer.step()
+                    train_loss += loss.item()
+                    # print(train_loss)
+                else:
+                    print(f'i is {i}')
+                    break
+        ## Evaluation
+        self._logger.info(f'Downstream Epoch: {epoch+1}, Training Loss: {train_loss:.4f}')
+        with torch.no_grad():
+            regressor.eval()
+            all_predictions = []
+            all_labels = []
+            for j, test_batch in enumerate(dataloader['full']):
+                # print(f'j is {j}')
+                if j >= num_test:
+                    # self._logger.debug(f'Processing batch: {j}')
+                    test_batch = test_batch.to(self.device)
+                    # self._logger.debug('Batch moved to device')
+                    z, test_out = self.model.encoder_model(test_batch.x, test_batch.edge_index, test_batch.batch)
+                    # self._logger.debug(f'Encoder model output: {test_out}')
+                    test_output = regressor(test_out)
+                    # self._logger.debug(f'Regressor output: {test_output}')
+                    all_predictions.append(test_output.cpu())
+                    # self._logger.debug(f'Predictions appended: {test_output.cpu()}')
+                    all_labels.append(test_batch.y.cpu().float().unsqueeze(1))
+                    # self._logger.debug(f'Labels appended: {test_batch.y.cpu().float().unsqueeze(1)}')
+                
+            
+        all_predictions = torch.cat(all_predictions, dim=0)
+        all_labels = torch.cat(all_labels, dim=0)
+        rmse, mae, mape = self.compute_metrics(all_predictions, all_labels)
+
+        if mae < best_test_mae:
+            best_test_rmse = rmse
+            best_test_mae = mae
+            best_test_mape = mape
+                
+        print(f'Epoch: {epoch+1}, Training Loss: {train_loss:.4f},  Test MAE: {mae:.4f}')
+            
+        result = {
+        'best_test_rmse': float(best_test_rmse),
+        'best_test_mae': float(best_test_mae),
+        'best_test_mape': float(best_test_mape)
+        }
+        
+        filename = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + '_' + \
+                    self.config['model'] + '_' + self.config['dataset']
+        save_path = self.evaluate_res_dir
+        with open(os.path.join(save_path, '{}.json'.format(filename)), 'w') as f:
+            json.dump(result, f)
+            self._logger.info('Evaluate result is saved at ' + os.path.join(save_path, '{}.json'.format(filename)))
+        return result
+    
+    # 定义回归模型
+
+
+
     def evaluate(self, dataloader):
         """
         use model to test data
@@ -204,38 +324,56 @@ class InfoGraphExecutor(AbstractExecutor):
             test_dataloader(torch.Dataloader): Dataloader
         """
         self._logger.info('Start evaluating ...')
-        for epoch_idx in [10-1,20-1,40-1,60-1,80-1,100-1]:
+        if self.config['dataset'] in ['PCQM4Mv2']:
+            epoch_idx_list = [100-1]
+        else:
+            epoch_idx_list = [10-1,20-1,40-1,60-1,80-1,100-1]
+        #for epoch_idx in [10-1,20-1,40-1,60-1,80-1,100-1]:
+        # for epoch_idx in [100-1,120-1,140-1,160-1,180-1,200-1]:
+        for epoch_idx in epoch_idx_list:
             self.load_model_with_epoch(epoch_idx)
-            if self.downstream_task == 'original' or self.downstream_task == 'both':
-                self.model.encoder_model.eval()
-                x = []
-                y = []
-                for data in dataloader['full']:
-                    data = data.to('cuda')
-                    if data.x is None:
-                        num_nodes = data.batch.size(0)
-                        data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
-                    with torch.no_grad():
-                        z, g = self.model.encoder_model(data.x, data.edge_index, data.batch)
-                        x.append(g)
-                        y.append(data.y)
-                    torch.cuda.empty_cache()
-                x = torch.cat(x, dim=0)
-                y = torch.cat(y, dim=0)
-
-                split = get_split(num_samples=self.num_samples, train_ratio=0.8, test_ratio=0.1,downstream_ratio = self.downstream_ratio, dataset=self.config['dataset'])
-                if self.config['dataset'] == 'ogbg-molhiv': 
-                    result = RocAucEvaluator()(x, y, split)
-                    print(f'(E): Roc-Auc={result["roc_auc"]:.4f}')
-                elif self.config['dataset'] == 'ogbg-ppa':
-                    #unique_classes = torch.unique(y)
-                    #nclasses = unique_classes.size(0)
-                    self._logger.info('nclasses is {}'.format(self.num_class))
-                    result = PyTorchEvaluator(n_features=x.shape[1],n_classes=self.num_class)(x, y, split)
+            if self.downstream_task in ['original','both']:
+                if self.config['dataset'] in ['PCQM4Mv2','ZINC_full']:
+                    self.model.encoder_model.eval()
+                    result=self.downstream_regressor(dataloader)
+                    self._logger.info(f'(E): Best test RMSE={result["best_test_rmse"]:.4f}, MAE={result["best_test_mae"]:.4f}, MAPE={result["best_test_mape"]:.4f}')
+                    
                 else:
-                    result = SVMEvaluator()(x, y, split)
-                    print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
-                self._logger.info('Evaluate result is ' + json.dumps(result))
+                    self.model.encoder_model.eval()
+                    x = []
+                    y = []
+                    for data in dataloader['full']:
+                        data = data.to('cuda')
+                        if data.x is None:
+                            num_nodes = data.batch.size(0)
+                            data.x = torch.ones((num_nodes, 1), dtype=torch.float32, device=data.batch.device)
+                        with torch.no_grad():
+                            z, g = self.model.encoder_model(data.x, data.edge_index, data.batch)
+                            x.append(g)
+                            y.append(data.y)
+                        torch.cuda.empty_cache()
+                    x = torch.cat(x, dim=0)
+                    y = torch.cat(y, dim=0)
+
+                    split = get_split(num_samples=self.num_samples, train_ratio=0.8, test_ratio=0.1,downstream_ratio = self.downstream_ratio, dataset=self.config['dataset'])
+                    if self.config['dataset'] == 'ogbg-molhiv': 
+                        result = RocAucEvaluator()(x, y, split)
+                        print(f'(E): Roc-Auc={result["roc_auc"]:.4f}')
+                    elif self.config['dataset'] == 'ogbg-ppa':
+                        #unique_classes = torch.unique(y)
+                        #nclasses = unique_classes.size(0)
+                        self._logger.info('nclasses is {}'.format(self.num_class))
+                        result = PyTorchEvaluator(n_features=x.shape[1],n_classes=self.num_class)(x, y, split)
+                    elif self.config['dataset'] == 'ogbg-molpcba':
+                        result = APEvaluator(self.hidden_dim*self.num_layers, self.label_dim)(x, y, split)
+                        self._logger.info(f'(E): ap={result["ap"]:.4f}')
+                    # elif self.config['dataset'] == 'PCQM4Mv2':
+                    #     result = OGBLSCEvaluator()(x, y, split)
+                    #     self._logger.info(f'(E): Best test RMSE={result["best_test_rmse"]:.4f}, MAE={result["best_test_mae"]:.4f}, MAPE={result["best_test_mape"]:.4f}')
+                    else:
+                        result = SVMEvaluator()(x, y, split)
+                        print(f'(E): Best test F1Mi={result["micro_f1"]:.4f}, F1Ma={result["macro_f1"]:.4f}')
+                    self._logger.info('Evaluate result is ' + json.dumps(result))
                 
             if self.downstream_task == 'loss' or self.downstream_task == 'both':
                 losses = self._train_epoch(dataloader['test'], epoch_idx, self.loss_func,train = False)
@@ -245,7 +383,7 @@ class InfoGraphExecutor(AbstractExecutor):
             if self.downstream_task == 'logits':
                 logits = Logits_InfoGraph(self.config, self.model, self._logger)
                 self._logger.info("-----Start Downstream Fine Tuning-----")
-                logits.train(dataloader['downstream_train'],dataloader['valid'])
+                logits.train(dataloader['downstream_train'])
                 self._logger.info("-----Fine Tuning Done, Start Eval-----")
                 result = logits.eval(dataloader['test'])
                 self._logger.info('Evaluate acc is ' + json.dumps(result))
@@ -301,7 +439,7 @@ class InfoGraphExecutor(AbstractExecutor):
                 self._logger.info(message)
 
             #if epoch_idx+1 in [50, 100, 500, 1000, 10000]:
-            if epoch_idx+1 in [10,20,40,60,80,100]:
+            if epoch_idx+1 in range(5,101,5):
                 model_file_name = self.save_model_with_epoch(epoch_idx)
                 self._logger.info('saving to {}'.format(model_file_name))
 
@@ -352,6 +490,8 @@ class InfoGraphExecutor(AbstractExecutor):
                 z, g = self.model.encoder_model(data.x, data.edge_index, data.batch)
                 z, g = self.model.encoder_model.project(z, g)
                 loss = self.model.contrast_model(h=z, g=g, batch=data.batch)
+                # loss = loss_func(batch)
+                # print(loss.item())
                 self._logger.debug(loss.item())
                 loss.backward()
                 self.optimizer.step()
@@ -370,20 +510,24 @@ class InfoGraphExecutor(AbstractExecutor):
                 z, g = self.model.encoder_model(data.x, data.edge_index, data.batch)
                 z, g = self.model.encoder_model.project(z, g)
                 loss = self.model.contrast_model(h=z, g=g, batch=data.batch)
+                # loss = loss_func(batch)
+                # print(loss.item())
                 self._logger.debug(loss.item())
                 # 记录更新前的参数
                 original_parameters = {name: param.clone() for name, param in self.model.named_parameters()}
 
                 # 参数更新
-                # loss.backward()
+                loss.backward()
                 #print(loss.item())
                 # self.optimizer.step() # we can not use optimizer to further optimize the model here
 
                 # 比较参数更新前后的差异
-                # for name, param in self.model.named_parameters():
-                #     original_param = original_parameters[name]
-                #     if not torch.equal(original_param, param):
-                #         print(f"Parameter {name} has changed.")
+                for name, param in self.model.named_parameters():
+                    original_param = original_parameters[name]
+                    if not torch.equal(original_param, param):
+                        print(f"Parameter {name} has changed.")
+                    # else:
+                    #     print(f"Parameter {name} has not changed.")
 
                 epoch_loss += loss.item()
         return epoch_loss

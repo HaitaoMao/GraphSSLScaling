@@ -46,9 +46,11 @@ class MAEDataset(AbstractDataset):
             tu_dataset = getattr(importlib.import_module('torch_geometric.datasets'), 'TUDataset')
             self.dataset = tu_dataset(root=path, name=self.datasetName)
         if self.datasetName in ["ogbg-molhiv", "ogbg-molpcba", "ogbg-ppa"]:
-            tu_dataset = getattr(importlib.import_module('ogb.graphproppred'), 'PygGraphPropPredDataset')
-            self.dataset = tu_dataset(root=path, name=self.datasetName)
-        
+            ogbg_dataset = getattr(importlib.import_module('ogb.graphproppred'), 'PygGraphPropPredDataset')
+            self.dataset = ogbg_dataset(root=path, name=self.datasetName)
+        if self.datasetName in ["PCQM4Mv2"]:
+            pyg = getattr(importlib.import_module('torch_geometric.datasets'), 'PCQM4Mv2')
+            self.dataset = pyg(root = path)
         self.dataset = list(self.dataset)
         graph = self.dataset[0]
         print(graph)
@@ -103,11 +105,13 @@ class MAEDataset(AbstractDataset):
             labels = torch.stack([torch.tensor(y) if not isinstance(y, torch.Tensor) else y for y in valid_labels])
         else:
             labels = torch.tensor([x.y for x in self.dataset]) 
-        if self.datasetName in ["ogbg-molhiv", "ogbg-molpcba",  "ogbg-code2"]:
+        if self.datasetName in ["ogbg-molhiv", "ogbg-molpcba",  "ogbg-code2", "PCQM4Mv2","ZINC_full"]:
             for i, g in enumerate(self.dataset):
                 g.x = g.x.float()
-        
-        num_classes = torch.max(labels).item() + 1
+        if self.datasetName in ["PCQM4Mv2","ZINC_full"]:
+            num_classes = 1
+        else:
+            num_classes = torch.max(labels).item() + 1
         for i, g in enumerate(self.dataset):
             self.dataset[i].edge_index = remove_self_loops(self.dataset[i].edge_index)[0]
             self.dataset[i].edge_index = add_self_loops(self.dataset[i].edge_index)[0]
@@ -165,13 +169,24 @@ class MAEDataset(AbstractDataset):
         Returns:
             dict: 包含数据集的相关特征的字典
         """
-        if len(self.dataset[0].y.shape) >= 2:
+        if self.datasetName in ["PCQM4Mv2","ZINC_full"]:
             return {
                 "input_dim": max(self.num_features, 1),
+                "num_samples": len(self.dataset),
+                "num_class":self.num_classes,
+                "label_dim":1
+            }
+        elif len(self.dataset[0].y.shape) >= 2:
+            return {
+                "input_dim": max(self.num_features, 1),
+                "num_samples": len(self.dataset),
+                "num_class":self.num_classes,
                 "label_dim":self.dataset[0].y.shape[1]
             }
         else:
             return {
                 "input_dim": max(self.num_features, 1),
+                "num_samples": len(self.dataset),
+                "num_class":self.num_classes,
                 "label_dim":1
             }

@@ -1,7 +1,7 @@
 {
     "gpu": true,
     "gpu_id": 3,
-    "num_layers": 2,
-    "hidden_dim":32,
+    "layers": 2,
+    "nhid":32,
     "prior": "False"
 }

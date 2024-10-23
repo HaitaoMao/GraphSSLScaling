@@ -24,7 +24,10 @@ class PyGDataset(AbstractDataset):
         self.downstream_task = self.config.get('downstream_task','original')
         self.task = self.config.get("task","GCL")
         self._load_data()
-        self.get_num_classes()
+        if self.datasetName not in ["PCQM4Mv2","ZINC_full"]:
+            self.get_num_classes()
+        else:
+            self.num_class = 1
         self.config['num_class'] = self.num_class
 
     def _load_data(self):
@@ -41,9 +44,14 @@ class PyGDataset(AbstractDataset):
             pyg = getattr(importlib.import_module('torch_geometric.datasets'), 'TUDataset')
         if self.datasetName in ["ogbg-molhiv", "ogbg-molpcba", "ogbg-ppa", "ogbg-code2"]:
             pyg = getattr(importlib.import_module('ogb.graphproppred'), 'PygGraphPropPredDataset')
+        if self.datasetName in ["PCQM4Mv2"]:
+            pyg = getattr(importlib.import_module('torch_geometric.datasets'), 'PCQM4Mv2')
         
         if self.task == "SSGCL":
-            self.dataset = pyg(root = path, name=self.datasetName)
+            if self.datasetName in ["PCQM4Mv2"]:
+                self.dataset = pyg(root = path)
+            else:
+                self.dataset = pyg(root = path, name=self.datasetName)
         else:
             self.dataset = pyg(root = path, name=self.datasetName, transform=T.NormalizeFeatures())
             self.data = self.dataset[0].to(device)
@@ -127,8 +135,15 @@ class PyGDataset(AbstractDataset):
         Returns:
             dict: 包含数据集的相关特征的字典
         """
-        print(self.dataset[0].y.shape)
-        if len(self.dataset[0].y.shape) >= 2:
+        # print(self.dataset[0].y.shape)
+        if self.datasetName in ["PCQM4Mv2","ZINC_full"]:
+            return {
+                "input_dim": max(self.dataset.num_features, 1),
+                "num_samples": len(self.dataset),
+                "num_class":self.num_class,
+                "label_dim":1
+            }
+        elif len(self.dataset[0].y.shape) >= 2:
             return {
                 "input_dim": max(self.dataset.num_features, 1),
                 "num_samples": len(self.dataset),

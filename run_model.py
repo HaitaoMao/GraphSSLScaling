@@ -12,11 +12,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # 增加指定的参数
     parser.add_argument('--task', type=str,
-                        default='GCL', help='the name of task')
+                        default='SSGCL', help='the name of task')
     parser.add_argument('--model', type=str,
-                        default='DGI', help='the name of model')
+                        default='InfoGraph', help='the name of model')
     parser.add_argument('--dataset', type=str,
-                        default='Planetoid', help='the name of dataset')
+                        default='ogbg-molhiv', help='the name of dataset')
     parser.add_argument('--config_file', type=str,
                         default=None, help='the file name of config file')
     parser.add_argument('--saved_model', type=str2bool,
@@ -28,9 +28,9 @@ if __name__ == '__main__':
     parser.add_argument('--ratio', type=float, default=1, help='pretrain split ratio')
     parser.add_argument('--downstream_ratio', type=float, default=0.1, help='downstream train ratio')
     parser.add_argument('--downstream_task', type=str, default='original', help='downstream evaluation metric; default orginal')
-    # 增加其他可选的参数
+    # Add general arguments
     add_general_args(parser)
-    # 解析参数
+    # Parse arguments
     args = parser.parse_args()
     dict_args = vars(args)
     other_args = {key: val for key, val in dict_args.items() if key not in [
