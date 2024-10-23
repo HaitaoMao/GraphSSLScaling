@@ -1,6 +1,6 @@
 {
     "gpu": true,
-    "gpu_id": 3,
+    "gpu_id": 0,
     "layers": 2,
     "nhid":32,
     "prior": "False"
