@@ -1,5 +1,10 @@
 # Code Base for "Graph SSL Scaling"
 
+This is the official implementation for [Do Neural Scaling Laws Exist on Graph Self-Supervised Learning?]([https://arxiv.org/pdf/2406.01899](https://arxiv.org/pdf/2408.11243)), which we almost observe no scaling behavior with graph SSL objective. 
+
+## Abstract 
+Self-supervised learning (SSL) is essential to obtain foundation models in NLP and CV domains via effectively leveraging knowledge in large-scale unlabeled data. The reason for its success is that a suitable SSL design can help the model to follow the neural scaling law, i.e., the performance consistently improves with increasing model and dataset sizes. However, it remains a mystery whether existing SSL in the graph domain can follow the scaling behavior toward building Graph Foundation Models (GFMs) with large-scale pre-training. In this study, we examine whether existing graph SSL techniques can follow the neural scaling behavior with the potential to serve as the essential component for GFMs. Our benchmark includes comprehensive SSL technique implementations with analysis conducted on both the conventional SSL setting and many new settings adopted in other domains. Surprisingly, despite the SSL loss continuously decreasing, no existing graph SSL techniques follow the neural scaling behavior on the downstream performance. The model performance only merely fluctuates on different data scales and model scales. Instead of the scales, the key factors influencing the performance are the choices of model architecture and pretext task design. This paper examines existing SSL techniques for the feasibility of Graph SSL techniques in developing GFMs and opens a new direction for graph SSL design with the new evaluation prototype. 
+
 ## Quick Start
 1. Install the dependencies via Dockerfile or 'pip install -r requirements.txt'
 2. Execute data_scaling.sh or model_scaling.sh to use the pipeline for experiments.
